@@ -5,7 +5,8 @@
     "eventValue": "活動/折扣價值",
     "eventDuration": "耗時",
     "salaryPeriod": "薪資周期",
-    "salary": "薪資"
+    "salary": "薪資",
+    "minutes": "分鐘"
   },
   "option": {
     "annual": "年薪",
@@ -15,7 +16,7 @@
     "calculate": "計算"
   },
   "error": {
-    "inputAllValues": "請輸入所有數值"
+    "inputAllValues": "請輸入上述數值"
   },
   "result": {
     "justDoIt": "Just Do it!",

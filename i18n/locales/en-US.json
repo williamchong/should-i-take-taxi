@@ -5,7 +5,8 @@
     "eventValue": "Event/Discount Value",
     "eventDuration": "Duration",
     "salaryPeriod": "Salary Period",
-    "salary": "Salary"
+    "salary": "Salary",
+    "minutes": "minutes"
   },
   "option": {
     "annual": "Annual",
@@ -15,7 +16,7 @@
     "calculate": "Calculate"
   },
   "error": {
-    "inputAllValues": "Please input all values"
+    "inputAllValues": "Please input values above"
   },
   "result": {
     "justDoIt": "Just Do it!",

@@ -21,7 +21,7 @@
               <input
                 v-model.number="eventDuration" type="number" :placeholder="$t('placeholder.eventDuration')"
                 class="border rounded px-2 py-1 w-full">
-              <span class="ml-2">{{ $t('minutes') }}</span>
+              <span class="ml-2">{{ $t('label.minutes') }}</span>
             </div>
           </td>
         </tr>
