@@ -22,5 +22,12 @@ export default defineNuxtConfig({
     ],
     lazy: true,
     defaultLocale: 'en',
+  },
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+      ]
+    }
   }
 })
