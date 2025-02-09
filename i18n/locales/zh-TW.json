@@ -1,5 +1,6 @@
 {
-  "title": "我應該花這個美國時間嗎",
+  "title": "我應該花這個美國時間嗎？",
+  "description": "一個幫助你決定是否值得投資時間的計算工具",
   "label": {
     "eventValue": "活動/折扣價值",
     "eventDuration": "耗時",

@@ -1,5 +1,6 @@
 {
   "title": "Should I Spend Time On This?",
+  "description": "A calculator to help you decide if it's worth investing your time",
   "label": {
     "eventValue": "Event/Discount Value",
     "eventDuration": "Duration",

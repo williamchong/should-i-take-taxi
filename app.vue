@@ -94,6 +94,14 @@
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
+useSeoMeta({
+  title: t('title'),
+  description: t('description'),
+  ogTitle: t('title'),
+  ogDescription: t('description'),
+  ogUrl: 'http://shouldispendtimeon.work'
+})
+
 const salary = ref<number | null>(null)
 const salaryPeriod = ref<'monthly' | 'annual'>('monthly')
 const eventValue = ref<number | null>(null)
