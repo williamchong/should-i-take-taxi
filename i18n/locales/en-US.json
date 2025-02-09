@@ -1,7 +1,8 @@
 {
+  "title": "Should I Spend Time On This?",
   "label": {
     "eventValue": "Event/Discount Value",
-    "eventDuration": "Event Duration",
+    "eventDuration": "Duration",
     "salaryPeriod": "Salary Period",
     "salary": "Salary"
   },
@@ -13,13 +14,40 @@
     "calculate": "Calculate"
   },
   "error": {
-    "inputAllValues": "Please fill in all values"
+    "inputAllValues": "Please input all values"
   },
   "result": {
-    "justDoIt": "Just Do it",
+    "justDoIt": "Just Do it!",
     "notWorthIt": "Not worth it"
   },
   "loading": {
     "calculating": "Calculating..."
+  },
+  "placeholder": {
+    "eventValue": "How much is the event/discount worth",
+    "eventDuration": "Time needed for the event/discount",
+    "salary": "Your current salary"
+  },
+  "intro": {
+    "title": "Calculator Introduction",
+    "description": "This calculator is designed to help users easily compute their hourly wage, enabling more effective time and money management. By entering your annual salary, the calculator will automatically calculate your effective hourly wage and help you assess whether participating in an activity or taking advantage of a discount is worthwhile.",
+    "usage": {
+      "title": "Usage",
+      "steps": [
+        "Enter Annual Salary: Input your annual salary figure into the calculator.",
+        "Calculate Hourly Wage: The calculator will automatically compute your effective hourly wage based on your annual salary.",
+        "Evaluate Activities: Compare the calculated hourly wage with the costs of activities or discounts to decide if it's worth your time."
+      ]
+    },
+    "concept": {
+      "title": "Concept of Hourly Wage Thinking",
+      "description": "The hourly wage thinking method emphasizes the value of time, focusing on calculating the value produced per hour. This mindset allows us to clearly understand which activities are worth investing in and which may waste time.",
+      "benefits": [
+        "Allocate Time Effectively: Identify activities that yield returns higher than your hourly wage.",
+        "Enhance Productivity: Focus on pursuits that can increase annual income or foster personal growth.",
+        "Avoid Time Waste: Recognize and eliminate unnecessary activities, making life more meaningful."
+      ],
+      "conclusion": "With this calculator, you can better apply the hourly wage thinking method, helping you break free from a \"hamster wheel\" life and move toward a more valuable existence."
+    }
   }
 }
