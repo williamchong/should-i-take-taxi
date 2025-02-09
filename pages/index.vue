@@ -147,24 +147,6 @@ import LogoEn from '@/assets/images/nobody_got_time.jpg'
 
 const { t, locale } = useI18n()
 
-const i18nHead = useLocaleHead()
-useHead({
-  htmlAttrs: {
-    lang: i18nHead.value.htmlAttrs!.lang
-  },
-  link: [...(i18nHead.value.link || [])],
-  meta: [...(i18nHead.value.meta || [])]
-})
-useSeoMeta({
-  title: t('title'),
-  description: t('description'),
-  ogTitle: t('title'),
-  ogDescription: t('description'),
-  ogUrl: 'https://shouldispendtimeon.work',
-  ogImage: 'https://shouldispendtimeon.work/images/cover.jpg',
-  ogType: 'website',
-})
-
 const salary = ref<number | null>(null)
 const salaryPeriod = ref<'monthly' | 'annual'>('monthly')
 const eventValue = ref<number | null>(null)
