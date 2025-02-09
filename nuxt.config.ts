@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@nuxtjs/i18n',
+    '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
     '@nuxt/eslint',
     'nuxt-gtag',
@@ -32,6 +33,10 @@ export default defineNuxtConfig({
   },
   gtag: {
     id: 'G-E271J81V0J'
+  },
+  site: {
+    url: 'https://shouldispendtimeon.work',
+    name: 'Should I Spend Time On This?'
   },
   app: {
     head: {
