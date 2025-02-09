@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxtjs/tailwindcss',
     '@nuxt/eslint',
+    'nuxt-gtag',
   ],
   i18n: {
     locales: [
@@ -22,6 +23,9 @@ export default defineNuxtConfig({
     ],
     lazy: true,
     defaultLocale: 'en',
+  },
+  gtag: {
+    id: 'G-E271J81V0J'
   },
   app: {
     head: {
