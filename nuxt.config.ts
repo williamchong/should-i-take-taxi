@@ -9,6 +9,12 @@ export default defineNuxtConfig({
     'nuxt-gtag',
   ],
   i18n: {
+    baseUrl: 'https://shouldispendtimeon.work',
+    strategy: 'prefix_and_default',
+    detectBrowserLanguage: {
+      useCookie: false,
+      redirectOn: 'root'
+    },
     locales: [
       {
         code: 'en',
