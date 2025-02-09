@@ -1,0 +1,21 @@
+{
+  "label": {
+    "eventCost": "活動/折扣金額",
+    "salaryPeriod": "薪資周期",
+    "salary": "薪資"
+  },
+  "option": {
+    "annual": "年薪",
+    "monthly": "月薪"
+  },
+  "button": {
+    "calculate": "計算"
+  },
+  "error": {
+    "inputAllValues": "請輸入所有數值"
+  },
+  "result": {
+    "justDoIt": "Just Do it",
+    "notWorthIt": "Not worth it"
+  }
+}

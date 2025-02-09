@@ -1,0 +1,21 @@
+{
+  "label": {
+    "eventCost": "Event/Discount Amount",
+    "salaryPeriod": "Salary Period",
+    "salary": "Salary"
+  },
+  "option": {
+    "annual": "Annual Salary",
+    "monthly": "Monthly Salary"
+  },
+  "button": {
+    "calculate": "Calculate"
+  },
+  "error": {
+    "inputAllValues": "Please fill in all values"
+  },
+  "result": {
+    "justDoIt": "Just Do it",
+    "notWorthIt": "Not worth it"
+  }
+}
