@@ -1,6 +1,20 @@
 <template>
   <div class="p-4">
     <h1 class="text-2xl font-bold text-center mb-4">{{ $t('title') }}</h1>
+    <div class="flex justify-center mb-4">
+      <img
+        v-if="locale === 'zh'"
+        :src="LogoZh"
+        alt="誰有美國時間管那個啊"
+        class="h-32 w-auto"
+      >
+      <img
+        v-else
+        :src="LogoEn"
+        alt="Ain't Nobody Got Time For That"
+        class="h-32 w-auto"
+      >
+    </div>
     <table class="table-auto w-full max-w-lg mx-auto border-collapse border border-gray-300">
       <tbody>
         <tr>
@@ -92,7 +106,10 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import LogoZh from '@/assets/images/nobody_got_time_zh.jpg'
+import LogoEn from '@/assets/images/nobody_got_time.jpg'
+
+const { t, locale } = useI18n()
 
 const i18nHead = useLocaleHead()
 useHead({
@@ -108,6 +125,8 @@ useSeoMeta({
   ogTitle: t('title'),
   ogDescription: t('description'),
   ogUrl: 'https://shouldispendtimeon.work',
+  ogImage: 'https://shouldispendtimeon.work/images/cover.jpg',
+  ogType: 'website',
 })
 
 const salary = ref<number | null>(null)
