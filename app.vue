@@ -1,106 +1,142 @@
 <template>
-  <div class="p-4">
-    <h1 class="text-2xl font-bold text-center mb-4">{{ $t('title') }}</h1>
-    <div class="flex justify-center mb-4">
-      <img
-        v-if="locale === 'zh'"
-        :src="LogoZh"
-        alt="誰有美國時間管那個啊"
-        class="h-32 w-auto"
-      >
-      <img
-        v-else
-        :src="LogoEn"
-        alt="Ain't Nobody Got Time For That"
-        class="h-32 w-auto"
-      >
-    </div>
-    <table class="table-auto w-full max-w-lg mx-auto border-collapse border border-gray-300">
-      <tbody>
-        <tr>
-          <td class="border px-4 py-2">{{ $t('label.eventValue') }}</td>
-          <td class="border px-4 py-2">
-            <div class="flex items-center">
-              <span>$</span>
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
+      <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
+      <div class="flex justify-center mb-8">
+        <img
+          v-if="locale === 'zh'"
+          :src="LogoZh"
+          alt="誰有美國時間管那個啊"
+          class="h-40 w-auto rounded-lg shadow-md"
+        >
+        <img
+          v-else
+          :src="LogoEn"
+          alt="Ain't Nobody Got Time For That"
+          class="h-40 w-auto rounded-lg shadow-md"
+        >
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label class="text-gray-700 font-medium">{{ $t('label.eventValue') }}</label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                <span class="text-gray-500 sm:text-sm">$</span>
+              </div>
               <input
-                v-model.number="eventValue" type="number" :placeholder="$t('placeholder.eventValue')"
-                class="border rounded px-2 py-1 w-full">
+                v-model.number="eventValue"
+                type="number"
+                :placeholder="$t('placeholder.eventValue')"
+                class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
             </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="border px-4 py-2">{{ $t('label.eventDuration') }}</td>
-          <td class="border px-4 py-2">
-            <div class="flex items-center">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label class="text-gray-700 font-medium">{{ $t('label.eventDuration') }}</label>
+            <div class="relative rounded-md shadow-sm">
               <input
-                v-model.number="eventDuration" type="number" :placeholder="$t('placeholder.eventDuration')"
-                class="border rounded px-2 py-1 w-full">
-              <span class="ml-2">{{ $t('label.minutes') }}</span>
+                v-model.number="eventDuration"
+                type="number"
+                :placeholder="$t('placeholder.eventDuration')"
+                class="block w-full pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <span class="text-gray-500 sm:text-sm">{{ $t('label.minutes') }}</span>
+              </div>
             </div>
-          </td>
-        </tr>
-        <tr>
-          <td class="border px-4 py-2">{{ $t('label.salaryPeriod') }}</td>
-          <td class="border px-4 py-2">
-            <label class="inline-flex items-center mr-4">
-              <input v-model="salaryPeriod" type="radio" value="annual" class="form-radio">
-              <span class="ml-2">{{ $t('option.annual') }}</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input v-model="salaryPeriod" type="radio" value="monthly" class="form-radio">
-              <span class="ml-2">{{ $t('option.monthly') }}</span>
-            </label>
-          </td>
-        </tr>
-        <tr>
-          <td class="border px-4 py-2">{{ $t('label.salary') }}</td>
-          <td class="border px-4 py-2">
-            <div class="flex items-center">
-              <span>$</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label class="text-gray-700 font-medium">{{ $t('label.salaryPeriod') }}</label>
+            <div class="flex space-x-4">
+              <label class="inline-flex items-center">
+                <input v-model="salaryPeriod" type="radio" value="annual" class="form-radio text-blue-600">
+                <span class="ml-2 text-gray-700">{{ $t('option.annual') }}</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input v-model="salaryPeriod" type="radio" value="monthly" class="form-radio text-blue-600">
+                <span class="ml-2 text-gray-700">{{ $t('option.monthly') }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label class="text-gray-700 font-medium">{{ $t('label.salary') }}</label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                <span class="text-gray-500 sm:text-sm">$</span>
+              </div>
               <input
-                v-model.number="salary" type="number" :placeholder="$t('placeholder.salary')"
-                class="border rounded px-2 py-1 w-full">
+                v-model.number="salary"
+                type="number"
+                :placeholder="$t('placeholder.salary')"
+                class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="mt-5 text-center">
-      <span v-if="loading" class="text-xl font-medium text-gray-500">{{ $t('loading.calculating') }}</span>
-      <span v-else-if="isComplete" class="text-2xl font-bold">{{ delayedResult }}</span>
-      <span v-else class="text-xl font-medium text-gray-500">{{ $t('error.inputAllValues') }}</span>
-    </div>
-    <hr class="my-8 border-t border-gray-300">
-    <section class="mt-10 space-y-10">
-      <div class="text-center px-4">
-        <h2 class="text-2xl font-bold mb-4">{{ $t('intro.title') }}</h2>
-        <div class="max-w-lg mx-auto">
-          <p>{{ $t('intro.description') }}</p>
+          </div>
         </div>
       </div>
-      <div class="text-center px-4">
-        <h2 class="text-2xl font-bold mb-4">{{ $t('intro.concept.title') }}</h2>
-        <div class="max-w-lg mx-auto">
-          <p>{{ $t('intro.concept.description') }}</p>
-          <ul class="list-disc list-inside mt-4">
-            <li v-for="(benefit, index) in $tm('intro.concept.benefits')" :key="index">
-              {{ $rt(benefit) }}
+      <div class="text-center p-8 bg-white rounded-xl shadow-lg mb-12 border-2 border-gray-100">
+        <span class="block text-xs uppercase tracking-wider text-gray-400 mb-4">{{ $t('result.title') }}</span>
+        <div v-if="loading" class="text-xl text-gray-600 animate-pulse">
+          {{ $t('loading.calculating') }}
+        </div>
+        <div
+          v-else-if="isComplete"
+             class="text-3xl font-bold text-blue-600 transform hover:scale-105 transition-transform">
+          {{ delayedResult }}
+        </div>
+        <div v-else class="text-xl text-gray-600">
+          {{ $t('error.inputAllValues') }}
+        </div>
+      </div>
+
+      <div class="relative mb-12">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"/>
+        </div>
+        <div class="relative flex justify-center">
+          <span class="px-4 bg-gray-50 text-lg text-gray-500">{{ $t('intro.divider') }}</span>
+        </div>
+      </div>
+
+      <section class="space-y-8">
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('intro.title') }}</h2>
+          <p class="text-gray-600">{{ $t('intro.description') }}</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('intro.concept.title') }}</h2>
+          <p class="text-gray-600 mb-4">{{ $t('intro.concept.description') }}</p>
+          <ul class="space-y-2">
+            <li
+                v-for="(benefit, index) in $tm('intro.concept.benefits')" :key="index"
+                class="flex items-start">
+              <span class="text-blue-500 mr-2">•</span>
+              <span class="text-gray-600">{{ $rt(benefit) }}</span>
             </li>
           </ul>
         </div>
-      </div>
-      <div class="text-center px-4">
-        <h2 class="text-2xl font-bold mb-4">{{ $t('intro.usage.title') }}</h2>
-        <div class="max-w-lg mx-auto">
-          <ol class="list-decimal list-inside mt-4">
-            <li v-for="(step, index) in $tm('intro.usage.steps')" :key="index">
-              {{ $rt(step) }}
+
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('intro.usage.title') }}</h2>
+          <ol class="space-y-2">
+            <li
+              v-for="(step, index) in $tm('intro.usage.steps')" :key="index"
+                class="flex">
+              <span class="font-bold text-blue-500 mr-2">{{ index + 1 }}.</span>
+              <span class="text-gray-600">{{ $rt(step) }}</span>
             </li>
           </ol>
-          <p class="mt-4">{{ $t('intro.concept.conclusion') }}</p>
+          <p class="mt-4 text-gray-600">{{ $t('intro.concept.conclusion') }}</p>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
 </template>
 

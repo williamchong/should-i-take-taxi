@@ -1,6 +1,6 @@
 {
   "title": "我應該花這個美國時間嗎？",
-  "description": "一個幫助你決定是否值得投資時間的計算工具",
+  "description": "幫助你決定一個活動是否值得花時間的計算器",
   "label": {
     "eventValue": "活動/折扣價值",
     "eventDuration": "耗時",
@@ -16,9 +16,10 @@
     "calculate": "計算"
   },
   "error": {
-    "inputAllValues": "請輸入上述數值"
+    "inputAllValues": "請先輸入上述數值"
   },
   "result": {
+    "title": "結果",
     "justDoIt": "Just Do it!",
     "notWorthIt": "Not worth it"
   },
@@ -33,6 +34,7 @@
   "intro": {
     "title": "計算器簡介",
     "description": "這款計算器旨在幫助使用者輕鬆計算自己的時薪，從而更有效地管理時間與金錢。透過輸入年薪，計算器會自動計算出你的有效時薪，並幫助你評估參加某項活動或享受折扣是否值得。",
+    "divider": "簡介",
     "usage": {
       "title": "用法",
       "steps": [

@@ -1,6 +1,6 @@
 {
   "title": "Should I Spend Time On This?",
-  "description": "A calculator to help you decide if it's worth investing your time",
+  "description": "A calculator to help you decide if something is worth investing your time",
   "label": {
     "eventValue": "Event/Discount Value",
     "eventDuration": "Duration",
@@ -19,6 +19,7 @@
     "inputAllValues": "Please input values above"
   },
   "result": {
+    "title": "Result",
     "justDoIt": "Just Do it!",
     "notWorthIt": "Not worth it"
   },
@@ -33,6 +34,7 @@
   "intro": {
     "title": "Calculator Introduction",
     "description": "This calculator is designed to help users easily compute their hourly wage, enabling more effective time and money management. By entering your annual salary, the calculator will automatically calculate your effective hourly wage and help you assess whether participating in an activity or taking advantage of a discount is worthwhile.",
+    "divider": "Introduction",
     "usage": {
       "title": "Usage",
       "steps": [
