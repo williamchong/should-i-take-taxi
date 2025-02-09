@@ -1,6 +1,7 @@
 {
   "label": {
-    "eventCost": "活動/折扣金額",
+    "eventValue": "活動/折扣價值",
+    "eventDuration": "活動持續時間",
     "salaryPeriod": "薪資周期",
     "salary": "薪資"
   },
@@ -17,5 +18,8 @@
   "result": {
     "justDoIt": "Just Do it",
     "notWorthIt": "Not worth it"
+  },
+  "loading": {
+    "calculating": "計算中..."
   }
 }

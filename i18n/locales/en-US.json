@@ -1,12 +1,13 @@
 {
   "label": {
-    "eventCost": "Event/Discount Amount",
+    "eventValue": "Event/Discount Value",
+    "eventDuration": "Event Duration",
     "salaryPeriod": "Salary Period",
     "salary": "Salary"
   },
   "option": {
-    "annual": "Annual Salary",
-    "monthly": "Monthly Salary"
+    "annual": "Annual",
+    "monthly": "Monthly"
   },
   "button": {
     "calculate": "Calculate"
@@ -17,5 +18,8 @@
   "result": {
     "justDoIt": "Just Do it",
     "notWorthIt": "Not worth it"
+  },
+  "loading": {
+    "calculating": "Calculating..."
   }
 }
