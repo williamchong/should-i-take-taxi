@@ -90,54 +90,51 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      salary: null,
-      salaryPeriod: 'monthly',
-      eventValue: null,
-      eventDuration: 60,
-      delayedResult: '',
-      delayTimeout: null,
-      loading: false
-    }
-  },
-  computed: {
-    isComplete() {
-      return this.salary != null && this.eventValue != null && this.eventDuration != null;
-    }
-  },
-  watch: {
-    salary: 'computeDelayed',
-    eventValue: 'computeDelayed',
-    eventDuration: 'computeDelayed',
-    salaryPeriod: 'computeDelayed'
-  },
-  beforeUnmount() {
-    clearTimeout(this.delayTimeout);
-  },
-  methods: {
-    computeDelayed() {
-      if (!this.isComplete) {
-        this.delayedResult = '';
-        this.loading = false;
-        clearTimeout(this.delayTimeout);
-        return;
-      }
-      this.loading = true;
-      clearTimeout(this.delayTimeout);
-      this.delayTimeout = setTimeout(() => {
-        const effectiveHourly = this.salaryPeriod === 'annual'
-          ? this.salary / 2080
-          : (this.salary * 12) / 2080;
-        const eventHourly = this.eventValue / (this.eventDuration / 60);
-        this.delayedResult = eventHourly > effectiveHourly
-          ? this.$t('result.justDoIt')
-          : this.$t('result.notWorthIt');
-        this.loading = false;
-      }, 500);
-    }
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
+const salary = ref<number | null>(null)
+const salaryPeriod = ref<'monthly' | 'annual'>('monthly')
+const eventValue = ref<number | null>(null)
+const eventDuration = ref<number>(60)
+const delayedResult = ref<string>('')
+const loading = ref<boolean>(false)
+let delayTimeout: NodeJS.Timeout | null = null
+
+const isComplete = computed(() => {
+  return salary.value != null && eventValue.value != null && eventDuration.value != null
+})
+
+const computeDelayed = () => {
+  if (!isComplete.value) {
+    delayedResult.value = ''
+    loading.value = false
+    if (delayTimeout) clearTimeout(delayTimeout)
+    return
   }
+
+  loading.value = true
+  if (delayTimeout) clearTimeout(delayTimeout)
+
+  delayTimeout = setTimeout(() => {
+    const effectiveHourly = salaryPeriod.value === 'annual'
+      ? (salary.value as number) / 2080
+      : ((salary.value as number) * 12) / 2080
+    const eventHourly = (eventValue.value as number) / (eventDuration.value / 60)
+
+    delayedResult.value = eventHourly > effectiveHourly
+      ? t('result.justDoIt')
+      : t('result.notWorthIt')
+    loading.value = false
+  }, 500)
 }
+
+watch([salary, eventValue, eventDuration, salaryPeriod], () => {
+  computeDelayed()
+})
+
+onBeforeUnmount(() => {
+  if (delayTimeout) clearTimeout(delayTimeout)
+})
 </script>
