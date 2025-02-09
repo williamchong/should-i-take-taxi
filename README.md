@@ -1,6 +1,12 @@
-# Nuxt Minimal Starter
+# Should I Spend Time on ${this}?
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+An web application to help users decide whether to invest time in an activity or take advantage of discounts. The app calculates your approximate hourly rate based on your annual salary using predefined assumptions, allowing you to determine if your time is well spent.
+
+## Key Features
+
+- Input your annual salary to quickly calculate your effective hourly wage.
+- Compare your calculated wage with activity costs or discounts.
+- Enjoy a simple and intuitive interface for fast decision-making.
 
 ## Setup
 
@@ -19,6 +25,12 @@ yarn install
 # bun
 bun install
 ```
+
+## Usage
+
+1. Start the application.
+2. Enter your annual salary.
+3. View the calculated hourly rate and assess if the activity or discount is worthwhile.
 
 ## Development Server
 
