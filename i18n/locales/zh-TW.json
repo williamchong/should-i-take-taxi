@@ -4,8 +4,8 @@
   "label": {
     "eventValue": "活動/折扣價值",
     "eventDuration": "耗時",
-    "salaryPeriod": "薪資周期",
-    "salary": "薪資",
+    "salaryPeriod": "你的薪資周期",
+    "salary": "你目前的薪資",
     "minutes": "分鐘"
   },
   "option": {

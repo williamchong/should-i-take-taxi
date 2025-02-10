@@ -20,65 +20,73 @@
 
       <div class="bg-white rounded-xl shadow-md p-6 mb-8">
         <div class="space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label class="text-gray-700 font-medium">{{ $t('label.eventValue') }}</label>
-            <div class="relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
-                <span class="text-gray-500 sm:text-sm">$</span>
+          <div class="pb-4 border-b border-gray-200">
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <label class="text-gray-700 font-medium">{{ $t('label.eventValue') }}</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                    <span class="text-gray-500 sm:text-sm">$</span>
+                  </div>
+                  <input
+                    v-model.number="eventValue"
+                    type="number"
+                    :placeholder="$t('placeholder.eventValue')"
+                    class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  >
+                </div>
               </div>
-              <input
-                v-model.number="eventValue"
-                type="number"
-                :placeholder="$t('placeholder.eventValue')"
-                class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <label class="text-gray-700 font-medium">{{ $t('label.eventDuration') }}</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                    <ClockIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
+                  </div>
+                  <input
+                    v-model.number="eventDuration"
+                    type="number"
+                    :placeholder="$t('placeholder.eventDuration')"
+                    class="block w-full pl-7 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  >
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <span class="text-gray-500 sm:text-sm">{{ $t('label.minutes') }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label class="text-gray-700 font-medium">{{ $t('label.eventDuration') }}</label>
-            <div class="relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                <ClockIcon class="h-4 w-4 text-gray-400" aria-hidden="true" />
+          <div class="pt-2">
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <label class="text-gray-700 font-medium">{{ $t('label.salaryPeriod') }}</label>
+                <div class="flex space-x-4 pl-2">
+                  <label class="inline-flex items-center">
+                    <input v-model="salaryPeriod" type="radio" value="annual" class="form-radio text-blue-600">
+                    <span class="ml-2 text-gray-700">{{ $t('option.annual') }}</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input v-model="salaryPeriod" type="radio" value="monthly" class="form-radio text-blue-600">
+                    <span class="ml-2 text-gray-700">{{ $t('option.monthly') }}</span>
+                  </label>
+                </div>
               </div>
-              <input
-                v-model.number="eventDuration"
-                type="number"
-                :placeholder="$t('placeholder.eventDuration')"
-                class="block w-full pl-7 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                <span class="text-gray-500 sm:text-sm">{{ $t('label.minutes') }}</span>
-              </div>
-            </div>
-          </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label class="text-gray-700 font-medium">{{ $t('label.salaryPeriod') }}</label>
-            <div class="flex space-x-4 pl-2">
-              <label class="inline-flex items-center">
-                <input v-model="salaryPeriod" type="radio" value="annual" class="form-radio text-blue-600">
-                <span class="ml-2 text-gray-700">{{ $t('option.annual') }}</span>
-              </label>
-              <label class="inline-flex items-center">
-                <input v-model="salaryPeriod" type="radio" value="monthly" class="form-radio text-blue-600">
-                <span class="ml-2 text-gray-700">{{ $t('option.monthly') }}</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label class="text-gray-700 font-medium">{{ $t('label.salary') }}</label>
-            <div class="relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
-                <span class="text-gray-500 sm:text-sm">$</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <label class="text-gray-700 font-medium">{{ $t('label.salary') }}</label>
+                <div class="relative rounded-md shadow-sm">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                    <span class="text-gray-500 sm:text-sm">$</span>
+                  </div>
+                  <input
+                    v-model.number="salary"
+                    type="number"
+                    :placeholder="$t('placeholder.salary')"
+                    class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  >
+                </div>
               </div>
-              <input
-                v-model.number="salary"
-                type="number"
-                :placeholder="$t('placeholder.salary')"
-                class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
             </div>
           </div>
         </div>

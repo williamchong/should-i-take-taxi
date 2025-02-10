@@ -4,8 +4,8 @@
   "label": {
     "eventValue": "Event/Discount Value",
     "eventDuration": "Duration",
-    "salaryPeriod": "Salary Period",
-    "salary": "Salary",
+    "salaryPeriod": "Your Salary Period",
+    "salary": "Your Current Salary",
     "minutes": "minutes"
   },
   "option": {
