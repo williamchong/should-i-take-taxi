@@ -156,11 +156,12 @@ import { useI18n } from 'vue-i18n'
 import { ClockIcon } from '@heroicons/vue/24/outline'
 import LogoZh from '@/assets/images/nobody_got_time_zh.jpg'
 import LogoEn from '@/assets/images/nobody_got_time.jpg'
+import { useLocalStorage } from '@/composables/useLocalStorage'
 
 const { t, locale } = useI18n()
 
-const salary = ref<number | null>(null)
-const salaryPeriod = ref<'monthly' | 'annual'>('monthly')
+const salary = useLocalStorage<number | null>('salary', null)
+const salaryPeriod = useLocalStorage<'monthly' | 'annual'>('salaryPeriod', 'monthly')
 const eventValue = ref<number | null>(null)
 const eventDuration = ref<number>(60)
 const delayedResult = ref<string>('')
