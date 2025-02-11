@@ -21,7 +21,14 @@
   "result": {
     "title": "Result",
     "justDoIt": "Just Do it!",
-    "notWorthIt": "Not worth it"
+    "notWorthIt": "Not worth it",
+    "explanation": {
+      "hourlyRate": "Your hourly rate is ~${rate}/hr",
+      "eventRate": "This event/activity is worth ~${rate}/hr",
+      "conclusion": "Therefore this {worth} your time",
+      "worth": "is worth",
+      "notWorth": "is not worth"
+    }
   },
   "loading": {
     "calculating": "Calculating..."

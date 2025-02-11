@@ -91,18 +91,34 @@
           </div>
         </div>
       </div>
-      <div class="text-center p-8 bg-white rounded-xl shadow-lg mb-12 border-2 border-gray-100">
-        <span class="block text-xs uppercase tracking-wider text-gray-400 mb-4">{{ $t('result.title') }}</span>
-        <div v-if="loading" class="text-xl text-gray-600 animate-pulse">
-          {{ $t('loading.calculating') }}
+      <div class="flex flex-col sm:flex-row gap-4 mb-12">
+        <!-- Result Card -->
+        <div class="flex-1 text-center p-8 bg-white rounded-xl shadow-lg border-2 border-gray-100">
+          <span class="block text-xs uppercase tracking-wider text-gray-400 mb-4">{{ $t('result.title') }}</span>
+          <div v-if="loading" class="text-xl text-gray-600 animate-pulse">
+            {{ $t('loading.calculating') }}
+          </div>
+          <div
+            v-else-if="isComplete"
+            class="text-3xl font-bold text-blue-600 transform hover:scale-105 transition-transform"
+          >
+            {{ delayedResult }}
+          </div>
+          <div v-else class="text-xl text-gray-600">
+            {{ $t('error.inputAllValues') }}
+          </div>
         </div>
+
+        <!-- Explanation Card -->
         <div
-          v-else-if="isComplete"
-             class="text-3xl font-bold text-blue-600 transform hover:scale-105 transition-transform">
-          {{ delayedResult }}
-        </div>
-        <div v-else class="text-xl text-gray-600">
-          {{ $t('error.inputAllValues') }}
+          v-if="isComplete && !loading"
+          class="flex-1 p-8 bg-white rounded-xl shadow-lg border-2 border-gray-100"
+        >
+          <div class="space-y-2">
+            <p class="text-gray-600">{{ formatExplanation('hourlyRate', effectiveHourlyRate) }}</p>
+            <p class="text-gray-600">{{ formatExplanation('eventRate', eventHourlyRate) }}</p>
+            <p class="text-gray-600 font-medium">{{ formatConclusion }}</p>
+          </div>
         </div>
       </div>
 
@@ -189,6 +205,30 @@ const isComplete = computed(() => {
   return salary.value != null && eventValue.value != null && eventDuration.value != null
 })
 
+const effectiveHourlyRate = computed(() => {
+  if (!salary.value) return 0
+  return salaryPeriod.value === 'annual'
+    ? salary.value / 2080
+    : (salary.value * 12) / 2080
+})
+
+const eventHourlyRate = computed(() => {
+  if (!eventValue.value || !eventDuration.value) return 0
+  return (eventValue.value) / (eventDuration.value / 60)
+})
+
+const formatExplanation = (key: string, rate: number) => {
+  return t(`result.explanation.${key}`, {
+    rate: rate.toFixed(2)
+  })
+}
+
+const formatConclusion = computed(() => {
+  return t('result.explanation.conclusion', {
+    worth: t(`result.explanation.${eventHourlyRate.value > effectiveHourlyRate.value ? 'worth' : 'notWorth'}`)
+  })
+})
+
 const computeDelayed = () => {
   if (!isComplete.value) {
     delayedResult.value = ''
@@ -201,12 +241,7 @@ const computeDelayed = () => {
   if (delayTimeout) clearTimeout(delayTimeout)
 
   delayTimeout = setTimeout(() => {
-    const effectiveHourly = salaryPeriod.value === 'annual'
-      ? (salary.value as number) / 2080
-      : ((salary.value as number) * 12) / 2080
-    const eventHourly = (eventValue.value as number) / (eventDuration.value / 60)
-
-    delayedResult.value = eventHourly > effectiveHourly
+    delayedResult.value = eventHourlyRate.value > effectiveHourlyRate.value
       ? t('result.justDoIt')
       : t('result.notWorthIt')
     loading.value = false

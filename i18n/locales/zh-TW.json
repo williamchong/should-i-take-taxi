@@ -21,7 +21,14 @@
   "result": {
     "title": "結果",
     "justDoIt": "Just Do it!",
-    "notWorthIt": "Not worth it"
+    "notWorthIt": "Not worth it",
+    "explanation": {
+      "hourlyRate": "你的時薪約為 ${rate}/小時",
+      "eventRate": "這個活動的價值約為 ${rate}/小時",
+      "conclusion": "因此這個活動{worth}花時間",
+      "worth": "值得",
+      "notWorth": "不值得"
+    }
   },
   "loading": {
     "calculating": "計算中..."

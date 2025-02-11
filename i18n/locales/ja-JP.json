@@ -21,7 +21,14 @@
   "result": {
     "title": "結果",
     "justDoIt": "やってみよう！",
-    "notWorthIt": "その価値はない"
+    "notWorthIt": "その価値はない",
+    "explanation": {
+      "hourlyRate": "あなたの時給は約${rate}/時です",
+      "eventRate": "このイベントの価値は約${rate}/時です",
+      "conclusion": "したがって、このイベントはあなたの時間に{worth}",
+      "worth": "値する",
+      "notWorth": "値しない"
+    }
   },
   "loading": {
     "calculating": "計算中..."
