@@ -23,7 +23,7 @@ useHead({
         '@type': 'WebApplication',
         name: t('title'),
         description: t('description'),
-        url: 'https://shouldispendtimeon.work',
+        url: 'https://shoulditake.taxi',
         applicationCategory: 'UtilityApplication',
         operatingSystem: 'Web',
         offers: {
@@ -46,7 +46,8 @@ useSeoMeta({
   description: t('description'),
   ogTitle: t('title'),
   ogDescription: t('description'),
-  ogImage: 'https://shouldispendtimeon.work/images/cover.jpg',
+  ogImage: 'https://shoulditake.taxi/images/cover.jpg',
   ogType: 'website',
+  ogUrl: 'https://shoulditake.taxi'
 })
 </script>

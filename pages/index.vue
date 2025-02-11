@@ -171,7 +171,7 @@
           <p class="text-gray-600 mb-4">{{ $t('intro.openSource.description') }}</p>
           <p class="text-gray-600 mb-4">{{ $t('intro.openSource.contribute') }}</p>
           <a
-            href="https://github.com/williamchong/should-i-spend-time-on"
+            href="https://github.com/williamchong/should-i-take-taxi"
             target="_blank"
             rel="noopener"
             class="inline-flex items-center text-blue-600 hover:text-blue-800"
@@ -221,7 +221,7 @@ const eventHourlyRate = computed(() => {
 })
 
 const isWorthIt = computed(() => {
-  return eventHourlyRate.value > effectiveHourlyRate.value
+  return effectiveHourlyRate.value > eventHourlyRate.value
 })
 
 const formatExplanation = (key: string, rate: number) => {
@@ -232,7 +232,7 @@ const formatExplanation = (key: string, rate: number) => {
 
 const formatConclusion = computed(() => {
   return t('result.explanation.conclusion', {
-    worth: t(`result.explanation.${eventHourlyRate.value > effectiveHourlyRate.value ? 'worth' : 'notWorth'}`)
+    worth: t(`result.explanation.${isWorthIt.value ? 'worth' : 'notWorth'}`)
   })
 })
 

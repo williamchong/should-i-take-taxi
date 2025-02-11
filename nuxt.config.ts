@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     'nuxt-gtag',
   ],
   i18n: {
-    baseUrl: 'https://shouldispendtimeon.work',
+    baseUrl: 'https://shoulditake.taxi',
     strategy: 'prefix_and_default',
     detectBrowserLanguage: {
       useCookie: false,
@@ -37,11 +37,11 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
   },
   gtag: {
-    id: 'G-E271J81V0J'
+    id: 'G-7JBFREKBB0'
   },
   site: {
-    url: 'https://shouldispendtimeon.work',
-    name: 'Should I Spend Time On This?'
+    url: 'https://shoulditake.taxi',
+    name: 'Should I Take Taxi?',
   },
   app: {
     head: {

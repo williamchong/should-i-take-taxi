@@ -1,9 +1,9 @@
 {
-  "title": "Should I Spend Time On This?",
-  "description": "A calculator to help you decide if something is worth investing your time",
+  "title": "Should I Take a Taxi?",
+  "description": "A calculator to help you decide if taking a taxi to save time is worth the money",
   "label": {
-    "eventValue": "Event/Discount Value",
-    "eventDuration": "Duration",
+    "eventValue": "Taxi Fare",
+    "eventDuration": "Time Saved",
     "salaryPeriod": "Your Salary Period",
     "salary": "Your Current Salary",
     "minutes": "minutes"
@@ -20,12 +20,12 @@
   },
   "result": {
     "title": "Result",
-    "justDoIt": "Just Do it!",
-    "notWorthIt": "Not worth it",
+    "justDoIt": "Take the taxi!",
+    "notWorthIt": "Use public transport",
     "explanation": {
       "hourlyRate": "Your hourly rate is ~${rate}/hr",
-      "eventRate": "This event/activity is worth ~${rate}/hr",
-      "conclusion": "Therefore this {worth} your time",
+      "eventRate": "The taxi cost per hour is ~${rate}/hr",
+      "conclusion": "Therefore taking a taxi {worth} your time and money",
       "worth": "is worth",
       "notWorth": "is not worth"
     }
@@ -34,31 +34,31 @@
     "calculating": "Calculating..."
   },
   "placeholder": {
-    "eventValue": "How much is the event/discount worth",
-    "eventDuration": "Time needed for the event/discount",
+    "eventValue": "Estimated taxi fare",
+    "eventDuration": "Time saved compared to public transport",
     "salary": "Your current salary"
   },
   "intro": {
     "title": "Calculator Introduction",
-    "description": "This calculator is designed to help users easily compute their hourly wage, enabling more effective time and money management. By entering your annual salary, the calculator will automatically calculate your effective hourly wage and help you assess whether participating in an activity or taking advantage of a discount is worthwhile.",
+    "description": "This calculator is designed to help users evaluate whether it's worth spending money on a taxi to save commuting time. By calculating your hourly wage value, it helps you decide if the additional fare is justified.",
     "divider": "Introduction",
     "usage": {
       "title": "Usage",
       "steps": [
-        "Enter Annual Salary: Input your annual salary figure into the calculator.",
-        "Calculate Hourly Wage: The calculator will automatically compute your effective hourly wage based on your annual salary.",
-        "Evaluate Activities: Compare the calculated hourly wage with the costs of activities or discounts to decide if it's worth your time."
+        "Enter Salary: Input your salary into the calculator.",
+        "Enter Fare: Input the estimated taxi fare.",
+        "Time Saved: Enter how much time you'll save compared to public transport."
       ]
     },
     "concept": {
-      "title": "Concept of Hourly Wage Thinking",
-      "description": "The hourly wage thinking method emphasizes the value of time, focusing on calculating the value produced per hour. This mindset allows us to clearly understand which activities are worth investing in and which may waste time.",
+      "title": "Time Value Concept",
+      "description": "This calculator applies the concept of time as money to help you evaluate the value of taking a taxi. By comparing your hourly wage with the value of saved time, it determines if the extra fare is worth paying.",
       "benefits": [
-        "Allocate Time Effectively: Identify activities that yield returns higher than your hourly wage.",
-        "Enhance Productivity: Focus on pursuits that can increase annual income or foster personal growth.",
-        "Avoid Time Waste: Recognize and eliminate unnecessary activities, making life more meaningful."
+        "Smarter Transport Choices: Make decisions based on actual data.",
+        "Time Management Optimization: Choose faster transport options when appropriate.",
+        "Avoid Overspending: Opt for economical transport when time value is lower."
       ],
-      "conclusion": "With this calculator, you can better apply the hourly wage thinking method, helping you move toward a more valuable existence."
+      "conclusion": "Use this calculator to make more efficient use of your time and money in transportation choices."
     },
     "openSource": {
       "title": "Open Source",

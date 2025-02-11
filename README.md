@@ -1,13 +1,13 @@
-# Should I Spend Time on ${this}?
+# Should I Take Taxi?
 
-An web application to help users decide whether to invest time in an activity or take advantage of discounts. The app calculates your approximate hourly rate based on your annual or monthly salary using predefined assumptions, allowing you to determine if your time is well spent.
+A web application to help users decide whether taking a taxi is worth the extra cost compared to public transportation. The app calculates your approximate hourly rate based on your annual or monthly salary using predefined assumptions, allowing you to determine if the time saved justifies the additional expense.
 
 ## Key Features
 
 - Input your salary (annual or monthly) to quickly calculate your effective hourly wage
-- Calculate the value per hour of activities or discounts
-- Compare activity/discount value against your hourly rate
-- Support for multiple languages (English, Chinese)
+- Calculate the cost per hour of taking a taxi versus public transport
+- Compare taxi fare against your hourly rate
+- Support for multiple languages (English, Chinese, Japanese)
 - Simple and intuitive interface with visual feedback
 - Results with detailed explanations
 - Local storage for saving your salary preferences
