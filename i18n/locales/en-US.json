@@ -52,6 +52,12 @@
         "Avoid Time Waste: Recognize and eliminate unnecessary activities, making life more meaningful."
       ],
       "conclusion": "With this calculator, you can better apply the hourly wage thinking method, helping you move toward a more valuable existence."
+    },
+    "openSource": {
+      "title": "Open Source",
+      "description": "This project is open source and available on GitHub.",
+      "contribute": "If you find any issues or have suggestions for improvements, please contribute at:",
+      "repository": "GitHub Repository"
     }
   }
 }
