@@ -141,7 +141,7 @@
             <i18n-t keypath="intro.description" scope="global">
               <template #taxiCalculator>
                 <a
-                  href="https://shoulditake.taxi/"
+                  href="https://shouldispendtimeon.work/"
                   target="_blank"
                   rel="noopener"
                   class="text-blue-600 hover:text-blue-800"

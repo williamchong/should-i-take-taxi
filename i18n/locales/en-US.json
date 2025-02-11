@@ -40,9 +40,9 @@
   },
   "intro": {
     "title": "Calculator Introduction",
-    "description": "This calculator is designed to help users evaluate whether it's worth spending money on a taxi to save commuting time. By calculating your hourly wage value, it helps you decide if the additional fare is justified.",
+    "description": "This calculator is a specialized version of the general time value calculator, focused on evaluating taxi rides. For evaluating whether it's worth spending time on discounts or activities, please use the general version {taxiCalculator}. By calculating your hourly wage value, it helps you make smarter decisions.",
     "divider": "Introduction",
-    "taxiCalculator": "taxi calculator",
+    "taxiCalculator": "time value calculator",
     "usage": {
       "title": "Usage",
       "steps": [
