@@ -14,7 +14,32 @@ useHead({
     lang: i18nHead.value.htmlAttrs!.lang
   },
   link: [...(i18nHead.value.link || [])],
-  meta: [...(i18nHead.value.meta || [])]
+  meta: [...(i18nHead.value.meta || [])],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: t('title'),
+        description: t('description'),
+        url: 'https://shouldispendtimeon.work',
+        applicationCategory: 'UtilityApplication',
+        operatingSystem: 'Web',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock'
+        },
+        author: {
+          '@type': 'Person',
+          name: 'William Chong',
+          url: 'https://blog.williamchong.cloud'
+        },
+      })
+    }
+  ]
 })
 useSeoMeta({
   title: t('title'),
