@@ -100,7 +100,10 @@
           </div>
           <div
             v-else-if="isComplete"
-            class="text-3xl font-bold text-blue-600 transform hover:scale-105 transition-transform"
+            :class="[
+              'text-3xl font-bold transform hover:scale-105 transition-transform',
+              isWorthIt ? 'text-blue-600' : 'text-red-600'
+            ]"
           >
             {{ delayedResult }}
           </div>
@@ -217,6 +220,10 @@ const eventHourlyRate = computed(() => {
   return (eventValue.value) / (eventDuration.value / 60)
 })
 
+const isWorthIt = computed(() => {
+  return eventHourlyRate.value > effectiveHourlyRate.value
+})
+
 const formatExplanation = (key: string, rate: number) => {
   return t(`result.explanation.${key}`, {
     rate: rate.toFixed(2)
@@ -241,7 +248,7 @@ const computeDelayed = () => {
   if (delayTimeout) clearTimeout(delayTimeout)
 
   delayTimeout = setTimeout(() => {
-    delayedResult.value = eventHourlyRate.value > effectiveHourlyRate.value
+    delayedResult.value = isWorthIt.value
       ? t('result.justDoIt')
       : t('result.notWorthIt')
     loading.value = false
