@@ -40,8 +40,9 @@
   },
   "intro": {
     "title": "Calculator Introduction",
-    "description": "This calculator is designed to help users easily compute their hourly wage, enabling more effective time and money management. By entering your annual salary, the calculator will automatically calculate your effective hourly wage and help you assess whether participating in an activity or taking advantage of a discount is worthwhile.",
+    "description": "This calculator is designed to help users easily compute their hourly wage, enabling more effective time and money management. By entering your annual salary, the calculator will automatically calculate your effective hourly wage and help you assess whether participating in an activity or taking advantage of a discount is worthwhile. If you're considering taking a taxi, you might also want to check out this {taxiCalculator} that uses a similar concept.",
     "divider": "Introduction",
+    "taxiCalculator": "taxi calculator",
     "usage": {
       "title": "Usage",
       "steps": [
