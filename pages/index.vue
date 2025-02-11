@@ -137,7 +137,18 @@
       <section class="space-y-8">
         <div class="bg-white rounded-xl shadow-md p-6">
           <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('intro.title') }}</h2>
-          <p class="text-gray-600">{{ $t('intro.description') }}</p>
+          <p class="text-gray-600">
+            <i18n-t keypath="intro.description" scope="global">
+              <template #taxiCalculator>
+                <a
+                  href="https://shoulditake.taxi/"
+                  target="_blank"
+                  rel="noopener"
+                  class="text-blue-600 hover:text-blue-800"
+                >{{ $t('intro.taxiCalculator') }}</a>
+              </template>
+            </i18n-t>
+          </p>
         </div>
 
         <div class="bg-white rounded-xl shadow-md p-6">

@@ -65,6 +65,7 @@
       "description": "このプロジェクトはオープンソースで、GitHub で公開されています。",
       "contribute": "問題の報告や改善の提案は以下のリポジトリで受け付けています：",
       "repository": "GitHub リポジトリ"
-    }
+    },
+    "taxiCalculator": "タクシー計算機"
   }
 }
