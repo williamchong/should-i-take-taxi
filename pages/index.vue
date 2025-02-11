@@ -4,18 +4,14 @@
       <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
       <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
       <div class="flex justify-center mb-8">
-        <img
-          v-if="locale === 'zh'"
-          :src="LogoZh"
-          alt="誰有美國時間管那個啊"
-          class="h-40 w-auto rounded-lg shadow-md"
-        >
-        <img
-          v-else
-          :src="LogoEn"
-          alt="Ain't Nobody Got Time For That"
-          class="h-40 w-auto rounded-lg shadow-md"
-        >
+        <picture>
+          <source :srcset="LogoEnWebp" type="image/webp">
+          <img
+            :src="LogoEn"
+            alt="Crazy Taxi"
+            class="h-40 w-auto rounded-lg shadow-md"
+          >
+        </picture>
       </div>
 
       <div class="bg-white rounded-xl shadow-md p-6 mb-8">
@@ -201,11 +197,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { ClockIcon } from '@heroicons/vue/24/outline'
-import LogoZh from '@/assets/images/nobody_got_time_zh.jpg'
 import LogoEn from '@/assets/images/nobody_got_time.jpg'
+import LogoEnWebp from '@/assets/images/nobody_got_time.webp'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const salary = useLocalStorage<number | null>('salary', null)
 const salaryPeriod = useLocalStorage<'monthly' | 'annual'>('salaryPeriod', 'monthly')
