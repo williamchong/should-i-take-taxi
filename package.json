@@ -1,5 +1,5 @@
 {
-  "name": "should-i-spend-time-on",
+  "name": "should-i-take-taxi",
   "type": "module",
   "scripts": {
     "build": "nuxt build",
