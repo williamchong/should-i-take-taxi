@@ -23,6 +23,7 @@
     "justDoIt": "やってみよう！",
     "notWorthIt": "その価値はない",
     "explanation": {
+      "title": "分析",
       "hourlyRate": "あなたの時給は約${rate}/時です",
       "eventRate": "このイベントの価値は約${rate}/時です",
       "conclusion": "したがって、このイベントはあなたの時間に{worth}",

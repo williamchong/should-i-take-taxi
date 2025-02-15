@@ -23,6 +23,7 @@
     "justDoIt": "Just Do it!",
     "notWorthIt": "Not worth it",
     "explanation": {
+      "title": "分析",
       "hourlyRate": "你的時薪約為 ${rate}/小時",
       "eventRate": "這個活動的價值約為 ${rate}/小時",
       "conclusion": "因此這個活動{worth}花時間",

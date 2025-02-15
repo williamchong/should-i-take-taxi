@@ -58,6 +58,24 @@
 
           <div class="pt-2">
             <div class="space-y-4">
+              <button
+                v-show="!showSalarySection"
+                class="w-full flex justify-between items-center py-2 text-gray-700 hover:text-gray-900"
+                @click="toggleSalarySection"
+              >
+                <span class="font-medium">{{ $t('label.salary') }}</span>
+                <ChevronDownIcon
+                  :class="[
+                    'w-5 h-5 transform transition-transform',
+                    showSalarySection ? 'rotate-180' : ''
+                  ]"
+                />
+              </button>
+            </div>
+            <div
+              v-show="showSalarySection"
+              class="space-y-4"
+            >
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                 <label class="text-gray-700 font-medium">{{ $t('label.salaryPeriod') }}</label>
                 <div class="flex space-x-4 pl-2">
@@ -114,8 +132,9 @@
         <!-- Explanation Card -->
         <div
           v-if="salary && !loading"
-          class="flex-1 p-8 bg-white rounded-xl shadow-lg border-2 border-gray-100"
+          class="flex-1 p-8 bg-white text-center rounded-xl shadow-lg border-2 border-gray-100"
         >
+          <span class="block text-xs uppercase tracking-wider text-gray-400 mb-4">{{ $t('result.explanation.title') }}</span>
           <div class="space-y-2">
             <p v-if="salary" class="text-gray-600">{{ formatExplanation('hourlyRate', effectiveHourlyRate) }}</p>
             <p v-if="isComplete" class="text-gray-600">{{ formatExplanation('eventRate', eventHourlyRate) }}</p>
@@ -199,7 +218,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ClockIcon } from '@heroicons/vue/24/outline'
+import { ClockIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import LogoZh from '@/assets/images/nobody_got_time_zh.jpg'
 import LogoEn from '@/assets/images/nobody_got_time.jpg'
 import { useLocalStorage } from '@/composables/useLocalStorage'
@@ -213,6 +232,17 @@ const eventDuration = ref<number>(60)
 const delayedResult = ref<string>('')
 const loading = ref<boolean>(false)
 let delayTimeout: NodeJS.Timeout | null = null
+
+const showSalarySection = ref(!salary.value)
+onMounted(() => {
+  if (salary.value) {
+    showSalarySection.value = false
+  }
+})
+
+const toggleSalarySection = () => {
+  showSalarySection.value = !showSalarySection.value
+}
 
 const isComplete = computed(() => {
   return salary.value != null && eventValue.value != null && eventDuration.value != null

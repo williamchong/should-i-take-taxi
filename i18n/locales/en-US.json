@@ -23,6 +23,7 @@
     "justDoIt": "Just Do it!",
     "notWorthIt": "Not worth it",
     "explanation": {
+      "title": "Analysis",
       "hourlyRate": "Your hourly rate is ~${rate}/hr",
       "eventRate": "This event/activity is worth ~${rate}/hr",
       "conclusion": "Therefore this {worth} your time",
