@@ -23,6 +23,7 @@
     "justDoIt": "搭計程車吧！",
     "notWorthIt": "搭大眾運輸較划算",
     "explanation": {
+      "title": "分析",
       "hourlyRate": "你的時薪約為 ${rate}/小時",
       "eventRate": "搭計程車的成本約為 ${rate}/小時",
       "conclusion": "因此搭計程車{worth}划算",

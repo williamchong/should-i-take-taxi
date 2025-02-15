@@ -23,6 +23,7 @@
     "justDoIt": "Take the taxi!",
     "notWorthIt": "Use public transport",
     "explanation": {
+      "title": "Analysis",
       "hourlyRate": "Your hourly rate is ~${rate}/hr",
       "eventRate": "The taxi cost per hour is ~${rate}/hr",
       "conclusion": "Therefore taking a taxi {worth} your time and money",

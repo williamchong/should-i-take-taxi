@@ -23,6 +23,7 @@
     "justDoIt": "タクシーを使おう！",
     "notWorthIt": "公共交通機関の方が経済的です",
     "explanation": {
+      "title": "分析",
       "hourlyRate": "あなたの時給は約${rate}/時です",
       "eventRate": "タクシー利用のコストは約${rate}/時です",
       "conclusion": "したがって、タクシーの利用は{worth}",
