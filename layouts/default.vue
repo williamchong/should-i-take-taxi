@@ -37,6 +37,10 @@ useHead({
           name: 'William Chong',
           url: 'https://blog.williamchong.cloud'
         },
+        potentialAction: {
+          '@type': 'UseAction',
+          target: 'https://shouldispendtimeon.work'
+        }
       })
     }
   ]
