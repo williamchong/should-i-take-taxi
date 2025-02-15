@@ -1,11 +1,11 @@
 {
-  "name": "nuxt-app",
-  "private": true,
+  "name": "should-i-spend-time-on",
   "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "lint": "eslint .",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
