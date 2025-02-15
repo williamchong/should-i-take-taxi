@@ -113,13 +113,13 @@
 
         <!-- Explanation Card -->
         <div
-          v-if="isComplete && !loading"
+          v-if="salary && !loading"
           class="flex-1 p-8 bg-white rounded-xl shadow-lg border-2 border-gray-100"
         >
           <div class="space-y-2">
-            <p class="text-gray-600">{{ formatExplanation('hourlyRate', effectiveHourlyRate) }}</p>
-            <p class="text-gray-600">{{ formatExplanation('eventRate', eventHourlyRate) }}</p>
-            <p class="text-gray-600 font-medium">{{ formatConclusion }}</p>
+            <p v-if="salary" class="text-gray-600">{{ formatExplanation('hourlyRate', effectiveHourlyRate) }}</p>
+            <p v-if="isComplete" class="text-gray-600">{{ formatExplanation('eventRate', eventHourlyRate) }}</p>
+            <p v-if="isComplete" class="text-gray-600 font-medium">{{ formatConclusion }}</p>
           </div>
         </div>
       </div>
