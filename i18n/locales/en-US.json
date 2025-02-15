@@ -45,7 +45,7 @@
     "divider": "Introduction",
     "taxiCalculator": "time value calculator",
     "usage": {
-      "title": "Usage",
+      "title": "How to Use This Calculator?",
       "steps": [
         "Enter Salary: Input your salary into the calculator.",
         "Enter Fare: Input the estimated taxi fare.",
@@ -53,8 +53,8 @@
       ]
     },
     "concept": {
-      "title": "Time Value Concept",
-      "description": "This calculator applies the concept of time as money to help you evaluate the value of taking a taxi. By comparing your hourly wage with the value of saved time, it determines if the extra fare is worth paying.",
+      "title": "Why Use \"Hourly Wage Thinking\"?",
+      "description": "The focus of \"hourly wage thinking\" is on the value of time, specifically how much value can be created per hour. With this mindset, you can clearly understand which activities are worth investing in and which are a waste of time.",
       "benefits": [
         "Smarter Transport Choices: Make decisions based on actual data.",
         "Time Management Optimization: Choose faster transport options when appropriate.",
