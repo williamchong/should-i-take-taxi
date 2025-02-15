@@ -41,11 +41,11 @@
   },
   "intro": {
     "title": "Calculator Introduction",
-    "description": "This calculator is designed to help users easily compute their hourly wage, enabling more effective time and money management. By entering your annual salary, the calculator will automatically calculate your effective hourly wage and help you assess whether participating in an activity or taking advantage of a discount is worthwhile. If you're considering taking a taxi, you might also want to check out this {taxiCalculator} that uses a similar concept.",
+    "description": "Do you often wonder if what you're doing is worth your time? 🤔 Should I spend time on this? This calculator helps solve this dilemma by helping you easily compute your hourly wage, enabling more effective time and money management. By entering your annual or monthly salary, the calculator will automatically calculate your effective hourly wage and help you assess whether activities or discounts are truly worthwhile. For example, when considering taking a taxi, you might also want to check out our {taxiCalculator} that uses a similar concept.",
     "divider": "Introduction",
     "taxiCalculator": "taxi calculator",
     "usage": {
-      "title": "Usage",
+      "title": "How to Use This Calculator?",
       "steps": [
         "Enter Annual Salary: Input your annual salary figure into the calculator.",
         "Calculate Hourly Wage: The calculator will automatically compute your effective hourly wage based on your annual salary.",
@@ -53,8 +53,8 @@
       ]
     },
     "concept": {
-      "title": "Concept of Hourly Wage Thinking",
-      "description": "The hourly wage thinking method emphasizes the value of time, focusing on calculating the value produced per hour. This mindset allows us to clearly understand which activities are worth investing in and which may waste time.",
+      "title": "Why Use \"Hourly Wage Thinking\"?",
+      "description": "The focus of \"hourly wage thinking\" is on the value of time, specifically how much value can be created per hour. With this mindset, you can clearly understand which activities are worth investing in and which are a waste of time.",
       "benefits": [
         "Allocate Time Effectively: Identify activities that yield returns higher than your hourly wage.",
         "Enhance Productivity: Focus on pursuits that can increase annual income or foster personal growth.",
