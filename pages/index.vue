@@ -29,6 +29,7 @@
                     type="number"
                     :placeholder="$t('placeholder.eventDuration')"
                     class="block w-full pl-7 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    @input.once="useTrackEvent('input_event_duration')"
                   >
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                     <span class="text-gray-500 sm:text-sm">{{ $t('label.minutes') }}</span>
@@ -46,6 +47,7 @@
                     type="number"
                     :placeholder="$t('placeholder.eventValue')"
                     class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    @input.once="useTrackEvent('input_event_value')"
                   >
                 </div>
               </div>
@@ -76,11 +78,11 @@
                 <label class="text-gray-700 font-medium">{{ $t('label.salaryPeriod') }}</label>
                 <div class="flex space-x-4 pl-2">
                   <label class="inline-flex items-center">
-                    <input v-model="salaryPeriod" type="radio" value="annual" class="form-radio text-blue-600">
+                    <input v-model="salaryPeriod" type="radio" value="annual" class="form-radio text-blue-600" @input.once="useTrackEvent('input_salary_period')">
                     <span class="ml-2 text-gray-700">{{ $t('option.annual') }}</span>
                   </label>
                   <label class="inline-flex items-center">
-                    <input v-model="salaryPeriod" type="radio" value="monthly" class="form-radio text-blue-600">
+                    <input v-model="salaryPeriod" type="radio" value="monthly" class="form-radio text-blue-600" @input.once="useTrackEvent('input_salary_period')">
                     <span class="ml-2 text-gray-700">{{ $t('option.monthly') }}</span>
                   </label>
                 </div>
@@ -97,6 +99,7 @@
                     type="number"
                     :placeholder="$t('placeholder.salary')"
                     class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    @input.once="useTrackEvent('input_salary')"
                   >
                 </div>
               </div>
@@ -233,11 +236,13 @@ const showSalarySection = ref(!salary.value)
 onMounted(() => {
   if (salary.value) {
     showSalarySection.value = false
+    useTrackEvent('restore_salary')
   }
 })
 
 const toggleSalarySection = () => {
   showSalarySection.value = !showSalarySection.value
+  useTrackEvent('toggle_salary_section')
 }
 
 const isComplete = computed(() => {
