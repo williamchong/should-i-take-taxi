@@ -107,6 +107,13 @@
 import { ClockIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { useLocalStorage } from '@/composables/useLocalStorage'
 
+const props = defineProps({
+  taxiFare: {
+    type: Number,
+    default: null
+  }
+})
+
 const emit = defineEmits(['update:values'])
 
 // Local storage for salary information
@@ -139,8 +146,20 @@ onMounted(() => {
     useTrackEvent('restore_salary')
   }
 
+  // 初始化時如果有 taxiFare，則設置到 eventValueInput
+  if (props.taxiFare) {
+    eventValueInput.value = props.taxiFare
+  }
+
   // Initial emission
   emitValues()
+})
+
+// 監聽 taxiFare 的變化
+watch(() => props.taxiFare, (newValue) => {
+  if (newValue) {
+    eventValueInput.value = newValue
+  }
 })
 
 const toggleSalarySection = () => {
@@ -150,11 +169,12 @@ const toggleSalarySection = () => {
 
 // Update the parent component whenever relevant values change
 watch([eventDurationInput, eventValueInput, salaryInput, salaryPeriodInput], () => {
-  emitValues()
-
-  // Update local storage for salary-related values
+  // 更新本地儲存
   salaryStorage.value = salaryInput.value
   salaryPeriodStorage.value = salaryPeriodInput.value
+
+  // 發送更新的值
+  emitValues()
 })
 
 function emitValues() {

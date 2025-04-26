@@ -14,7 +14,16 @@
         </picture>
       </div>
 
-      <CalculatorForm @update:values="updateValues" />
+      <TaxiFareCalculator
+        v-if="isSupportedLocale"
+        class="mb-6"
+        @update:fare="updateFareAsEventValue"
+      />
+
+      <CalculatorForm
+        :taxi-fare="formValues.eventValue"
+        @update:values="updateValues"
+      />
 
       <ResultDisplay
         :event-duration="formValues.eventDuration"
@@ -38,11 +47,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import LogoEn from '@/assets/images/nobody_got_time.jpg'
 import LogoEnWebp from '@/assets/images/nobody_got_time.webp'
 import CalculatorForm from '@/components/CalculatorForm.vue'
 import ResultDisplay from '@/components/ResultDisplay.vue'
 import IntroductionSection from '@/components/IntroductionSection.vue'
+import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 
 interface FormValues {
   eventDuration: number;
@@ -58,7 +69,20 @@ const formValues = ref<FormValues>({
   salaryPeriod: 'monthly'
 })
 
+const { locale } = useI18n()
+
+const isSupportedLocale = computed(() => {
+  return locale.value.includes('HK') || locale.value.includes('hk')
+})
+
 function updateValues(values: FormValues) {
   formValues.value = values
+}
+
+function updateFareAsEventValue(fare: number) {
+  formValues.value = {
+    ...formValues.value,
+    eventValue: fare
+  }
 }
 </script>

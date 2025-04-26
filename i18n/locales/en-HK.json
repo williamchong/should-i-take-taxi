@@ -68,5 +68,34 @@
       "contribute": "If you find any issues or have suggestions for improvements, please contribute at:",
       "repository": "GitHub Repository"
     }
+  },
+  "taxiCalculator": {
+    "title": "Taxi Fare Calculator",
+    "regionHongKong": "Hong Kong",
+    "taxiType": "Taxi Type",
+    "urban": "Urban (Red)",
+    "newTerritories": "New Territories (Green)",
+    "lantau": "Lantau (Blue)",
+    "distance": "Distance",
+    "tunnelFee": "Tunnel Fee",
+    "crossHarbourTaxiStand": "Cross-Harbour Taxi Stand",
+    "yes": "Yes",
+    "luggage": "Luggage",
+    "pieces": "pieces",
+    "estimatedFare": "Estimated Fare",
+    "flagFall": "Flag Fall",
+    "distanceFare": "Distance Fare",
+    "tunnelTotal": "Tunnel Fees Total",
+    "luggageTotal": "Luggage Fees Total",
+    "returnToll": "Return Tunnel Fee",
+    "tunnels": {
+      "crossHarbour": "Cross-Harbour Tunnels (CHT/EHT/WHT)",
+      "tatesCairn": "Tates Cairn Tunnel",
+      "taiLam": "Tai Lam Tunnel",
+      "lions": "Lion Rock Tunnel",
+      "shingMun": "Shing Mun Tunnel",
+      "aberdeen": "Aberdeen Tunnel",
+      "shaTinHeights": "Sha Tin Heights/Eagle's Nest/Tai Wai Tunnel"
+    }
   }
 }

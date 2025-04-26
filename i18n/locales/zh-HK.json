@@ -68,5 +68,34 @@
       "contribute": "如果你發現任何問題或有改善建議，歡迎提出：",
       "repository": "GitHub 儲存庫"
     }
+  },
+  "taxiCalculator": {
+    "title": "的士車費計算器",
+    "regionHongKong": "香港",
+    "taxiType": "的士類型",
+    "urban": "市區紅的",
+    "newTerritories": "新界綠的",
+    "lantau": "大嶼山藍的",
+    "distance": "行車距離",
+    "tunnelFee": "隧道費",
+    "crossHarbourTaxiStand": "過海的士站",
+    "yes": "是",
+    "luggage": "行李",
+    "pieces": "件",
+    "estimatedFare": "預算車費",
+    "flagFall": "起錶費",
+    "distanceFare": "距離收費",
+    "tunnelTotal": "隧道費總額",
+    "luggageTotal": "行李費總額",
+    "returnToll": "回程隧道費",
+    "tunnels": {
+      "crossHarbour": "過海隧道 (紅隧/東隧/西隧)",
+      "tatesCairn": "大老山隧道",
+      "taiLam": "大欖隧道",
+      "lions": "獅子山隧道",
+      "shingMun": "城門隧道",
+      "aberdeen": "香港仔隧道",
+      "shaTinHeights": "沙田嶺隧道/尖山隧道/大圍隧道"
+    }
   }
 }
