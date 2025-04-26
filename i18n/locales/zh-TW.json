@@ -35,9 +35,9 @@
     "calculating": "計算中..."
   },
   "placeholder": {
-    "eventValue": "計程車預估費用",
-    "eventDuration": "相較於大眾運輸可以節省多少時間",
-    "salary": "你目前的薪資"
+    "eventValue": "輸入計程車預估費用",
+    "eventDuration": "輸入搭計程車可以節省多少時間",
+    "salary": "輸入你目前的薪資"
   },
   "intro": {
     "title": "計算器簡介",

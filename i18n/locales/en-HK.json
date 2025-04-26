@@ -35,9 +35,9 @@
     "calculating": "Calculating..."
   },
   "placeholder": {
-    "eventValue": "Estimated taxi fare",
-    "eventDuration": "Time saved compared to public transport",
-    "salary": "Your current salary"
+    "eventValue": "Enter Estimated taxi fare",
+    "eventDuration": "Enter Time saved if you take taxi",
+    "salary": "Enter Your current salary"
   },
   "intro": {
     "title": "Calculator Introduction",

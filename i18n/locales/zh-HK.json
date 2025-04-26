@@ -35,9 +35,9 @@
     "calculating": "計算中..."
   },
   "placeholder": {
-    "eventValue": "的士預估費用",
-    "eventDuration": "相較於公共交通可以節省多少時間",
-    "salary": "你目前的薪金"
+    "eventValue": "輸入的士預估費用",
+    "eventDuration": "輸入搭的士可以節省多少時間",
+    "salary": "輸入你目前的薪金"
   },
   "intro": {
     "title": "計算器簡介",
