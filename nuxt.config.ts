@@ -23,9 +23,19 @@ export default defineNuxtConfig({
         file: 'en-US.json'
       },
       {
+        code: 'en-hk',
+        language: 'en-HK',
+        file: 'en-HK.json'
+      },
+      {
         code: 'ja',
         language: 'ja-JP',
         file: 'ja-JP.json'
+      },
+      {
+        code: 'zh-hk',
+        language: 'zh-HK',
+        file: 'zh-HK.json'
       },
       {
         code: 'zh',

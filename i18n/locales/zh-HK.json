@@ -1,0 +1,72 @@
+{
+  "title": "飛唔飛的好？",
+  "description": "幫助你決定是否值得花錢搭的士節省時間的計算器",
+  "label": {
+    "eventValue": "的士費用",
+    "eventDuration": "可節省時間",
+    "salaryPeriod": "你的薪金周期",
+    "salary": "你目前的薪金",
+    "minutes": "分鐘"
+  },
+  "option": {
+    "annual": "年薪",
+    "monthly": "月薪"
+  },
+  "button": {
+    "calculate": "計算"
+  },
+  "error": {
+    "inputAllValues": "請先輸入上述數值"
+  },
+  "result": {
+    "title": "結果",
+    "justDoIt": "飛的啦！",
+    "notWorthIt": "搭巴士好過",
+    "explanation": {
+      "title": "分析",
+      "hourlyRate": "你的時薪約為 ${rate}/小時",
+      "eventRate": "搭的士的成本約為 ${rate}/小時",
+      "conclusion": "因此搭的士{worth}化算",
+      "worth": "是",
+      "notWorth": "不"
+    }
+  },
+  "loading": {
+    "calculating": "計算中..."
+  },
+  "placeholder": {
+    "eventValue": "的士預估費用",
+    "eventDuration": "相較於公共交通可以節省多少時間",
+    "salary": "你目前的薪金"
+  },
+  "intro": {
+    "title": "計算器簡介",
+    "description": "這款計算器是時薪思考計算器的特化版本，專門用於評估搭的士的時間價值。如果你想評估是否值得花時間去享受折扣或參與活動，可以使用通用版本的{taxiCalculator}。透過計算你的時薪價值，來做出更明智的決定。",
+    "divider": "簡介",
+    "usage": {
+      "title": "怎麼使用這個計算機？",
+      "steps": [
+        "輸入薪資：在計算器中輸入你的薪金。",
+        "輸入車資：輸入預估的的士費用。",
+        "節省時間：輸入相較於大眾運輸可以節省的時間。"
+      ]
+    },
+    "taxiCalculator": "時間價值計算器",
+    "concept": {
+      "title": "為什麼要用「時薪思考」？",
+      "description": "「時薪思考」的重點在於時間的價值，也就是每小時可以創造多少價值。用這個想法，你可以清楚知道哪些事情值得投資時間，哪些事情是浪費時間:。",
+      "benefits": [
+        "有效分配時間：找出那些回報高於你時薪的活動。",
+        "提升生產力：專注於可以增加你年收入或促進個人成長的事情上面。",
+        "避免浪費時間：認清並避開不必要的活動，讓你的生活更有意義。"
+      ],
+      "conclusion": "善用這個計算器，讓你在交通選擇上更有效率地運用時間和金錢。"
+    },
+    "openSource": {
+      "title": "開放原始碼",
+      "description": "這個專案是開放原始碼的，在 GitHub 上面可以找到。",
+      "contribute": "如果你發現任何問題或有改善建議，歡迎提出：",
+      "repository": "GitHub 儲存庫"
+    }
+  }
+}
