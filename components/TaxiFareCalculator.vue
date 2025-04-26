@@ -15,15 +15,21 @@
           <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
           <div class="flex space-x-4">
             <label class="inline-flex items-center">
-              <input v-model="taxiType" type="radio" value="urban" class="form-radio text-red-600">
+              <input
+                v-model="taxiType" type="radio" value="urban" class="form-radio text-red-600"
+                @change="useTrackEvent('taxi_type_selected')">
               <span class="ml-2 h-4 w-4 rounded-full bg-red-600" :title="$t('taxiCalculator.urban')" />
             </label>
             <label class="inline-flex items-center">
-              <input v-model="taxiType" type="radio" value="newTerritories" class="form-radio text-green-600">
+              <input
+                v-model="taxiType" type="radio" value="newTerritories" class="form-radio text-green-600"
+                @change="useTrackEvent('taxi_type_selected')">
               <span class="ml-2 h-4 w-4 rounded-full bg-green-600" :title="$t('taxiCalculator.newTerritories')" />
             </label>
             <label class="inline-flex items-center">
-              <input v-model="taxiType" type="radio" value="lantau" class="form-radio text-blue-600">
+              <input
+                v-model="taxiType" type="radio" value="lantau" class="form-radio text-blue-600"
+                @change="useTrackEvent('taxi_type_selected')">
               <span class="ml-2 h-4 w-4 rounded-full bg-blue-600" :title="$t('taxiCalculator.lantau')" />
             </label>
           </div>
@@ -35,8 +41,13 @@
           <div class="relative rounded-md shadow-sm">
             <input
               id="distance" v-model.number="distance" type="number" min="0" step="0.1"
-              class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              required>
+              :class="[
+                'block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                !distance ? 'bg-yellow-50' : ''
+              ]"
+              required
+              @input.once="useTrackEvent('taxi_distance_input')"
+              @change="useTrackEvent('taxi_distance_change')">
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <span class="text-gray-500 sm:text-sm">km</span>
             </div>
@@ -50,7 +61,8 @@
             <div v-for="tunnel in tunnelOptions" :key="tunnel.id" class="flex items-center">
               <input
                 :id="`tunnel-${tunnel.id}`" v-model="selectedTunnels" type="checkbox" :value="tunnel.id"
-                class="form-checkbox text-blue-600">
+                class="form-checkbox text-blue-600"
+                @change="useTrackEvent('taxi_tunnel_selected')">
               <label :for="`tunnel-${tunnel.id}`" class="ml-2 block text-sm text-gray-700">
                 {{ tunnel.name }} (HK$ {{ tunnel.fee }})
               </label>
@@ -62,7 +74,9 @@
           <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.crossHarbourTaxiStand') }}</label>
           <div>
             <label class="inline-flex items-center">
-              <input v-model="isCrossHarbourTaxiStand" type="checkbox" class="form-checkbox text-blue-600">
+              <input
+                v-model="isCrossHarbourTaxiStand" type="checkbox" class="form-checkbox text-blue-600"
+                @change="useTrackEvent('taxi_cross_harbour_stand')">
               <span class="ml-2 text-sm text-gray-700">{{ $t('taxiCalculator.yes') }}</span>
             </label>
           </div>
@@ -74,7 +88,9 @@
           <div class="relative rounded-md shadow-sm">
             <input
               v-model.number="luggageCount" type="number" min="0" step="1"
-              class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              @input.once="useTrackEvent('taxi_luggage_input')"
+              @change="useTrackEvent('taxi_luggage_change')">
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <span class="text-gray-500 sm:text-sm">{{ $t('taxiCalculator.pieces') }}</span>
             </div>
@@ -121,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const emit = defineEmits(['update:fare'])
@@ -132,6 +148,11 @@ const distance = ref(0)
 const selectedTunnels = ref([] as string[])
 const isCrossHarbourTaxiStand = ref(false)
 const luggageCount = ref(0)
+
+// 在組件掛載時追蹤計程車計算器打開事件
+onMounted(() => {
+  useTrackEvent('taxi_calculator_opened')
+})
 
 // 獲取出租車類型標籤的計算屬性
 const getTaxiTypeLabel = computed(() => {
@@ -237,10 +258,11 @@ const totalFare = computed(() => {
   return Math.round(fare * 10) / 10;
 })
 
-// 監視 totalFare 的變化，自動更新事件成本
+// 監視 totalFare 的變化，自動更新事件成本並追蹤
 watch(totalFare, (newValue) => {
   if (newValue > 0) {
     emit('update:fare', newValue)
+    useTrackEvent('taxi_fare_calculated')
   }
 }, { immediate: true })
 
