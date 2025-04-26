@@ -13,7 +13,10 @@
                 v-model.number="eventDurationInput"
                 type="number"
                 :placeholder="$t('placeholder.eventDuration')"
-                class="block w-full pl-7 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                :class="[
+                  'block w-full pl-7 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                  missingFields.eventDuration ? 'bg-yellow-50' : ''
+                ]"
                 @input.once="useTrackEvent('input_event_duration')"
               >
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -31,7 +34,10 @@
                 v-model.number="eventValueInput"
                 type="number"
                 :placeholder="$t('placeholder.eventValue')"
-                class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                :class="[
+                  'block w-full pl-7 pr-3 py-2 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                  missingFields.eventValue ? 'bg-yellow-50' : ''
+                ]"
                 @input.once="useTrackEvent('input_event_value')"
               >
             </div>
@@ -83,7 +89,10 @@
                 v-model.number="salaryInput"
                 type="number"
                 :placeholder="$t('placeholder.salary')"
-                class="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                :class="[
+                  'block w-full pl-7 pr-3 py-2 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                  missingFields.salary ? 'bg-yellow-50' : ''
+                ]"
                 @input.once="useTrackEvent('input_salary')"
               >
             </div>
@@ -105,13 +114,22 @@ const salaryStorage = useLocalStorage<number | null>('salary', null)
 const salaryPeriodStorage = useLocalStorage<'monthly' | 'annual'>('salaryPeriod', 'monthly')
 
 // Local refs for binding to inputs
-const eventDurationInput = ref<number>(60)
+const eventDurationInput = ref<number| null>(null)
 const eventValueInput = ref<number | null>(null)
 const salaryInput = ref<number | null>(salaryStorage.value)
 const salaryPeriodInput = ref<'monthly' | 'annual'>(salaryPeriodStorage.value)
 
 // UI state
 const showSalarySection = ref(!salaryStorage.value)
+
+// 檢查必填欄位是否有填寫
+const missingFields = computed(() => {
+  return {
+    eventDuration: !eventDurationInput.value,
+    eventValue: !eventValueInput.value,
+    salary: showSalarySection.value && !salaryInput.value
+  }
+})
 
 onMounted(() => {
   if (salaryStorage.value) {

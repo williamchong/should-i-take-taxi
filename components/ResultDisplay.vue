@@ -52,7 +52,7 @@ const loading = ref<boolean>(false)
 let delayTimeout: NodeJS.Timeout | null = null
 
 const isComplete = computed(() => {
-  return props.salary != null && props.eventValue != null && props.eventDuration != null
+  return !!props.salary && !!props.eventValue && !!props.eventDuration
 })
 
 const effectiveHourlyRate = computed(() => {
