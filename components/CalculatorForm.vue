@@ -1,8 +1,27 @@
 <template>
   <div class="bg-white rounded-xl shadow-md p-6 mb-8">
     <div class="space-y-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('title') }}</h2>
       <div class="pb-4 border-b border-gray-200">
         <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label class="text-gray-700 font-medium">{{ $t('label.eventValue') }}</label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                <span class="text-gray-500 sm:text-sm">$</span>
+              </div>
+              <input
+                v-model.number="eventValueInput"
+                type="number"
+                :placeholder="$t('placeholder.eventValue')"
+                :class="[
+                  'block w-full pl-7 pr-3 py-2 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+                  missingFields.eventValue ? 'bg-yellow-50' : ''
+                ]"
+                @input.once="useTrackEvent('input_event_value')"
+              >
+            </div>
+          </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <label class="text-gray-700 font-medium">{{ $t('label.eventDuration') }}</label>
             <div class="relative rounded-md shadow-sm">
@@ -22,24 +41,6 @@
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                 <span class="text-gray-500 sm:text-sm">{{ $t('label.minutes') }}</span>
               </div>
-            </div>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label class="text-gray-700 font-medium">{{ $t('label.eventValue') }}</label>
-            <div class="relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
-                <span class="text-gray-500 sm:text-sm">$</span>
-              </div>
-              <input
-                v-model.number="eventValueInput"
-                type="number"
-                :placeholder="$t('placeholder.eventValue')"
-                :class="[
-                  'block w-full pl-7 pr-3 py-2 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                  missingFields.eventValue ? 'bg-yellow-50' : ''
-                ]"
-                @input.once="useTrackEvent('input_event_value')"
-              >
             </div>
           </div>
         </div>

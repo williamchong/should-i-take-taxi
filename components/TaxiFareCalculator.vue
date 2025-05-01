@@ -65,6 +65,23 @@
           <div class="border-t border-gray-200 my-2" />
         </div>
 
+        <!-- 距離 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+          <label for="distance" class="text-gray-700 font-medium">{{ $t('taxiCalculator.distance') }}</label>
+          <div class="relative rounded-md shadow-sm">
+            <input
+              id="distance" v-model.number="distance" type="number" min="0" step="0.1" :class="[
+              'block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+              !distance ? 'bg-yellow-50' : '',
+              routeInfo.distance > 0 ? 'bg-blue-50' : ''
+            ]" required @input.once="useTrackEvent('taxi_distance_input')"
+              @change="useTrackEvent('taxi_distance_change')">
+            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <span class="text-gray-500 sm:text-sm">km</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 的士類型選擇 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
           <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
@@ -90,34 +107,54 @@
           </div>
         </div>
 
-        <!-- 距離 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-          <label for="distance" class="text-gray-700 font-medium">{{ $t('taxiCalculator.distance') }}</label>
-          <div class="relative rounded-md shadow-sm">
-            <input
-              id="distance" v-model.number="distance" type="number" min="0" step="0.1" :class="[
-              'block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-              !distance ? 'bg-yellow-50' : '',
-              routeInfo.distance > 0 ? 'bg-blue-50' : ''
-            ]" required @input.once="useTrackEvent('taxi_distance_input')"
-              @change="useTrackEvent('taxi_distance_change')">
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 sm:text-sm">km</span>
-            </div>
-          </div>
-        </div>
-
         <!-- 隧道費 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
           <label class="text-gray-700 font-medium pt-1">{{ $t('taxiCalculator.tunnelFee') }}</label>
           <div class="space-y-2">
-            <div v-for="tunnel in tunnelOptions" :key="tunnel.id" class="flex items-center">
+            <!-- 過海隧道選項 -->
+            <div class="flex items-center">
               <input
-                :id="`tunnel-${tunnel.id}`" v-model="selectedTunnels" type="checkbox" :value="tunnel.id"
-                class="form-checkbox text-blue-600" @change="useTrackEvent('taxi_tunnel_selected')">
-              <label :for="`tunnel-${tunnel.id}`" class="ml-2 block text-sm text-gray-700">
-                {{ tunnel.name }} (HK$ {{ tunnel.fee }})
+                id="tunnel-crossHarbour"
+                v-model="selectedTunnels"
+                type="checkbox"
+                value="crossHarbour"
+                class="form-checkbox text-blue-600"
+                @change="useTrackEvent('taxi_tunnel_selected')"
+              >
+              <label for="tunnel-crossHarbour" class="ml-2 block text-sm text-gray-700">
+                {{ t('taxiCalculator.tunnels.crossHarbour') }} (HK$ 25)
               </label>
+            </div>
+
+            <!-- 其他隧道選項（可折疊） -->
+            <div>
+              <button
+                type="button"
+                class="text-sm text-gray-600 hover:text-gray-900 flex items-center"
+                @click="showOtherTunnels = !showOtherTunnels"
+              >
+                <span class="mr-1">{{ showOtherTunnels ? '▼' : '▶' }}</span>
+                {{ $t('taxiCalculator.otherTunnels') }}
+              </button>
+              <div v-show="showOtherTunnels" class="mt-2 ml-4 space-y-2">
+                <div
+                  v-for="tunnel in otherTunnelOptions"
+                  :key="tunnel.id"
+                  class="flex items-center"
+                >
+                  <input
+                    :id="`tunnel-${tunnel.id}`"
+                    v-model="selectedTunnels"
+                    type="checkbox"
+                    :value="tunnel.id"
+                    class="form-checkbox text-blue-600"
+                    @change="useTrackEvent('taxi_tunnel_selected')"
+                  >
+                  <label :for="`tunnel-${tunnel.id}`" class="ml-2 block text-sm text-gray-700">
+                    {{ tunnel.name }} (HK$ {{ tunnel.fee }})
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -196,13 +233,14 @@ import LocationSearch from './LocationSearch.vue'
 const emit = defineEmits(['update:fare'])
 
 const { t } = useI18n()
-const { transformCoordinates, calculateDrivingDistance } = useLocationSearch()
+const { calculateDrivingDistance } = useLocationSearch()
 
 const taxiType = ref<'urban' | 'newTerritories' | 'lantau'>('urban')
 const distance = ref(0)
 const selectedTunnels = ref([] as string[])
 const isCrossHarbourTaxiStand = ref(false)
 const luggageCount = ref(0)
+const showOtherTunnels = ref(false)
 
 // 地點搜尋相關
 const startLocationSearch = ref('')
@@ -290,6 +328,10 @@ const tunnelOptions = computed(() => [
   { id: 'aberdeen', name: t('taxiCalculator.tunnels.aberdeen'), fee: 5 },
   { id: 'shaTinHeights', name: t('taxiCalculator.tunnels.shaTinHeights'), fee: 8 },
 ])
+
+const otherTunnelOptions = computed(() =>
+  tunnelOptions.value.filter(tunnel => tunnel.id !== 'crossHarbour')
+)
 
 const rates = computed(() => {
   const rateMap = {
