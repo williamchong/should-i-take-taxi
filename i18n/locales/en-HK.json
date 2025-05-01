@@ -52,13 +52,34 @@
         "Time Saved: Enter how much time you'll save compared to public transport."
       ]
     },
+    "features": {
+      "title": "Calculator Features",
+      "list": [
+        {
+          "title": "Taxi Fare Calculator",
+          "description": "Built-in Hong Kong taxi fare calculator with support for Urban, New Territories, and Lantau taxis"
+        },
+        {
+          "title": "Route Planning",
+          "description": "Automatic distance calculation between any two points in Hong Kong"
+        },
+        {
+          "title": "Time Value Analysis",
+          "description": "Compare your time value with transport costs to make informed decisions"
+        },
+        {
+          "title": "Additional Cost Calculation",
+          "description": "Include tunnel fees, luggage charges, and other surcharges in the calculation"
+        }
+      ]
+    },
     "concept": {
       "title": "Why Use \"Hourly Wage Thinking\"?",
       "description": "The focus of \"hourly wage thinking\" is on the value of time, specifically how much value can be created per hour. With this mindset, you can clearly understand which activities are worth investing in and which are a waste of time.",
       "benefits": [
-        "Smarter Transport Choices: Make decisions based on actual data.",
-        "Time Management Optimization: Choose faster transport options when appropriate.",
-        "Avoid Overspending: Opt for economical transport when time value is lower."
+        "Smarter Transport Choices: Compare costs between taxi and public transport",
+        "Automatic Calculations: Get accurate taxi fares with the built-in calculator",
+        "Time Management: Make informed decisions based on your time value"
       ],
       "conclusion": "Use this calculator to make more efficient use of your time and money in transportation choices."
     },

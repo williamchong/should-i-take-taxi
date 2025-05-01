@@ -41,7 +41,9 @@
         </div>
       </div>
 
-      <IntroductionSection />
+      <IntroductionSection
+        :show-calculator-section="isSupportedLocale"
+      />
     </div>
   </div>
 </template>
