@@ -70,7 +70,7 @@
     }
   },
   "taxiCalculator": {
-    "title": "的士車費計算器",
+    "title": "香港的士車費計算器",
     "regionHongKong": "香港",
     "taxiType": "的士類型",
     "urban": "市區紅的",
@@ -96,6 +96,13 @@
       "shingMun": "城門隧道",
       "aberdeen": "香港仔隧道",
       "shaTinHeights": "沙田嶺隧道/尖山隧道/大圍隧道"
-    }
+    },
+    "distanceCalculator": "自動計算距離",
+    "startLocation": "起點",
+    "endLocation": "終點",
+    "searchPlace": "搜尋地點...",
+    "calculateDistance": "計算路程",
+    "calculatedDistance": "預算距離",
+    "estimatedTime": "預算時間"
   }
 }

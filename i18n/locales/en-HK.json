@@ -70,7 +70,7 @@
     }
   },
   "taxiCalculator": {
-    "title": "Taxi Fare Calculator",
+    "title": "Hong Kong Taxi Fare Calculator",
     "regionHongKong": "Hong Kong",
     "taxiType": "Taxi Type",
     "urban": "Urban (Red)",
@@ -96,6 +96,13 @@
       "shingMun": "Shing Mun Tunnel",
       "aberdeen": "Aberdeen Tunnel",
       "shaTinHeights": "Sha Tin Heights/Eagle's Nest/Tai Wai Tunnel"
-    }
+    },
+    "distanceCalculator": "Distance Calculator",
+    "startLocation": "Start Location",
+    "endLocation": "End Location",
+    "searchPlace": "Search place...",
+    "calculateDistance": "Calculate Distance",
+    "calculatedDistance": "Calculated Distance",
+    "estimatedTime": "Estimated Time"
   }
 }

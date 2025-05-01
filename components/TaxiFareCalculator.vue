@@ -10,6 +10,61 @@
 
     <form>
       <div class="space-y-4">
+        <!-- 地點搜尋 -->
+        <div class="grid grid-cols-1 gap-4 mb-4">
+          <h3 class="text-md font-medium text-gray-700">{{ $t('taxiCalculator.distanceCalculator') }}</h3>
+
+          <!-- 起點搜尋 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label for="startLocation" class="text-gray-700 font-medium">
+              {{ $t('taxiCalculator.startLocation') }}
+            </label>
+            <LocationSearch
+              id="startLocation"
+              v-model="startLocationSearch"
+              @select="selectStartLocation"
+            />
+          </div>
+
+          <!-- 終點搜尋 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label for="endLocation" class="text-gray-700 font-medium">
+              {{ $t('taxiCalculator.endLocation') }}
+            </label>
+            <LocationSearch
+              id="endLocation"
+              v-model="endLocationSearch"
+              @select="selectEndLocation"
+            />
+          </div>
+
+          <!-- 計算距離按鈕 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div />
+            <button
+              type="button"
+              class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="!canCalculateDistance || isCalculatingDistance" @click="handleCalculateDistance">
+              <span v-if="isCalculatingDistance" class="mr-2">
+                <div class="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+              </span>
+              {{ $t('taxiCalculator.calculateDistance') }}
+            </button>
+          </div>
+
+          <div v-if="routeInfo.distance > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div />
+            <div class="text-sm text-gray-700">
+              <p>{{ $t('taxiCalculator.calculatedDistance') }}: <span class="font-bold">{{ (routeInfo.distance /
+                  1000).toFixed(1) }}km</span></p>
+              <p>{{ $t('taxiCalculator.estimatedTime') }}: <span class="font-bold">{{ Math.round(routeInfo.time / 60) }}
+                  min</span></p>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 my-2" />
+        </div>
+
         <!-- 的士類型選擇 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
           <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
@@ -40,13 +95,11 @@
           <label for="distance" class="text-gray-700 font-medium">{{ $t('taxiCalculator.distance') }}</label>
           <div class="relative rounded-md shadow-sm">
             <input
-              id="distance" v-model.number="distance" type="number" min="0" step="0.1"
-              :class="[
-                'block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                !distance ? 'bg-yellow-50' : ''
-              ]"
-              required
-              @input.once="useTrackEvent('taxi_distance_input')"
+              id="distance" v-model.number="distance" type="number" min="0" step="0.1" :class="[
+              'block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
+              !distance ? 'bg-yellow-50' : '',
+              routeInfo.distance > 0 ? 'bg-blue-50' : ''
+            ]" required @input.once="useTrackEvent('taxi_distance_input')"
               @change="useTrackEvent('taxi_distance_change')">
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <span class="text-gray-500 sm:text-sm">km</span>
@@ -61,8 +114,7 @@
             <div v-for="tunnel in tunnelOptions" :key="tunnel.id" class="flex items-center">
               <input
                 :id="`tunnel-${tunnel.id}`" v-model="selectedTunnels" type="checkbox" :value="tunnel.id"
-                class="form-checkbox text-blue-600"
-                @change="useTrackEvent('taxi_tunnel_selected')">
+                class="form-checkbox text-blue-600" @change="useTrackEvent('taxi_tunnel_selected')">
               <label :for="`tunnel-${tunnel.id}`" class="ml-2 block text-sm text-gray-700">
                 {{ tunnel.name }} (HK$ {{ tunnel.fee }})
               </label>
@@ -89,8 +141,7 @@
             <input
               v-model.number="luggageCount" type="number" min="0" step="1"
               class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              @input.once="useTrackEvent('taxi_luggage_input')"
-              @change="useTrackEvent('taxi_luggage_change')">
+              @input.once="useTrackEvent('taxi_luggage_input')" @change="useTrackEvent('taxi_luggage_change')">
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <span class="text-gray-500 sm:text-sm">{{ $t('taxiCalculator.pieces') }}</span>
             </div>
@@ -139,15 +190,62 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useLocationSearch } from '../composables/useLocationSearch'
+import LocationSearch from './LocationSearch.vue'
 
 const emit = defineEmits(['update:fare'])
 
 const { t } = useI18n()
+const { transformCoordinates, calculateDrivingDistance } = useLocationSearch()
+
 const taxiType = ref<'urban' | 'newTerritories' | 'lantau'>('urban')
 const distance = ref(0)
 const selectedTunnels = ref([] as string[])
 const isCrossHarbourTaxiStand = ref(false)
 const luggageCount = ref(0)
+
+// 地點搜尋相關
+const startLocationSearch = ref('')
+const endLocationSearch = ref('')
+const selectedStartLocation = ref<any>(null)
+const selectedEndLocation = ref<any>(null)
+const isCalculatingDistance = ref(false)
+const routeInfo = ref({ distance: 0, time: 0 })
+
+// 選擇地點
+const selectStartLocation = (location: any) => {
+  selectedStartLocation.value = location
+  useTrackEvent('taxi_start_location_selected')
+}
+
+const selectEndLocation = (location: any) => {
+  selectedEndLocation.value = location
+  useTrackEvent('taxi_end_location_selected')
+}
+
+const canCalculateDistance = computed(() => {
+  return selectedStartLocation.value && selectedEndLocation.value
+})
+
+// 重構計算距離函數
+const handleCalculateDistance = async () => {
+  if (!canCalculateDistance.value) return
+
+  isCalculatingDistance.value = true
+  try {
+    const result = await calculateDrivingDistance(
+      selectedStartLocation.value,
+      selectedEndLocation.value
+    )
+    routeInfo.value = result
+    distance.value = parseFloat((result.distance / 1000).toFixed(1))
+    useTrackEvent('taxi_distance_auto_calculated')
+  } catch (error) {
+    console.error('Error handling distance calculation:', error)
+  } finally {
+    isCalculatingDistance.value = false
+  }
+}
 
 // 在組件掛載時追蹤計程車計算器打開事件
 onMounted(() => {
