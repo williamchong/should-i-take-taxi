@@ -44,7 +44,7 @@ export default defineNuxtConfig({
       }
     ],
     lazy: true,
-    defaultLocale: 'en',
+    defaultLocale: 'en-hk',
   },
   gtag: {
     id: 'G-7JBFREKBB0'
