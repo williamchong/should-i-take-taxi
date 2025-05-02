@@ -1,6 +1,6 @@
 import { useI18n } from 'vue-i18n'
 
-interface Location {
+export interface LocationResult {
   x: number
   y: number
   addressEN: string
@@ -9,7 +9,8 @@ interface Location {
   nameZH: string
   districtEN: string
   districtZH: string
-  [key: string]: any
+  displayAddress: string
+  [key: string]: unknown
 }
 
 interface RouteInfo {
@@ -20,7 +21,7 @@ interface RouteInfo {
 export function useLocationSearch() {
   const { locale } = useI18n()
 
-  const getLocalizedAddress = (location: Location): string => {
+  const getLocalizedAddress = (location: LocationResult): string => {
     const isZh = locale.value.startsWith('zh')
     const name = isZh ? location.nameZH : location.nameEN
     const address = isZh ? location.addressZH : location.addressEN
@@ -29,13 +30,14 @@ export function useLocationSearch() {
     return `${name ? name + ', ' : ''}${address}${district ? ' - ' + district : ''}`
   }
 
-  const searchLocation = async (query: string): Promise<Location[]> => {
+  const searchLocation = async (query: string): Promise<LocationResult[]> => {
     if (!query) return []
+    // eslint-disable-next-line no-control-regex
     const isAscii = /^[\x00-\x7F]+$/.test(query)
     if (isAscii && query.trim().length < 2) return []
 
     try {
-      const results = await $fetch(`https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=${encodeURIComponent(query)}`) as Location[]
+      const results = await $fetch(`https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=${encodeURIComponent(query)}`) as LocationResult[]
       return results.map(location => ({
         ...location,
         displayAddress: getLocalizedAddress(location)
@@ -46,7 +48,7 @@ export function useLocationSearch() {
     }
   }
 
-  const transformCoordinates = async (location: Location): Promise<Location> => {
+  const transformCoordinates = async (location: LocationResult): Promise<LocationResult> => {
     try {
       const data = await $fetch(
         `https://www.geodetic.gov.hk/transform/v2/?inSys=hkgrid&outSys=wgsgeog&e=${location.x}&n=${location.y}`
@@ -66,7 +68,7 @@ export function useLocationSearch() {
     }
   }
 
-  const calculateDrivingDistance = async (start: Location, end: Location): Promise<RouteInfo> => {
+  const calculateDrivingDistance = async (start: LocationResult, end: LocationResult): Promise<RouteInfo> => {
     try {
       const data = await $fetch(
         `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=false`

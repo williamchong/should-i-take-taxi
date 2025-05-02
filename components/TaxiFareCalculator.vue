@@ -245,18 +245,18 @@ const showOtherTunnels = ref(false)
 // 地點搜尋相關
 const startLocationSearch = ref('')
 const endLocationSearch = ref('')
-const selectedStartLocation = ref<any>(null)
-const selectedEndLocation = ref<any>(null)
+const selectedStartLocation = ref<LocationResult | null>(null)
+const selectedEndLocation = ref<LocationResult | null>(null)
 const isCalculatingDistance = ref(false)
 const routeInfo = ref({ distance: 0, time: 0 })
 
 // 選擇地點
-const selectStartLocation = (location: any) => {
+const selectStartLocation = (location: LocationResult | null) => {
   selectedStartLocation.value = location
   useTrackEvent('taxi_start_location_selected')
 }
 
-const selectEndLocation = (location: any) => {
+const selectEndLocation = (location: LocationResult | null) => {
   selectedEndLocation.value = location
   useTrackEvent('taxi_end_location_selected')
 }
@@ -267,8 +267,9 @@ const canCalculateDistance = computed(() => {
 
 // 重構計算距離函數
 const handleCalculateDistance = async () => {
-  if (!canCalculateDistance.value) return
-
+  if (!selectedStartLocation.value || !selectedEndLocation.value) {
+    return
+  }
   isCalculatingDistance.value = true
   try {
     const result = await calculateDrivingDistance(

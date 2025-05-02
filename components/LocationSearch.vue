@@ -46,7 +46,7 @@ const emit = defineEmits(['update:modelValue', 'select'])
 const { searchLocation, transformCoordinates } = useLocationSearch()
 
 const searchText = ref(props.modelValue)
-const searchResults = ref<any[]>([])
+const searchResults = ref<LocationResult[]>([])
 const isSearching = ref(false)
 const isFocused = ref(false)
 
@@ -62,6 +62,7 @@ let searchTimeout: number | null = null
 const debounceSearch = () => {
   isFocused.value = true
   emit('update:modelValue', searchText.value)
+  emit('select', null)
 
   if (searchTimeout) clearTimeout(searchTimeout)
   searchTimeout = setTimeout(async () => {
@@ -75,7 +76,7 @@ const debounceSearch = () => {
   }, 500) as unknown as number
 }
 
-const handleSelect = async (location: any) => {
+const handleSelect = async (location: LocationResult) => {
   searchText.value = location.displayAddress
   emit('update:modelValue', location.displayAddress)
   searchResults.value = []
