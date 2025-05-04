@@ -56,6 +56,7 @@ import CalculatorForm from '@/components/CalculatorForm.vue'
 import ResultDisplay from '@/components/ResultDisplay.vue'
 import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
+import type { LocationResult } from '@/types/location'
 
 interface FormValues {
   eventDuration: number;

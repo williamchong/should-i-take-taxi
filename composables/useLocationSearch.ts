@@ -1,17 +1,5 @@
 import { useI18n } from 'vue-i18n'
-
-export interface LocationResult {
-  x: number
-  y: number
-  addressEN: string
-  addressZH: string
-  nameEN: string
-  nameZH: string
-  districtEN: string
-  districtZH: string
-  displayAddress: string
-  [key: string]: unknown
-}
+import type { LocationResult } from '~/types/location'
 
 interface RouteInfo {
   distance: number
@@ -37,7 +25,9 @@ export function useLocationSearch() {
     if (isAscii && query.trim().length < 2) return []
 
     try {
-      const results = await $fetch(`https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=${encodeURIComponent(query)}`) as LocationResult[]
+      const results = await $fetch('https://geodata.gov.hk/gs/api/v1.0.0/locationSearch', {
+        query: { q : query },
+      }) as LocationResult[]
       return results.map(location => ({
         ...location,
         displayAddress: getLocalizedAddress(location)

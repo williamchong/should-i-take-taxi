@@ -19,7 +19,7 @@
     <div v-if="props.showCalculatorSection" class="bg-white rounded-xl shadow-md p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('intro.features.title') }}</h2>
       <div class="space-y-4">
-        <div v-for="(feature, index) in $tm('intro.features.list')" :key="index" class="flex items-start">
+        <div v-for="(feature, index) in $tm('intro.features.list') as any[]" :key="index" class="flex items-start">
           <span class="flex-shrink-0 p-1 bg-blue-100 rounded-lg mr-3">
             <component :is="featureIcons[index]" class="w-5 h-5 text-blue-600" />
           </span>

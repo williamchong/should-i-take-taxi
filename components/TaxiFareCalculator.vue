@@ -229,6 +229,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import LocationSearch from './LocationSearch.vue'
+import type { LocationResult } from '~/types/location'
 
 const emit = defineEmits(['update:fare'])
 

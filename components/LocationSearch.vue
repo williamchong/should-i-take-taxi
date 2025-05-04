@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useLocationSearch } from '../composables/useLocationSearch'
+import type { LocationResult } from '~/types/location';
 
 const props = defineProps<{
   id: string
