@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/eslint',
     'nuxt-gtag',
+    '@nuxtjs/leaflet',
   ],
   i18n: {
     baseUrl: 'https://shoulditake.taxi',

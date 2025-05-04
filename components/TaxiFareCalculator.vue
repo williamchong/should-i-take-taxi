@@ -231,7 +231,7 @@ import { useLocationSearch } from '../composables/useLocationSearch'
 import LocationSearch from './LocationSearch.vue'
 import type { LocationResult } from '~/types/location'
 
-const emit = defineEmits(['update:fare'])
+const emit = defineEmits(['update:fare', 'update:locations'])
 
 const { t } = useI18n()
 const { calculateDrivingDistance } = useLocationSearch()
@@ -255,11 +255,20 @@ const routeInfo = ref({ distance: 0, time: 0 })
 const selectStartLocation = (location: LocationResult | null) => {
   selectedStartLocation.value = location
   useTrackEvent('taxi_start_location_selected')
+  emitLocations()
 }
 
 const selectEndLocation = (location: LocationResult | null) => {
   selectedEndLocation.value = location
   useTrackEvent('taxi_end_location_selected')
+  emitLocations()
+}
+
+const emitLocations = () => {
+  emit('update:locations', {
+    start: selectedStartLocation.value,
+    end: selectedEndLocation.value
+  })
 }
 
 const canCalculateDistance = computed(() => {

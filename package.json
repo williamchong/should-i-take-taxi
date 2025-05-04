@@ -13,6 +13,7 @@
     "@heroicons/vue": "^2.2.0",
     "@nuxt/eslint": "^1.0.1",
     "@nuxtjs/i18n": "^9.2.0",
+    "@nuxtjs/leaflet": "^1.2.6",
     "@nuxtjs/sitemap": "^7.2.4",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "eslint": "^9.20.0",

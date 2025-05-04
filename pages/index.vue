@@ -4,20 +4,29 @@
       <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
       <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
       <div class="flex justify-center mb-8">
-        <picture>
-          <source :srcset="LogoEnWebp" type="image/webp">
-          <img
-            :src="LogoEn"
-            alt="Crazy Taxi"
-            class="h-40 w-auto rounded-lg shadow-md"
-          >
-        </picture>
+        <template v-if="hasSelectedLocations">
+          <MapDisplay
+            :start-location="selectedLocations.start"
+            :end-location="selectedLocations.end"
+          />
+        </template>
+        <template v-else>
+          <picture>
+            <source :srcset="LogoEnWebp" type="image/webp">
+            <img
+              :src="LogoEn"
+              alt="Crazy Taxi"
+              class="h-40 w-auto rounded-lg shadow-md"
+            >
+          </picture>
+        </template>
       </div>
 
       <TaxiFareCalculator
         v-if="isSupportedLocale"
         class="mb-6"
         @update:fare="updateFareAsEventValue"
+        @update:locations="updateLocations"
       />
 
       <CalculatorForm
@@ -56,6 +65,7 @@ import CalculatorForm from '@/components/CalculatorForm.vue'
 import ResultDisplay from '@/components/ResultDisplay.vue'
 import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
+import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
 
 interface FormValues {
@@ -78,6 +88,18 @@ const isSupportedLocale = computed(() => {
   return locale.value.includes('HK') || locale.value.includes('hk')
 })
 
+const selectedLocations = ref<{
+  start: LocationResult | null;
+  end: LocationResult | null;
+}>({
+  start: null,
+  end: null
+})
+
+const hasSelectedLocations = computed(() => 
+  selectedLocations.value.start !== null || selectedLocations.value.end !== null
+)
+
 function updateValues(values: FormValues) {
   formValues.value = values
 }
@@ -87,5 +109,9 @@ function updateFareAsEventValue(fare: number) {
     ...formValues.value,
     eventValue: fare
   }
+}
+
+function updateLocations(locations: { start: LocationResult | null; end: LocationResult | null }) {
+  selectedLocations.value = locations
 }
 </script>
