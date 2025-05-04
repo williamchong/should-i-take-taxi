@@ -17,5 +17,7 @@ jobs:
       run: npm install
     - name: Run lint
       run: npm run lint
+    - name: Run type check
+      run: npm run typecheck
     - name: Build
       run: npm run build

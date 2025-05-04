@@ -41,6 +41,7 @@
 
 <script setup lang="ts">
 import type { LocationResult } from '~/types/location'
+import type { LatLngExpression } from 'leaflet'
 
 const props = defineProps<{
   startLocation: LocationResult | null
@@ -48,6 +49,7 @@ const props = defineProps<{
   routeCoordinates?: [number, number][]
 }>()
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const map = ref(null as any)
 const isLoading = ref(true)
 
@@ -68,7 +70,7 @@ const center = computed((): [number, number] => {
 })
 
 const routeCoordinates = computed(() => {
-  return props.routeCoordinates?.map(coord => [coord[1], coord[0]]) || []
+  return (props.routeCoordinates?.map(coord => [coord[1], coord[0]]) || []) as LatLngExpression[]
 })
 
 watch(() => props.startLocation, (newVal) => {
