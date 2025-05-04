@@ -1,17 +1,17 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
-      <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
-      <div class="flex justify-center mb-8">
-        <template v-if="hasSelectedLocations">
-          <MapDisplay
-            :start-location="selectedLocations.start"
-            :end-location="selectedLocations.end"
-            :route-coordinates="selectedLocations.coordinates"
-          />
-        </template>
-        <template v-else>
+      <div v-if="hasSelectedLocations" class="flex justify-center mb-8">
+        <MapDisplay
+              :start-location="selectedLocations.start"
+              :end-location="selectedLocations.end"
+              :route-coordinates="selectedLocations.coordinates"
+            />
+      </div>
+      <template v-else>
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
+        <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
+        <div class="flex justify-center mb-8">
           <picture>
             <source :srcset="LogoEnWebp" type="image/webp">
             <img
@@ -20,8 +20,8 @@
               class="h-40 w-auto rounded-lg shadow-md"
             >
           </picture>
-        </template>
-      </div>
+        </div>
+      </template>
 
       <TaxiFareCalculator
         v-if="isSupportedLocale"
