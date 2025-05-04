@@ -252,17 +252,23 @@ const isCalculatingDistance = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
 
 // 選擇地點
-const selectStartLocation = (location: LocationResult | null) => {
+const selectStartLocation = async (location: LocationResult | null) => {
   selectedStartLocation.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
   useTrackEvent('taxi_start_location_selected')
+  if (canCalculateDistance.value) {
+    await handleCalculateDistance()
+  }
   emitLocations()
 }
 
-const selectEndLocation = (location: LocationResult | null) => {
+const selectEndLocation = async (location: LocationResult | null) => {
   selectedEndLocation.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
   useTrackEvent('taxi_end_location_selected')
+  if (canCalculateDistance.value) {
+    await handleCalculateDistance()
+  }
   emitLocations()
 }
 
