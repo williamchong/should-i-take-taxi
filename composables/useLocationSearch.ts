@@ -4,6 +4,7 @@ import type { LocationResult } from '~/types/location'
 interface RouteInfo {
   distance: number
   time: number
+  coordinates: [number, number][]
 }
 
 export function useLocationSearch() {
@@ -61,14 +62,15 @@ export function useLocationSearch() {
   const calculateDrivingDistance = async (start: LocationResult, end: LocationResult): Promise<RouteInfo> => {
     try {
       const data = await $fetch(
-        `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=false`
-      ) as { code: string; routes: { distance: number; duration: number }[] }
+        `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=full&geometries=geojson`
+      ) as { code: string; routes: { distance: number; duration: number; geometry: { coordinates: [number, number][] } }[] }
 
       if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
         const route = data.routes[0]
         return {
           distance: route.distance,
-          time: route.duration
+          time: route.duration,
+          coordinates: route.geometry.coordinates
         }
       }
       throw new Error('No route found or invalid response from OSRM API')

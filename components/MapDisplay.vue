@@ -16,8 +16,8 @@
         @ready="onMapReady"
       >
         <LTileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="© OpenStreetMap contributors"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         <LMarker
           v-if="startLocation"
@@ -27,6 +27,13 @@
           v-if="endLocation"
           :lat-lng="[endLocation.y, endLocation.x]"
         />
+        <LPolyline
+          v-if="routeCoordinates.length > 0"
+          :lat-lngs="routeCoordinates"
+          color="#2563eb"
+          :weight="5"
+          :opacity="0.8"
+        />
       </LMap>
     </ClientOnly>
   </div>
@@ -34,14 +41,14 @@
 
 <script setup lang="ts">
 import type { LocationResult } from '~/types/location'
-import type { Map } from 'leaflet'
 
 const props = defineProps<{
   startLocation: LocationResult | null
   endLocation: LocationResult | null
+  routeCoordinates?: [number, number][]
 }>()
 
-const map = ref<Map | null>(null)
+const map = ref(null as any)
 const isLoading = ref(true)
 
 const center = computed((): [number, number] => {
@@ -60,15 +67,35 @@ const center = computed((): [number, number] => {
   return [22.302711, 114.177216]
 })
 
-const onMapReady = (mapInstance: Map) => {
-  map.value = mapInstance
+const routeCoordinates = computed(() => {
+  return props.routeCoordinates?.map(coord => [coord[1], coord[0]]) || []
+})
+
+watch(() => props.startLocation, (newVal) => {
+  if (newVal && props.endLocation) {
+    map.value?.leafletObject?.fitBounds([
+      [newVal.y, newVal.x],
+      [props.endLocation.y, props.endLocation.x],
+    ], { padding: [25, 25] })
+  }
+})
+watch(() => props.endLocation, (newVal) => {
+  if (newVal && props.startLocation) {
+    map.value?.leafletObject?.fitBounds([
+      [props.startLocation.y, props.startLocation.x],
+      [newVal.y, newVal.x],
+    ], { padding: [25, 25] })
+  }
+})
+
+const onMapReady = () => {
+  isLoading.value = false
   if (props.startLocation && props.endLocation) {
-    map.value.fitBounds([
+    map.value?.leafletObject?.fitBounds([
       [props.startLocation.y, props.startLocation.x],
       [props.endLocation.y, props.endLocation.x],
     ], { padding: [25, 25] })
   }
-  isLoading.value = false
 }
 
 </script>

@@ -8,6 +8,7 @@
           <MapDisplay
             :start-location="selectedLocations.start"
             :end-location="selectedLocations.end"
+            :route-coordinates="selectedLocations.coordinates"
           />
         </template>
         <template v-else>
@@ -91,9 +92,11 @@ const isSupportedLocale = computed(() => {
 const selectedLocations = ref<{
   start: LocationResult | null;
   end: LocationResult | null;
+  coordinates: [number, number][];
 }>({
   start: null,
-  end: null
+  end: null,
+  coordinates: []
 })
 
 const hasSelectedLocations = computed(() => 
@@ -111,7 +114,7 @@ function updateFareAsEventValue(fare: number) {
   }
 }
 
-function updateLocations(locations: { start: LocationResult | null; end: LocationResult | null }) {
+function updateLocations(locations: { start: LocationResult | null; end: LocationResult | null, coordinates: [number, number][] }) {
   selectedLocations.value = locations
 }
 </script>

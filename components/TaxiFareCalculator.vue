@@ -249,17 +249,19 @@ const endLocationSearch = ref('')
 const selectedStartLocation = ref<LocationResult | null>(null)
 const selectedEndLocation = ref<LocationResult | null>(null)
 const isCalculatingDistance = ref(false)
-const routeInfo = ref({ distance: 0, time: 0 })
+const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
 
 // 選擇地點
 const selectStartLocation = (location: LocationResult | null) => {
   selectedStartLocation.value = location
+  routeInfo.value = { distance: 0, time: 0, coordinates: [] }
   useTrackEvent('taxi_start_location_selected')
   emitLocations()
 }
 
 const selectEndLocation = (location: LocationResult | null) => {
   selectedEndLocation.value = location
+  routeInfo.value = { distance: 0, time: 0, coordinates: [] }
   useTrackEvent('taxi_end_location_selected')
   emitLocations()
 }
@@ -267,7 +269,8 @@ const selectEndLocation = (location: LocationResult | null) => {
 const emitLocations = () => {
   emit('update:locations', {
     start: selectedStartLocation.value,
-    end: selectedEndLocation.value
+    end: selectedEndLocation.value,
+    coordinates: routeInfo.value?.coordinates || []
   })
 }
 
@@ -288,6 +291,7 @@ const handleCalculateDistance = async () => {
     )
     routeInfo.value = result
     distance.value = parseFloat((result.distance / 1000).toFixed(1))
+    emitLocations()
     useTrackEvent('taxi_distance_auto_calculated')
   } catch (error) {
     console.error('Error handling distance calculation:', error)
