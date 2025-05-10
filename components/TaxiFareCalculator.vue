@@ -19,11 +19,33 @@
             <label for="startLocation" class="text-gray-700 font-medium">
               {{ $t('taxiCalculator.startLocation') }}
             </label>
-            <LocationSearch
-              id="startLocation"
-              v-model="startLocationSearch"
-              @select="selectStartLocation"
-            />
+            <div class="flex space-x-2">
+              <LocationSearch
+                id="startLocation"
+                v-model="startLocationSearch"
+                class="flex-grow"
+                @select="selectStartLocation"
+              />
+              <!-- 只在支援地理位置時才顯示定位按鈕 -->
+              <button
+                v-if="isGeolocationSupported"
+                type="button"
+                class="inline-flex justify-center py-2 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="isGettingLocation"
+                :title="$t('taxiCalculator.useCurrentLocation')"
+                @click="getCurrentLocation"
+              >
+                <span v-if="isGettingLocation">
+                  <div class="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+                </span>
+                <span v-else>
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </span>
+              </button>
+            </div>
           </div>
 
           <!-- 終點搜尋 -->
@@ -234,7 +256,7 @@ import type { LocationResult } from '~/types/location'
 const emit = defineEmits(['update:fare', 'update:locations'])
 
 const { t } = useI18n()
-const { calculateDrivingDistance } = useLocationSearch()
+const { calculateDrivingDistance, reverseGeocode } = useLocationSearch()
 
 const taxiType = ref<'urban' | 'newTerritories' | 'lantau'>('urban')
 const distance = ref(0)
@@ -242,6 +264,7 @@ const selectedTunnels = ref([] as string[])
 const isCrossHarbourTaxiStand = ref(false)
 const luggageCount = ref(0)
 const showOtherTunnels = ref(false)
+const isGeolocationSupported = ref(false)
 
 // 地點搜尋相關
 const startLocationSearch = ref('')
@@ -249,6 +272,7 @@ const endLocationSearch = ref('')
 const selectedStartLocation = ref<LocationResult | null>(null)
 const selectedEndLocation = ref<LocationResult | null>(null)
 const isCalculatingDistance = ref(false)
+const isGettingLocation = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
 
 // 選擇地點
@@ -306,9 +330,74 @@ const handleCalculateDistance = async () => {
   }
 }
 
-// 在組件掛載時追蹤計程車計算器打開事件
+// 獲取當前位置
+const getCurrentLocation = async () => {
+  if (!navigator.geolocation) {
+    alert(t('taxiCalculator.geolocationNotSupported'))
+    return
+  }
+
+  isGettingLocation.value = true
+  useTrackEvent('taxi_get_current_location_attempt')
+
+  try {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      })
+    })
+
+    const { latitude, longitude } = position.coords
+
+    // 先用座標創建一個簡單的 LocationResult
+    let location: LocationResult = {
+      x: longitude,
+      y: latitude,
+      addressEN: "",
+      addressZH: "",
+      nameEN: t('taxiCalculator.currentLocation'),
+      nameZH: t('taxiCalculator.currentLocation'),
+      districtEN: "",
+      districtZH: "",
+      displayAddress: t('taxiCalculator.currentLocation')
+    }
+
+    // 嘗試反向地理編碼獲取地址
+    try {
+      const geoLocation = await reverseGeocode(latitude, longitude)
+      if (geoLocation) {
+        location = geoLocation
+      }
+    } catch (error) {
+      console.error("Error getting address from coordinates:", error)
+      // 繼續使用基本位置信息
+    }
+
+    // 更新位置
+    startLocationSearch.value = location.displayAddress
+    await selectStartLocation(location)
+    useTrackEvent('taxi_get_current_location_success')
+  } catch (error) {
+    console.error("Error getting current location:", error)
+    alert(t('taxiCalculator.geolocationError'))
+    useTrackEvent('taxi_get_current_location_error')
+  } finally {
+    isGettingLocation.value = false
+  }
+}
+
+// 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置
 onMounted(() => {
+  // 檢查瀏覽器是否支援地理定位API
+  isGeolocationSupported.value = Boolean(navigator.geolocation)
   useTrackEvent('taxi_calculator_opened')
+
+  // 自動檢測並請求 GPS 定位（如果設備支援）
+  if (isGeolocationSupported.value && !selectedStartLocation.value) {
+    getCurrentLocation()
+  }
 })
 
 // 獲取出租車類型標籤的計算屬性

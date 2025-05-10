@@ -125,6 +125,10 @@
     "searchPlace": "Search place...",
     "calculateDistance": "Calculate Distance",
     "calculatedDistance": "Calculated Distance",
-    "estimatedTime": "Estimated Time"
+    "estimatedTime": "Estimated Time",
+    "geolocationNotSupported": "Your browser does not support geolocation",
+    "geolocationError": "Unable to get your location. Please check location permission",
+    "currentLocation": "Current Location",
+    "useCurrentLocation": "Use Current Location"
   }
 }

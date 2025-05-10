@@ -29,6 +29,7 @@ export function useLocationSearch() {
       const results = await $fetch('https://geodata.gov.hk/gs/api/v1.0.0/locationSearch', {
         query: { q : query },
       }) as LocationResult[]
+
       return results.map(location => ({
         ...location,
         displayAddress: getLocalizedAddress(location)
@@ -80,10 +81,62 @@ export function useLocationSearch() {
     }
   }
 
+  // 反向地理編碼：從經緯度獲取地址
+  const reverseGeocode = async (latitude: number, longitude: number): Promise<LocationResult | null> => {
+    try {
+      // 使用 Nominatim API (OpenStreetMap)
+      const data = await $fetch('https://nominatim.openstreetmap.org/reverse', {
+        query: {
+          lat: latitude.toString(),
+          lon: longitude.toString(),
+          format: 'json',
+          'accept-language': locale.value
+        },
+        headers: {
+          'User-Agent': 'ShouldITakeTaxi/1.0'
+        }
+      }) as any
+
+      if (data && data.display_name) {
+        const isZh = locale.value.startsWith('zh')
+        const address = data.address || {}
+
+        // 構建地址組件
+        const name = address.amenity || address.building || ''
+        const street = address.road || address.pedestrian || ''
+        const district = address.suburb || address.quarter || address.neighbourhood || ''
+        const city = address.city || address.town || address.village || ''
+
+        // 構建完整地址
+        const fullAddress = [street, district, city].filter(Boolean).join(', ')
+
+        // 返回符合應用格式的位置結果
+        const location: LocationResult = {
+          x: longitude,
+          y: latitude,
+          nameEN: isZh ? '' : name,
+          nameZH: isZh ? name : '',
+          addressEN: isZh ? '' : fullAddress,
+          addressZH: isZh ? fullAddress : '',
+          districtEN: isZh ? '' : district,
+          districtZH: isZh ? district : '',
+          displayAddress: [name, fullAddress].filter(Boolean).join(', ') || data.display_name
+        }
+
+        return location
+      }
+      return null
+    } catch (error) {
+      console.error('Error in reverse geocoding:', error)
+      return null
+    }
+  }
+
   return {
     searchLocation,
     transformCoordinates,
     calculateDrivingDistance,
-    getLocalizedAddress
+    getLocalizedAddress,
+    reverseGeocode
   }
 }
