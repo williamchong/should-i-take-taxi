@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
+
   modules: [
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
@@ -9,7 +10,9 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     'nuxt-gtag',
     '@nuxtjs/leaflet',
+    '@sentry/nuxt/module'
   ],
+
   i18n: {
     baseUrl: 'https://shoulditake.taxi',
     strategy: 'prefix_and_default',
@@ -32,18 +35,32 @@ export default defineNuxtConfig({
     lazy: true,
     defaultLocale: 'en-hk',
   },
+
   gtag: {
     id: 'G-7JBFREKBB0'
   },
+
   site: {
     url: 'https://shoulditake.taxi',
     name: 'Should I Take Taxi?',
   },
+
   app: {
     head: {
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
       ]
     }
+  },
+
+  sentry: {
+    sourceMapsUploadOptions: {
+      org: 'williamchong',
+      project: 'should-i-take-taxi'
+    }
+  },
+
+  sourcemap: {
+    client: 'hidden'
   }
 })

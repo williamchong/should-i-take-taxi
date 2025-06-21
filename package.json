@@ -17,6 +17,7 @@
     "@nuxtjs/leaflet": "^1.2.6",
     "@nuxtjs/sitemap": "^7.2.4",
     "@nuxtjs/tailwindcss": "^6.13.1",
+    "@sentry/nuxt": "^9.30.0",
     "eslint": "^9.20.0",
     "nuxt": "^3.15.4",
     "nuxt-gtag": "^3.0.2",
@@ -26,5 +27,8 @@
   "devDependencies": {
     "typescript": "^5.8.3",
     "vue-tsc": "^2.1.10"
+  },
+  "overrides": {
+    "@vercel/nft": "^0.27.4"
   }
 }
