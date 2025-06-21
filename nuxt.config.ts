@@ -19,11 +19,6 @@ export default defineNuxtConfig({
     },
     locales: [
       {
-        code: 'en',
-        language: 'en-US',
-        file: 'en-US.json'
-      },
-      {
         code: 'en-hk',
         language: 'en-HK',
         file: 'en-HK.json'
@@ -32,11 +27,6 @@ export default defineNuxtConfig({
         code: 'zh-hk',
         language: 'zh-HK',
         file: 'zh-HK.json'
-      },
-      {
-        code: 'zh',
-        language: 'zh-TW',
-        file: 'zh-TW.json'
       }
     ],
     lazy: true,

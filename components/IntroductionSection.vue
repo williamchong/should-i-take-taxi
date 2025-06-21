@@ -16,7 +16,7 @@
       </p>
     </div>
 
-    <div v-if="props.showCalculatorSection" class="bg-white rounded-xl shadow-md p-6">
+    <div class="bg-white rounded-xl shadow-md p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('intro.features.title') }}</h2>
       <div class="space-y-4">
         <div v-for="(feature, index) in $tm('intro.features.list') as any[]" :key="index" class="flex items-start">
@@ -91,11 +91,5 @@ const featureIcons = [
   CurrencyDollarIcon
 ]
 
-const props = defineProps({
-  showCalculatorSection: {
-    type: Boolean,
-    default: false
-  }
-})
 
 </script>

@@ -24,7 +24,6 @@
       </template>
 
       <TaxiFareCalculator
-        v-if="isSupportedLocale"
         class="mb-6"
         @update:fare="updateFareAsEventValue"
         @update:locations="updateLocations"
@@ -51,15 +50,12 @@
         </div>
       </div>
 
-      <IntroductionSection
-        :show-calculator-section="isSupportedLocale"
-      />
+      <IntroductionSection />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import LogoEn from '@/assets/images/nobody_got_time.jpg'
 import LogoEnWebp from '@/assets/images/nobody_got_time.webp'
 import CalculatorForm from '@/components/CalculatorForm.vue'
@@ -83,11 +79,6 @@ const formValues = ref<FormValues>({
   salaryPeriod: 'monthly'
 })
 
-const { locale } = useI18n()
-
-const isSupportedLocale = computed(() => {
-  return locale.value.includes('HK') || locale.value.includes('hk')
-})
 
 const selectedLocations = ref<{
   start: LocationResult | null;
