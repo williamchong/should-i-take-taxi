@@ -39,7 +39,7 @@ useHead({
         },
         potentialAction: {
           '@type': 'UseAction',
-          target: 'https://shouldispendtimeon.work'
+          target: 'https://shoulditake.taxi'
         }
       })
     }

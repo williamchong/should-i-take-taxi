@@ -1,16 +1,16 @@
 # Should I Take Taxi?
 
-A web application to help users decide whether taking a taxi is worth the extra cost compared to public transportation. The app calculates your approximate hourly rate based on your annual or monthly salary using predefined assumptions, allowing you to determine if the time saved justifies the additional expense.
+A Hong Kong-focused web application to help users decide whether taking a taxi is worth the extra cost compared to public transportation. The app features Hong Kong's three taxi types (Red/Green/Blue) with accurate fare calculations including tunnel fees, and calculates your approximate hourly rate to determine if the time saved justifies the additional expense.
 
 ## Key Features
 
-- Input your salary (annual or monthly) to quickly calculate your effective hourly wage
-- Calculate the cost per hour of taking a taxi versus public transport
-- Compare taxi fare against your hourly rate
-- Support for multiple languages (English, Chinese, Japanese)
-- Simple and intuitive interface with visual feedback
-- Results with detailed explanations
-- Local storage for saving your salary preferences
+- **Hong Kong Taxi Calculator**: Support for all three taxi types (Urban Red, New Territories Green, Lantau Blue)
+- **Accurate Fare Calculation**: Real-time fare calculation with Hong Kong's tunnel fees
+- **Route Planning**: GPS location detection and route mapping between Hong Kong locations
+- **Salary-Based Analysis**: Calculate your effective hourly wage to compare against taxi costs
+- **Bilingual Support**: Available in English and Traditional Chinese (Hong Kong)
+- **Government Data Integration**: Uses Hong Kong Government geodata for accurate location search
+- **Local Storage**: Save your salary preferences for quick calculations
 
 ## Setup
 
@@ -32,11 +32,12 @@ bun install
 
 ## Usage
 
-1. Enter your salary (choose between annual or monthly)
-2. Input the value of the activity or discount
-3. Specify the time duration in minutes
-4. Get instant feedback on whether the activity is worth your time
-5. View detailed explanation of the calculation
+1. **Select Start and End Locations**: Use GPS or search for Hong Kong locations
+2. **Choose Taxi Type**: Select from Urban (Red), New Territories (Green), or Lantau (Blue) taxis
+3. **Review Fare Calculation**: See real-time fare including tunnel fees and route distance
+4. **Enter Your Salary**: Input annual or monthly salary to calculate your hourly rate
+5. **Get Recommendation**: Instant analysis of whether the taxi cost is worth your time
+6. **View Route on Map**: See the planned route with location markers
 
 ## Development Server
 
