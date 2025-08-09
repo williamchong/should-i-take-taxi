@@ -291,10 +291,48 @@ const isGettingLocation = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
 
 // 選擇地點
+// Function to detect if a location is on Hong Kong Island
+const isOnHongKongIsland = (lat: number, lng: number): boolean => {
+  // Hong Kong Island boundaries (approximate)
+  // Northern boundary: Victoria Harbour (~22.29°N)
+  // Southern boundary: (~22.25°N)
+  // Western boundary: (~114.13°E)
+  // Eastern boundary: (~114.22°E)
+  return lat >= 22.24 && lat <= 22.30 && lng >= 114.12 && lng <= 114.23
+}
+
+// Function to auto-select Cross Harbour Tunnel for cross-harbour routes
+const autoSelectCrossHarbourTunnel = () => {
+  if (!selectedStartLocation.value || !selectedEndLocation.value) return
+
+  const startIsOnHKIsland = isOnHongKongIsland(
+    selectedStartLocation.value.y,
+    selectedStartLocation.value.x
+  )
+  const endIsOnHKIsland = isOnHongKongIsland(
+    selectedEndLocation.value.y,
+    selectedEndLocation.value.x
+  )
+
+  // If one location is on HK Island and the other is not, auto-select Cross Harbour Tunnel
+  if (startIsOnHKIsland !== endIsOnHKIsland) {
+    if (!selectedTunnels.value.includes('crossHarbour')) {
+      selectedTunnels.value.push('crossHarbour')
+      useTrackEvent('taxi_cross_harbour_tunnel_auto_selected')
+    }
+  }
+}
+
 const selectStartLocation = async (location: LocationResult | null) => {
   selectedStartLocation.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
   useTrackEvent('taxi_start_location_selected')
+
+  // Auto-select Cross Harbour Tunnel if needed
+  if (location && selectedEndLocation.value) {
+    autoSelectCrossHarbourTunnel()
+  }
+
   if (canCalculateDistance.value) {
     await handleCalculateDistance()
   }
@@ -305,6 +343,12 @@ const selectEndLocation = async (location: LocationResult | null) => {
   selectedEndLocation.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
   useTrackEvent('taxi_end_location_selected')
+
+  // Auto-select Cross Harbour Tunnel if needed
+  if (location && selectedStartLocation.value) {
+    autoSelectCrossHarbourTunnel()
+  }
+
   if (canCalculateDistance.value) {
     await handleCalculateDistance()
   }
@@ -422,6 +466,9 @@ const swapLocations = async () => {
   // 清除舊的路線資訊
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
 
+  // Auto-select Cross Harbour Tunnel if needed after swapping
+  autoSelectCrossHarbourTunnel()
+
   // 重新計算路線
   if (canCalculateDistance.value) {
     await handleCalculateDistance()
@@ -429,7 +476,7 @@ const swapLocations = async () => {
 
   // 發送位置更新事件
   emitLocations()
-  
+
   // 追蹤交換事件
   useTrackEvent('taxi_locations_swapped')
 }
