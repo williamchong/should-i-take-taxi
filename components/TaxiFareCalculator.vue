@@ -53,11 +53,26 @@
             <label for="endLocation" class="text-gray-700 font-medium">
               {{ $t('taxiCalculator.endLocation') }}
             </label>
-            <LocationSearch
-              id="endLocation"
-              v-model="endLocationSearch"
-              @select="selectEndLocation"
-            />
+            <div class="flex space-x-2">
+              <LocationSearch
+                id="endLocation"
+                v-model="endLocationSearch"
+                class="flex-grow"
+                @select="selectEndLocation"
+              />
+              <!-- 交換起終點按鈕 -->
+              <button
+                type="button"
+                class="inline-flex justify-center py-2 px-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!selectedStartLocation || !selectedEndLocation"
+                :title="$t('taxiCalculator.swapLocations')"
+                @click="swapLocations"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- 計算距離按鈕 -->
@@ -386,6 +401,37 @@ const getCurrentLocation = async () => {
   } finally {
     isGettingLocation.value = false
   }
+}
+
+// 交換起終點位置
+const swapLocations = async () => {
+  if (!selectedStartLocation.value || !selectedEndLocation.value) {
+    return
+  }
+
+  // 交換選定的位置對象
+  const tempLocation = selectedStartLocation.value
+  selectedStartLocation.value = selectedEndLocation.value
+  selectedEndLocation.value = tempLocation
+
+  // 交換搜尋框的顯示文字
+  const tempSearch = startLocationSearch.value
+  startLocationSearch.value = endLocationSearch.value
+  endLocationSearch.value = tempSearch
+
+  // 清除舊的路線資訊
+  routeInfo.value = { distance: 0, time: 0, coordinates: [] }
+
+  // 重新計算路線
+  if (canCalculateDistance.value) {
+    await handleCalculateDistance()
+  }
+
+  // 發送位置更新事件
+  emitLocations()
+  
+  // 追蹤交換事件
+  useTrackEvent('taxi_locations_swapped')
 }
 
 // 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置

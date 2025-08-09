@@ -92,6 +92,7 @@
     "geolocationNotSupported": "Your browser does not support geolocation",
     "geolocationError": "Unable to get your location. Please check location permission",
     "currentLocation": "Current Location",
-    "useCurrentLocation": "Use Current Location"
+    "useCurrentLocation": "Use Current Location",
+    "swapLocations": "Swap start and end locations"
   }
 }

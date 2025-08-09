@@ -92,6 +92,7 @@
     "geolocationNotSupported": "你的裝置唔支援地理定位功能",
     "geolocationError": "無法獲取你的位置，請檢查位置服務權限",
     "currentLocation": "當前位置",
-    "useCurrentLocation": "使用當前位置"
+    "useCurrentLocation": "使用當前位置",
+    "swapLocations": "交換起點和終點"
   }
 }
