@@ -25,20 +25,7 @@
 
       <TaxiFareCalculator
         class="mb-6"
-        @update:fare="updateFareAsEventValue"
         @update:locations="updateLocations"
-      />
-
-      <CalculatorForm
-        :taxi-fare="formValues.eventValue"
-        @update:values="updateValues"
-      />
-
-      <ResultDisplay
-        :event-duration="formValues.eventDuration"
-        :event-value="formValues.eventValue"
-        :salary="formValues.salary"
-        :salary-period="formValues.salaryPeriod"
       />
 
       <div class="relative mb-12">
@@ -58,27 +45,10 @@
 <script setup lang="ts">
 import LogoEn from '@/assets/images/nobody_got_time.jpg'
 import LogoEnWebp from '@/assets/images/nobody_got_time.webp'
-import CalculatorForm from '@/components/CalculatorForm.vue'
-import ResultDisplay from '@/components/ResultDisplay.vue'
 import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
-
-interface FormValues {
-  eventDuration: number;
-  eventValue: number | undefined;
-  salary: number | undefined;
-  salaryPeriod: 'monthly' | 'annual';
-}
-
-const formValues = ref<FormValues>({
-  eventDuration: 60,
-  eventValue: undefined,
-  salary: undefined,
-  salaryPeriod: 'monthly'
-})
-
 
 const selectedLocations = ref<{
   start: LocationResult | null;
@@ -93,17 +63,6 @@ const selectedLocations = ref<{
 const hasSelectedLocations = computed(() => 
   selectedLocations.value.start !== null || selectedLocations.value.end !== null
 )
-
-function updateValues(values: FormValues) {
-  formValues.value = values
-}
-
-function updateFareAsEventValue(fare: number) {
-  formValues.value = {
-    ...formValues.value,
-    eventValue: fare
-  }
-}
 
 function updateLocations(locations: { start: LocationResult | null; end: LocationResult | null, coordinates: [number, number][] }) {
   selectedLocations.value = locations

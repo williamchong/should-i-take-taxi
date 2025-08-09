@@ -1,87 +1,50 @@
 {
-  "title": "Should I Take a Taxi?",
-  "description": "A calculator to help you decide if taking a taxi to save time is worth the money",
-  "label": {
-    "eventValue": "Taxi Fare",
-    "eventDuration": "Time Saved",
-    "salaryPeriod": "Your Salary Period",
-    "salary": "Your Current Salary",
-    "minutes": "minutes"
-  },
-  "option": {
-    "annual": "Annual",
-    "monthly": "Monthly"
-  },
-  "button": {
-    "calculate": "Calculate"
-  },
-  "error": {
-    "inputAllValues": "Please input values above"
-  },
-  "result": {
-    "title": "Result",
-    "justDoIt": "Take the taxi!",
-    "notWorthIt": "Use public transport",
-    "explanation": {
-      "title": "Analysis",
-      "hourlyRate": "Your hourly rate is ~${rate}/hr",
-      "eventRate": "The taxi cost per hour is ~${rate}/hr",
-      "conclusion": "Therefore taking a taxi {worth} your time and money",
-      "worth": "is worth",
-      "notWorth": "is not worth"
-    }
-  },
-  "loading": {
-    "calculating": "Calculating..."
-  },
-  "placeholder": {
-    "eventValue": "Enter Estimated taxi fare",
-    "eventDuration": "Enter Time saved if you take taxi",
-    "salary": "Enter Your current salary"
-  },
+  "title": "Hong Kong Taxi Fare Calculator",
+  "description": "Calculate accurate taxi fares for Urban, New Territories, and Lantau taxis in Hong Kong",
   "intro": {
     "title": "Calculator Introduction",
-    "description": "This calculator is a specialized version of the general time value calculator, focused on evaluating taxi rides. For evaluating whether it's worth spending time on discounts or activities, please use the general version {taxiCalculator}. By calculating your hourly wage value, it helps you make smarter decisions.",
+    "description": "This calculator helps you calculate accurate taxi fares for all three types of Hong Kong taxis. It includes automatic route calculation, tunnel fees, luggage charges, and other surcharges to give you the most accurate fare estimate possible.",
     "divider": "Introduction",
-    "taxiCalculator": "time value calculator",
     "usage": {
       "title": "How to Use This Calculator?",
       "steps": [
-        "Enter Salary: Input your salary into the calculator.",
-        "Enter Fare: Input the estimated taxi fare.",
-        "Time Saved: Enter how much time you'll save compared to public transport."
+        "Select Locations: Choose your starting point and destination, or let the calculator detect your current location automatically.",
+        "Calculate Route: The system will automatically calculate the driving distance and estimated travel time between your selected locations.",
+        "Choose Taxi Type: Select between Urban (Red), New Territories (Green), or Lantau (Blue) taxis based on your route.",
+        "Add Additional Fees: Include tunnel fees, luggage charges, and other applicable surcharges for a complete fare calculation."
       ]
     },
     "features": {
       "title": "Calculator Features",
       "list": [
         {
-          "title": "Taxi Fare Calculator",
-          "description": "Built-in Hong Kong taxi fare calculator with support for Urban, New Territories, and Lantau taxis"
+          "title": "Comprehensive Taxi Fare Calculator",
+          "description": "Accurate fare calculation for all three Hong Kong taxi types with official Transport Department rates"
         },
         {
-          "title": "Route Planning",
-          "description": "Automatic distance calculation between any two points in Hong Kong"
+          "title": "Automatic Route Planning",
+          "description": "GPS-powered route calculation with real driving distances and estimated travel times"
         },
         {
-          "title": "Time Value Analysis",
-          "description": "Compare your time value with transport costs to make informed decisions"
+          "title": "Complete Cost Breakdown",
+          "description": "Detailed breakdown including flag fall, distance fare, tunnel fees, luggage charges, and return toll fees"
         },
         {
-          "title": "Additional Cost Calculation",
-          "description": "Include tunnel fees, luggage charges, and other surcharges in the calculation"
+          "title": "Hong Kong Government Data Integration",
+          "description": "Uses official Hong Kong government location data and coordinate transformation services"
         }
       ]
     },
     "concept": {
-      "title": "Why Use \"Hourly Wage Thinking\"?",
-      "description": "The focus of \"hourly wage thinking\" is on the value of time, specifically how much value can be created per hour. With this mindset, you can clearly understand which activities are worth investing in and which are a waste of time.",
+      "title": "Why Use This Taxi Fare Calculator?",
+      "description": "Getting an accurate taxi fare estimate in Hong Kong can be complex due to different taxi types, tunnel fees, and various surcharges. This calculator takes all factors into account to give you the most accurate fare estimate possible.",
       "benefits": [
-        "Smarter Transport Choices: Compare costs between taxi and public transport",
-        "Automatic Calculations: Get accurate taxi fares with the built-in calculator",
-        "Time Management: Make informed decisions based on your time value"
+        "Accurate Fare Estimation: Get precise fare calculations based on official Transport Department rates",
+        "Route Optimization: Automatically calculate the best driving route between any two points in Hong Kong",
+        "Complete Cost Transparency: See detailed breakdowns of all charges including tunnels and surcharges",
+        "Multi-Taxi Support: Compare fares across Urban, New Territories, and Lantau taxi services"
       ],
-      "conclusion": "Use this calculator to make more efficient use of your time and money in transportation choices."
+      "conclusion": "Use this calculator to get accurate taxi fare estimates and make informed transportation decisions in Hong Kong."
     },
     "openSource": {
       "title": "Open Source",

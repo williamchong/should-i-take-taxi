@@ -253,7 +253,7 @@ import { useLocationSearch } from '../composables/useLocationSearch'
 import LocationSearch from './LocationSearch.vue'
 import type { LocationResult } from '~/types/location'
 
-const emit = defineEmits(['update:fare', 'update:locations'])
+const emit = defineEmits(['update:locations'])
 
 const { t } = useI18n()
 const { calculateDrivingDistance, reverseGeocode } = useLocationSearch()
@@ -508,10 +508,9 @@ const totalFare = computed(() => {
   return Math.round(fare * 10) / 10;
 })
 
-// 監視 totalFare 的變化，自動更新事件成本並追蹤
+// 監視 totalFare 的變化並追蹤
 watch(totalFare, (newValue) => {
   if (newValue > 0) {
-    emit('update:fare', newValue)
     useTrackEvent('taxi_fare_calculated')
   }
 }, { immediate: true })
