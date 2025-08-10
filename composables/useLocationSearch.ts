@@ -7,8 +7,35 @@ interface RouteInfo {
   coordinates: [number, number][]
 }
 
+const CACHE_KEY_PREFIX = 'location_search_'
+
 export function useLocationSearch() {
   const { locale } = useI18n()
+
+  const getCacheKey = (query: string): string => {
+    return `${CACHE_KEY_PREFIX}${locale.value}_${query.toLowerCase().trim()}`
+  }
+
+  const getCachedResults = (query: string): LocationResult[] | null => {
+    if (typeof window === 'undefined') return null
+    
+    try {
+      const cached = sessionStorage.getItem(getCacheKey(query))
+      return cached ? JSON.parse(cached) : null
+    } catch {
+      return null
+    }
+  }
+
+  const setCachedResults = (query: string, results: LocationResult[]): void => {
+    if (typeof window === 'undefined') return
+    
+    try {
+      sessionStorage.setItem(getCacheKey(query), JSON.stringify(results))
+    } catch {
+      // Ignore storage errors
+    }
+  }
 
   const getLocalizedAddress = (location: LocationResult): string => {
     const isZh = locale.value.startsWith('zh')
@@ -25,15 +52,24 @@ export function useLocationSearch() {
     const isAscii = /^[\x00-\x7F]+$/.test(query)
     if (isAscii && query.trim().length < 2) return []
 
+    // Check cache first
+    const cached = getCachedResults(query)
+    if (cached) return cached
+
     try {
       const results = await $fetch('https://geodata.gov.hk/gs/api/v1.0.0/locationSearch', {
         query: { q : query },
       }) as LocationResult[]
 
-      return results.map(location => ({
+      const processedResults = results.map(location => ({
         ...location,
         displayAddress: getLocalizedAddress(location)
       }))
+
+      // Cache the results
+      setCachedResults(query, processedResults)
+
+      return processedResults
     } catch (error) {
       console.error('Error searching locations:', error)
       return []
