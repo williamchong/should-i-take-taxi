@@ -51,6 +51,30 @@
       "description": "This project is open source and available on GitHub.",
       "contribute": "If you find any issues or have suggestions for improvements, please contribute at:",
       "repository": "GitHub Repository"
+    },
+    "faq": {
+      "questions": [
+        {
+          "question": "How accurate is the Hong Kong taxi fare calculator?",
+          "answer": "The calculator uses official Transport Department rates and real-time route calculation to provide highly accurate fare estimates. It includes all surcharges, tunnel fees, and luggage charges based on current Hong Kong taxi regulations."
+        },
+        {
+          "question": "What types of Hong Kong taxis are supported?",
+          "answer": "The calculator supports all three types of Hong Kong taxis: Urban (Red) taxis, New Territories (Green) taxis, and Lantau (Blue) taxis, each with their specific fare structures and route restrictions."
+        },
+        {
+          "question": "Does the calculator include tunnel fees and surcharges?",
+          "answer": "Yes, the calculator includes all major tunnel fees (Cross Harbour, Eastern Harbour, Western Harbour, and others), luggage charges, and return toll fees. It can auto-detect cross-harbour routes and suggest appropriate tunnel fees."
+        },
+        {
+          "question": "Can I use my current location for fare calculation?",
+          "answer": "Yes, the calculator can automatically detect your current GPS location and use it as the starting point. It integrates with Hong Kong government location data for accurate address mapping."
+        },
+        {
+          "question": "Is the taxi fare calculator available in Chinese?",
+          "answer": "Yes, the calculator is fully bilingual with support for both English and Traditional Chinese, including localized address search and fare breakdown displays."
+        }
+      ]
     }
   },
   "taxiCalculator": {
