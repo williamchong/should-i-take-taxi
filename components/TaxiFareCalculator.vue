@@ -102,19 +102,103 @@
           <div class="border-t border-gray-200 my-2" />
         </div>
 
-        <!-- 距離 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-          <label for="distance" class="text-gray-700 font-medium">{{ $t('taxiCalculator.distance') }}</label>
-          <div class="relative rounded-md shadow-sm">
-            <input
-              id="distance" v-model.number="distance" type="number" min="0" step="0.1" :class="[
-              'block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-              !distance ? 'bg-yellow-50' : '',
-              routeInfo.distance > 0 ? 'bg-blue-50' : ''
-            ]" required @input.once="useTrackEvent('taxi_distance_input')"
-              @change="useTrackEvent('taxi_distance_change')">
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 sm:text-sm">km</span>
+        <!-- 距離 - Enhanced with inline editing -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <label for="distance" class="text-gray-700 font-medium pt-2">{{ $t('taxiCalculator.distance') }}</label>
+
+          <div class="space-y-2">
+            <!-- Read-only display by default -->
+            <div v-if="!isEditingDistance" class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-lg">{{ displayDistance }} km</span>
+
+              <!-- Badge: Auto-calculated or Manual -->
+              <span v-if="isManualOverride" class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                {{ $t('taxiCalculator.manuallyAdjusted') || '已調整' }}
+              </span>
+              <span v-else-if="autoCalculatedDistance > 0" class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                {{ $t('taxiCalculator.autoCalculated') || '自動' }}
+              </span>
+
+              <!-- Edit button -->
+              <button
+                type="button"
+                class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
+                :title="$t('taxiCalculator.manualAdjust') || '手動調整距離'"
+                @click="enableDistanceEdit"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <span class="hidden sm:inline">{{ $t('taxiCalculator.manualAdjust') || '手動調整' }}</span>
+              </button>
+            </div>
+
+            <!-- Editable mode -->
+            <div v-else class="space-y-2">
+              <div class="flex items-center gap-2">
+                <div class="relative">
+                  <input
+                    ref="distanceInput"
+                    v-model.number="manualDistance"
+                    type="number"
+                    min="0.1"
+                    max="200"
+                    step="0.1"
+                    class="w-24 px-3 py-2 border-2 border-blue-500 rounded-md font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    @keyup.enter="saveManualDistance"
+                    @keyup.esc="cancelDistanceEdit"
+                  >
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <span class="text-gray-500 text-sm">km</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  :title="$t('taxiCalculator.confirm') || '確認'"
+                  @click="saveManualDistance"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                  :title="$t('taxiCalculator.cancel') || '取消'"
+                  @click="cancelDistanceEdit"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Show auto-calculated reference -->
+              <div v-if="autoCalculatedDistance > 0" class="text-xs text-gray-600 flex items-center gap-1 bg-gray-50 p-2 rounded">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ $t('taxiCalculator.autoCalculatedDistance') || '自動計算距離' }}: {{ autoCalculatedDistance }} km</span>
+                <button
+                  type="button"
+                  class="text-blue-600 hover:underline ml-auto flex items-center gap-1"
+                  @click="resetToAutoCalculated"
+                >
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  {{ $t('taxiCalculator.restore') || '恢復' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -290,6 +374,98 @@ const isCalculatingDistance = ref(false)
 const isGettingLocation = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
 
+// 距離編輯相關
+const isEditingDistance = ref(false)
+const manualDistance = ref(0)
+const autoCalculatedDistance = ref(0)
+const isManualOverride = ref(false)
+const distanceInput = ref<HTMLInputElement | null>(null)
+
+// Computed distance: manual if overridden, else auto-calculated or manual input
+const displayDistance = computed(() => {
+  if (isManualOverride.value) {
+    return distance.value
+  }
+  if (autoCalculatedDistance.value > 0) {
+    return autoCalculatedDistance.value
+  }
+  return distance.value
+})
+
+// 距離編輯方法
+const enableDistanceEdit = () => {
+  manualDistance.value = distance.value
+  isEditingDistance.value = true
+  useTrackEvent('taxi_distance_manual_edit_opened')
+
+  // Focus input after Vue updates the DOM
+  nextTick(() => {
+    distanceInput.value?.focus()
+    distanceInput.value?.select()
+  })
+}
+
+const validateManualDistance = (): boolean => {
+  if (!manualDistance.value || manualDistance.value < 0.1) {
+    alert(t('taxiCalculator.distanceTooSmall') || '距離必須大於 0.1 公里')
+    return false
+  }
+
+  if (manualDistance.value > 200) {
+    alert(t('taxiCalculator.distanceTooLarge') || '距離不能超過 200 公里。如需計算更長距離，請分段計算。')
+    return false
+  }
+
+  // Warn if significantly different from auto-calculated
+  if (autoCalculatedDistance.value > 0) {
+    const diff = Math.abs(manualDistance.value - autoCalculatedDistance.value)
+    const percentDiff = (diff / autoCalculatedDistance.value) * 100
+
+    if (percentDiff > 50) {
+      const confirmed = confirm(
+        t('taxiCalculator.distanceDifferenceWarning', {
+          manual: manualDistance.value,
+          auto: autoCalculatedDistance.value,
+          percent: Math.round(percentDiff)
+        }) ||
+        `你輸入的距離 (${manualDistance.value} km) 與建議路線 (${autoCalculatedDistance.value} km) 相差超過 ${Math.round(percentDiff)}%。\n\n確定要使用此距離?`
+      )
+      return confirmed
+    }
+  }
+
+  return true
+}
+
+const saveManualDistance = () => {
+  if (!validateManualDistance()) {
+    return
+  }
+
+  distance.value = manualDistance.value
+  isManualOverride.value = true
+  isEditingDistance.value = false
+  useTrackEvent('taxi_distance_manually_set', {
+    distance: manualDistance.value,
+    wasAutoCalculated: autoCalculatedDistance.value > 0
+  })
+}
+
+const cancelDistanceEdit = () => {
+  isEditingDistance.value = false
+  useTrackEvent('taxi_distance_edit_cancelled')
+}
+
+const resetToAutoCalculated = () => {
+  if (autoCalculatedDistance.value > 0) {
+    distance.value = autoCalculatedDistance.value
+    manualDistance.value = autoCalculatedDistance.value
+    isManualOverride.value = false
+    isEditingDistance.value = false
+    useTrackEvent('taxi_distance_reset_to_auto')
+  }
+}
+
 // 選擇地點
 // Function to detect if a location is on Hong Kong Island
 const isOnHongKongIsland = (lat: number, lng: number): boolean => {
@@ -379,7 +555,15 @@ const handleCalculateDistance = async () => {
       selectedEndLocation.value
     )
     routeInfo.value = result
-    distance.value = parseFloat((result.distance / 1000).toFixed(1))
+
+    // Update auto-calculated distance
+    autoCalculatedDistance.value = parseFloat((result.distance / 1000).toFixed(1))
+
+    // If user hasn't manually overridden, use auto-calculated
+    if (!isManualOverride.value) {
+      distance.value = autoCalculatedDistance.value
+    }
+
     emitLocations()
     useTrackEvent('taxi_distance_auto_calculated')
   } catch (error) {

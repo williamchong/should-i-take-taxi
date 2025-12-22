@@ -117,6 +117,16 @@
     "geolocationError": "Unable to get your location. Please check location permission",
     "currentLocation": "Current Location",
     "useCurrentLocation": "Use Current Location",
-    "swapLocations": "Swap start and end locations"
+    "swapLocations": "Swap start and end locations",
+    "manuallyAdjusted": "Adjusted",
+    "autoCalculated": "Auto",
+    "manualAdjust": "Manual Adjust",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "autoCalculatedDistance": "Auto-calculated Distance",
+    "restore": "Restore",
+    "distanceTooSmall": "Distance must be greater than 0.1 km",
+    "distanceTooLarge": "Distance cannot exceed 200 km. For longer distances, please calculate in segments.",
+    "distanceDifferenceWarning": "Your entered distance ({manual} km) differs from the suggested route ({auto} km) by more than {percent}%.\n\nAre you sure you want to use this distance?"
   }
 }
