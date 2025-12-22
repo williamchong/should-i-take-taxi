@@ -85,4 +85,8 @@ const handleSelect = async (location: LocationResult) => {
   const transformedLocation = await transformCoordinates(location)
   emit('select', transformedLocation)
 }
+
+onBeforeUnmount(() => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+})
 </script>
