@@ -48,7 +48,15 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+
+        { rel: 'preconnect', href: 'https://geodata.gov.hk', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://www.geodetic.gov.hk', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://router.project-osrm.org', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://nominatim.openstreetmap.org', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://a.basemaps.cartocdn.com' },
+        { rel: 'preconnect', href: 'https://b.basemaps.cartocdn.com' },
+        { rel: 'preconnect', href: 'https://c.basemaps.cartocdn.com' },
       ]
     }
   },
