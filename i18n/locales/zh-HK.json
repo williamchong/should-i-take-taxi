@@ -107,7 +107,6 @@
       "shaTinHeights": "沙田嶺隧道/尖山隧道/大圍隧道"
     },
     "otherTunnels": "其他隧道",
-    "distanceCalculator": "自動計算距離",
     "startLocation": "起點",
     "endLocation": "終點",
     "searchPlace": "搜尋地點...",
@@ -117,6 +116,7 @@
     "geolocationError": "無法獲取你的位置，請檢查位置服務權限",
     "currentLocation": "當前位置",
     "useCurrentLocation": "使用當前位置",
+    "useMyLocation": "使用我的位置",
     "swapLocations": "交換起點和終點",
     "manuallyAdjusted": "已調整",
     "autoCalculated": "自動",
@@ -127,6 +127,12 @@
     "restore": "恢復",
     "distanceTooSmall": "距離必須大於 0.1 公里",
     "distanceTooLarge": "距離不能超過 200 公里。如需計算更長距離，請分段計算。",
-    "distanceDifferenceWarning": "你輸入的距離 ({manual} km) 與建議路線 ({auto} km) 相差超過 {percent}%。\n\n確定要使用此距離?"
+    "distanceDifferenceWarning": "你輸入的距離 ({manual} km) 與建議路線 ({auto} km) 相差超過 {percent}%。\n\n確定要使用此距離?",
+    "advancedOptions": "進階選項",
+    "tunnelsLuggage": "隧道、行李",
+    "recentLocations": "最近使用地點",
+    "suggestedTaxiType": "根據你的路線，我們建議使用{type}",
+    "useSuggested": "使用建議",
+    "viewDetails": "查看詳情"
   }
 }

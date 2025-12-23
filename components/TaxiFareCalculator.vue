@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-    <div class="flex justify-between items-center mb-4">
+  <div class="bg-white rounded-xl shadow-md p-6 sm:p-8 mb-8">
+    <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold text-gray-900">{{ $t('taxiCalculator.title') }}</h2>
       <div class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600 flex items-center">
         <span class="mr-1">🇭🇰</span>
@@ -9,11 +9,9 @@
     </div>
 
     <form>
-      <div class="space-y-4">
+      <div class="space-y-6">
         <!-- 地點搜尋 -->
-        <div class="grid grid-cols-1 gap-4 mb-4">
-          <h3 class="text-md font-medium text-gray-700">{{ $t('taxiCalculator.distanceCalculator') }}</h3>
-
+        <div class="grid grid-cols-1 gap-6">
           <!-- 起點搜尋 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <label for="startLocation" class="text-gray-700 font-medium">
@@ -30,20 +28,21 @@
               <button
                 v-if="isGeolocationSupported"
                 type="button"
-                class="inline-flex justify-center py-2 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center justify-center gap-2 py-2 px-4 border border-transparent shadow-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 :disabled="isGettingLocation"
                 :title="$t('taxiCalculator.useCurrentLocation')"
                 @click="getCurrentLocation"
               >
                 <span v-if="isGettingLocation">
-                  <div class="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+                  <div class="animate-spin h-5 w-5 border-2 border-white rounded-full border-t-transparent" />
                 </span>
-                <span v-else>
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <template v-else>
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                </span>
+                  <span class="hidden sm:inline">{{ $t('taxiCalculator.useMyLocation') }}</span>
+                </template>
               </button>
             </div>
           </div>
@@ -84,12 +83,10 @@
                   min</span></p>
             </div>
           </div>
-
-          <div class="border-t border-gray-200 my-2" />
         </div>
 
         <!-- 距離 - Enhanced with inline editing -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div class="border-t border-gray-200 pt-6 grid grid-cols-2 gap-4 items-start">
           <label for="distance" class="text-gray-700 font-medium pt-2">{{ $t('taxiCalculator.distance') }}</label>
 
           <div class="space-y-2">
@@ -190,7 +187,7 @@
         </div>
 
         <!-- 的士類型選擇 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+        <div class="grid grid-cols-2 gap-4 items-center">
           <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
           <div class="flex space-x-4">
             <label class="inline-flex items-center">
@@ -214,8 +211,50 @@
           </div>
         </div>
 
-        <!-- 隧道費 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <!-- Taxi Type Suggestion Banner -->
+        <div v-if="showSuggestion && suggestedTaxiType" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <p class="text-sm text-blue-800">
+                {{ $t('taxiCalculator.suggestedTaxiType', { type: $t(`taxiCalculator.${suggestedTaxiType}`) }) }}
+              </p>
+            </div>
+            <div class="flex gap-2 ml-4">
+              <button
+                type="button"
+                class="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                @click="acceptSuggestion"
+              >
+                {{ $t('taxiCalculator.useSuggested') }}
+              </button>
+              <button
+                type="button"
+                class="px-3 py-1 text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors"
+                @click="dismissSuggestion"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 進階選項切換 -->
+        <div class="border-t border-gray-200 pt-6 mt-6">
+          <button
+            type="button"
+            class="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center"
+            @click="toggleAdvancedOptions"
+          >
+            <span class="mr-2">{{ showAdvancedOptions ? '▼' : '▶' }}</span>
+            {{ $t('taxiCalculator.advancedOptions') }}
+            <span class="ml-2 text-xs text-gray-500">({{ $t('taxiCalculator.tunnelsLuggage') }})</span>
+          </button>
+        </div>
+
+        <!-- 進階選項內容 -->
+        <div v-show="showAdvancedOptions" class="space-y-6 mt-6">
+          <!-- 隧道費 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
           <label class="text-gray-700 font-medium pt-1">{{ $t('taxiCalculator.tunnelFee') }}</label>
           <div class="space-y-2">
             <!-- 過海隧道選項 -->
@@ -278,56 +317,24 @@
           </div>
         </div>
 
-        <!-- 行李數量 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-          <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.luggage') }}</label>
-          <div class="relative rounded-md shadow-sm">
-            <input
-              v-model.number="luggageCount" type="number" min="0" step="1"
-              class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              @input.once="useTrackEvent('taxi_luggage_input')" @change="useTrackEvent('taxi_luggage_change')">
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 sm:text-sm">{{ $t('taxiCalculator.pieces') }}</span>
+          <!-- 行李數量 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.luggage') }}</label>
+            <div class="relative rounded-md shadow-sm">
+              <input
+                v-model.number="luggageCount" type="number" min="0" step="1"
+                class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                @input.once="useTrackEvent('taxi_luggage_input')" @change="useTrackEvent('taxi_luggage_change')">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">{{ $t('taxiCalculator.pieces') }}</span>
+              </div>
             </div>
           </div>
         </div>
+        <!-- End of 進階選項內容 -->
 
       </div>
     </form>
-
-    <!-- 計算結果 始終顯示 -->
-    <div class="mt-6 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
-      <h3 class="text-xl font-medium text-gray-900">{{ $t('taxiCalculator.estimatedFare') }}</h3>
-      <p class="text-5xl font-bold text-blue-600 mt-2 mb-4">HK$ {{ totalFare.toFixed(2) }}</p>
-
-      <!-- 計算結果詳細內容 -->
-      <div class="border-t border-blue-200 pt-4 mt-4 text-sm text-gray-600">
-        <div class="grid grid-cols-2 gap-2">
-          <span>{{ getTaxiTypeLabel }} {{ $t('taxiCalculator.flagFall') }}:</span>
-          <span class="text-right">HK$ {{ rates.flagFall.toFixed(2) }}</span>
-
-          <template v-if="distanceFare > 0">
-            <span>{{ $t('taxiCalculator.distanceFare') }}:</span>
-            <span class="text-right">HK$ {{ distanceFare.toFixed(2) }}</span>
-          </template>
-
-          <template v-if="getTunnelFees > 0">
-            <span>{{ $t('taxiCalculator.tunnelTotal') }}:</span>
-            <span class="text-right">HK$ {{ getTunnelFees.toFixed(2) }}</span>
-          </template>
-
-          <template v-if="getLuggageFees > 0">
-            <span>{{ $t('taxiCalculator.luggageTotal') }}:</span>
-            <span class="text-right">HK$ {{ getLuggageFees.toFixed(2) }}</span>
-          </template>
-
-          <template v-if="getReturnTollFee > 0">
-            <span>{{ $t('taxiCalculator.returnToll') }}:</span>
-            <span class="text-right">HK$ {{ getReturnTollFee.toFixed(2) }}</span>
-          </template>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -338,12 +345,14 @@ import { useLocationSearch } from '../composables/useLocationSearch'
 import LocationSearch from './LocationSearch.vue'
 import type { LocationResult } from '~/types/location'
 
-const emit = defineEmits(['update:locations'])
+const emit = defineEmits(['update:locations', 'update:fare'])
 
 const { t } = useI18n()
 const { calculateDrivingDistance, reverseGeocode } = useLocationSearch()
 
 const taxiType = ref<'urban' | 'newTerritories' | 'lantau'>('urban')
+const suggestedTaxiType = ref<'urban' | 'newTerritories' | 'lantau' | null>(null)
+const showSuggestion = ref(false)
 const distance = ref(0)
 const selectedTunnels = ref([] as string[])
 const isCrossHarbourTaxiStand = ref(false)
@@ -366,6 +375,9 @@ const manualDistance = ref(0)
 const autoCalculatedDistance = ref(0)
 const isManualOverride = ref(false)
 const distanceInput = ref<HTMLInputElement | null>(null)
+
+// 進階選項
+const showAdvancedOptions = ref(false)
 
 // Computed distance: manual if overridden, else auto-calculated or manual input
 const displayDistance = computed(() => {
@@ -452,6 +464,12 @@ const resetToAutoCalculated = () => {
   }
 }
 
+// 進階選項切換
+const toggleAdvancedOptions = () => {
+  showAdvancedOptions.value = !showAdvancedOptions.value
+  useTrackEvent('taxi_advanced_options_toggled', { expanded: showAdvancedOptions.value })
+}
+
 // 選擇地點
 // Function to detect if a location is on Hong Kong Island
 const isOnHongKongIsland = (lat: number, lng: number): boolean => {
@@ -480,6 +498,7 @@ const autoSelectCrossHarbourTunnel = () => {
   if (startIsOnHKIsland !== endIsOnHKIsland) {
     if (!selectedTunnels.value.includes('crossHarbour')) {
       selectedTunnels.value.push('crossHarbour')
+      showAdvancedOptions.value = true // Auto-expand to show the auto-selected tunnel
       useTrackEvent('taxi_cross_harbour_tunnel_auto_selected')
     }
   }
@@ -529,6 +548,55 @@ const canCalculateDistance = computed(() => {
   return selectedStartLocation.value && selectedEndLocation.value
 })
 
+// Detect if a location is in Lantau Island
+const isLantauLocation = (location: LocationResult | null): boolean => {
+  if (!location) return false
+
+  const address = location.displayAddress.toLowerCase()
+  const lantauKeywords = [
+    'lantau', '大嶼山', '東涌', 'tung chung', 'chek lap kok', '赤鱲角',
+    'airport', '機場', 'disneyland', '迪士尼', 'ngong ping', '昂坪',
+    'mui wo', '梅窩', 'discovery bay', '愉景灣', 'tai o', '大澳'
+  ]
+
+  return lantauKeywords.some(keyword => address.includes(keyword))
+}
+
+// Suggest taxi type based on route
+const suggestTaxiType = () => {
+  const startIsLantau = isLantauLocation(selectedStartLocation.value)
+  const endIsLantau = isLantauLocation(selectedEndLocation.value)
+
+  // If either start or end is in Lantau, suggest Lantau taxi
+  if (startIsLantau || endIsLantau) {
+    if (taxiType.value !== 'lantau') {
+      suggestedTaxiType.value = 'lantau'
+      showSuggestion.value = true
+      useTrackEvent('taxi_type_suggestion_shown', { suggested: 'lantau' })
+      return
+    }
+  }
+
+  // Clear suggestion if not applicable
+  suggestedTaxiType.value = null
+  showSuggestion.value = false
+}
+
+// Accept suggested taxi type
+const acceptSuggestion = () => {
+  if (suggestedTaxiType.value) {
+    taxiType.value = suggestedTaxiType.value
+    showSuggestion.value = false
+    useTrackEvent('taxi_type_suggestion_accepted', { suggested: suggestedTaxiType.value })
+  }
+}
+
+// Dismiss suggestion
+const dismissSuggestion = () => {
+  showSuggestion.value = false
+  useTrackEvent('taxi_type_suggestion_dismissed', { suggested: suggestedTaxiType.value })
+}
+
 // 重構計算距離函數
 const handleCalculateDistance = async () => {
   if (!selectedStartLocation.value || !selectedEndLocation.value) {
@@ -551,6 +619,7 @@ const handleCalculateDistance = async () => {
     }
 
     emitLocations()
+    suggestTaxiType()
     useTrackEvent('taxi_distance_auto_calculated')
   } catch (error) {
     console.error('Error handling distance calculation:', error)
@@ -771,11 +840,26 @@ const totalFare = computed(() => {
   return Math.round(fare * 10) / 10;
 })
 
-// 監視 totalFare 的變化並追蹤
+// 車費明細 (for emitting to parent)
+const fareBreakdown = computed(() => ({
+  flagFall: rates.value.flagFall,
+  distanceFare: distanceFare.value,
+  tunnelFees: getTunnelFees.value,
+  luggageFees: getLuggageFees.value,
+  returnToll: getReturnTollFee.value,
+  taxiTypeLabel: getTaxiTypeLabel.value
+}))
+
+// 監視 totalFare 的變化並追蹤和發送更新
 watch(totalFare, (newValue) => {
   if (newValue > 0) {
     useTrackEvent('taxi_fare_calculated')
   }
+  // Emit fare data to parent component
+  emit('update:fare', {
+    totalFare: newValue,
+    breakdown: fareBreakdown.value
+  })
 }, { immediate: true })
 
 </script>

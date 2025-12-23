@@ -1,8 +1,8 @@
 <template>
   <div
-    class="h-[50vh] w-full rounded-lg shadow-md overflow-hidden relative"
+    class="h-[33vh] md:h-[40vh] w-full rounded-lg shadow-md overflow-hidden relative"
   >
-    <div v-if="isLoading" class="absolute inset-0 bg-gray-100/80 flex items-center justify-center z-[1000]">
+    <div v-if="isLoading" class="absolute inset-0 bg-gray-100/80 flex items-center justify-center z-[100]">
       <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"/>
     </div>
     <ClientOnly>

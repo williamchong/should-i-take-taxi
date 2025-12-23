@@ -50,7 +50,7 @@
         <li
           v-for="(step, index) in $tm('intro.usage.steps')" :key="index"
             class="flex">
-          <span class="font-bold text-blue-500 mr-2">{{ index + 1 }}.</span>
+          <span class="font-bold text-blue-500 mr-2">{{ Number(index) + 1 }}.</span>
           <span class="text-gray-600">{{ $rt(step) }}</span>
         </li>
       </ol>

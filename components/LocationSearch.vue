@@ -15,10 +15,26 @@
     </div>
 
     <div
-      v-if="isFocused && searchResults.length > 0"
+      v-if="isFocused && (searchResults.length > 0 || (!searchText && recentLocations.length > 0))"
       class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-200 max-h-60 overflow-auto"
     >
       <ul>
+        <!-- Recent locations (shown when no search text) -->
+        <template v-if="!searchText && recentLocations.length > 0">
+          <li class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            {{ $t('taxiCalculator.recentLocations') }}
+          </li>
+          <li
+            v-for="(result, index) in recentLocations"
+            :key="`${id}-recent-${index}`"
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+            @click="handleSelect(result)"
+          >
+            {{ result.displayAddress }}
+          </li>
+        </template>
+
+        <!-- Search results -->
         <li
           v-for="(result, index) in searchResults"
           :key="`${id}-${index}`"
@@ -35,6 +51,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useLocationSearch } from '../composables/useLocationSearch'
+import { useRecentLocations } from '../composables/useRecentLocations'
 import type { LocationResult } from '~/types/location';
 
 const props = defineProps<{
@@ -45,11 +62,18 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue', 'select'])
 
 const { searchLocation, transformCoordinates } = useLocationSearch()
+const { getRecentLocations, addRecentLocation } = useRecentLocations()
 
 const searchText = ref(props.modelValue)
 const searchResults = ref<LocationResult[]>([])
 const isSearching = ref(false)
 const isFocused = ref(false)
+const recentLocations = ref<LocationResult[]>([])
+
+// Load recent locations on mount
+onMounted(() => {
+  recentLocations.value = getRecentLocations()
+})
 
 watch(() => props.modelValue, (newValue) => {
   searchText.value = newValue
@@ -84,6 +108,10 @@ const handleSelect = async (location: LocationResult) => {
 
   const transformedLocation = await transformCoordinates(location)
   emit('select', transformedLocation)
+
+  // Save to recent locations
+  addRecentLocation(location)
+  recentLocations.value = getRecentLocations()
 }
 
 onBeforeUnmount(() => {
