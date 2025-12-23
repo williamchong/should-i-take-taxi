@@ -54,6 +54,9 @@
       <!-- 3. TaxiFareCalculator -->
       <TaxiFareCalculator
         class="mb-8"
+        :initial-start-location="selectedLocations.start"
+        :initial-end-location="selectedLocations.end"
+        :skip-gps-auto-request="locationsRestoredFromUrl"
         @update:locations="updateLocations"
         @update:fare="updateFare"
       />
@@ -118,10 +121,18 @@ import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
+import { useLocationSearch } from '@/composables/useLocationSearch'
+
+const { t, locale } = useI18n()
+const route = useRoute()
+const router = useRouter()
+const { reverseGeocode } = useLocationSearch()
+const { gtag } = useGtag()
 
 const showIntroduction = ref(false)
 const showStickyFare = ref(false)
 const fareDisplayRef = ref<HTMLElement | null>(null)
+const locationsRestoredFromUrl = ref(false)
 
 const selectedLocations = ref<{
   start: LocationResult | null;
@@ -157,6 +168,185 @@ function updateFare(data: any) {
   fareData.value = data
 }
 
+// Parse query parameters from URL and restore locations
+async function parseQueryParams() {
+  const fromParam = route.query.from as string | undefined
+  const toParam = route.query.to as string | undefined
+
+  if (!fromParam && !toParam) return
+
+  try {
+    let startLocation: LocationResult | null = null
+    let endLocation: LocationResult | null = null
+
+    // Parse 'from' parameter
+    if (fromParam) {
+      const [latStr, lngStr] = fromParam.split(',')
+      const lat = parseFloat(latStr)
+      const lng = parseFloat(lngStr)
+
+      if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        const result = await reverseGeocode(lat, lng)
+        if (result) {
+          startLocation = result
+        } else {
+          // Fallback if reverse geocoding fails
+          startLocation = {
+            x: lng,
+            y: lat,
+            nameEN: 'Custom Location',
+            nameZH: '自定義位置',
+            addressEN: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+            addressZH: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+            districtEN: '',
+            districtZH: '',
+            displayAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+          }
+        }
+      } else {
+        console.warn('Invalid coordinates in "from" parameter:', fromParam)
+      }
+    }
+
+    // Parse 'to' parameter
+    if (toParam) {
+      const [latStr, lngStr] = toParam.split(',')
+      const lat = parseFloat(latStr)
+      const lng = parseFloat(lngStr)
+
+      if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        const result = await reverseGeocode(lat, lng)
+        if (result) {
+          endLocation = result
+        } else {
+          // Fallback if reverse geocoding fails
+          endLocation = {
+            x: lng,
+            y: lat,
+            nameEN: 'Custom Location',
+            nameZH: '自定義位置',
+            addressEN: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+            addressZH: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+            districtEN: '',
+            districtZH: '',
+            displayAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+          }
+        }
+      } else {
+        console.warn('Invalid coordinates in "to" parameter:', toParam)
+      }
+    }
+
+    // Set locations if we successfully parsed any
+    if (startLocation || endLocation) {
+      selectedLocations.value = {
+        start: startLocation,
+        end: endLocation,
+        coordinates: []
+      }
+      locationsRestoredFromUrl.value = true
+
+      // Analytics tracking
+      gtag('event', 'seo_url_restored_from_query', {
+        has_start: !!startLocation,
+        has_end: !!endLocation
+      })
+    }
+  } catch (error) {
+    console.error('Error parsing query parameters:', error)
+  }
+}
+
+// Update URL with current locations
+function updateUrlParams(locations: { start: LocationResult | null; end: LocationResult | null }) {
+  const params = new URLSearchParams()
+
+  if (locations.start) {
+    const { y, x } = locations.start
+    params.set('from', `${y.toFixed(6)},${x.toFixed(6)}`)
+  }
+
+  if (locations.end) {
+    const { y, x } = locations.end
+    params.set('to', `${y.toFixed(6)},${x.toFixed(6)}`)
+  }
+
+  const queryString = params.toString()
+  const newPath = queryString ? `?${queryString}` : route.path
+
+  // Only update if different to avoid unnecessary navigation
+  if (route.fullPath !== newPath) {
+    router.replace(newPath)
+
+    // Analytics tracking
+    gtag('event', 'seo_url_updated', {
+      has_start: !!locations.start,
+      has_end: !!locations.end
+    })
+  }
+}
+
+// Watch for location changes and update URL
+watch(() => selectedLocations.value, (newLocations) => {
+  if (!locationsRestoredFromUrl.value || newLocations.start || newLocations.end) {
+    updateUrlParams(newLocations)
+  }
+}, { deep: true })
+
+// Dynamic page title
+const dynamicTitle = computed(() => {
+  const start = selectedLocations.value.start
+  const end = selectedLocations.value.end
+  const isZh = locale.value === 'zh-hk'
+
+  if (start && end) {
+    const fromName = isZh ? (start.nameZH || start.addressZH) : (start.nameEN || start.addressEN)
+    const toName = isZh ? (end.nameZH || end.addressZH) : (end.nameEN || end.addressEN)
+    return t('seo.dynamicTitle.fromTo', { from: fromName, to: toName })
+  } else if (start) {
+    const fromName = isZh ? (start.nameZH || start.addressZH) : (start.nameEN || start.addressEN)
+    return t('seo.dynamicTitle.fromOnly', { from: fromName })
+  }
+
+  return t('title') // fallback to static title
+})
+
+// Canonical URL
+const canonicalUrl = computed(() => {
+  const baseUrl = 'https://shoulditake.taxi'
+  const localePath = locale.value === 'en-hk' ? '' : `/${locale.value}`
+
+  const url = `${baseUrl}${localePath}/`
+
+  const params = new URLSearchParams()
+  if (selectedLocations.value.start) {
+    const { y, x } = selectedLocations.value.start
+    params.set('from', `${y.toFixed(6)},${x.toFixed(6)}`)
+  }
+  if (selectedLocations.value.end) {
+    const { y, x } = selectedLocations.value.end
+    params.set('to', `${y.toFixed(6)},${x.toFixed(6)}`)
+  }
+
+  const queryString = params.toString()
+  return queryString ? `${url}?${queryString}` : url
+})
+
+// Page-level SEO (overrides layout)
+useSeoMeta({
+  title: dynamicTitle,
+  ogTitle: dynamicTitle
+})
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: canonicalUrl
+    }
+  ]
+})
+
 // Scroll to fare display
 function scrollToFare() {
   if (fareDisplayRef.value) {
@@ -164,8 +354,11 @@ function scrollToFare() {
   }
 }
 
-// Setup IntersectionObserver for sticky fare
-onMounted(() => {
+// Setup IntersectionObserver for sticky fare and parse URL params
+onMounted(async () => {
+  // Parse URL params first (before GPS auto-request in child component)
+  await parseQueryParams()
+
   if (typeof window === 'undefined' || !fareDisplayRef.value) return
 
   const observer = new IntersectionObserver(

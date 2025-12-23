@@ -41,7 +41,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span class="hidden sm:inline">{{ $t('taxiCalculator.useMyLocation') }}</span>
                 </template>
               </button>
             </div>
@@ -344,6 +343,12 @@ import { useI18n } from 'vue-i18n'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import LocationSearch from './LocationSearch.vue'
 import type { LocationResult } from '~/types/location'
+
+const props = defineProps<{
+  initialStartLocation?: LocationResult | null
+  initialEndLocation?: LocationResult | null
+  skipGpsAutoRequest?: boolean
+}>()
 
 const emit = defineEmits(['update:locations', 'update:fare'])
 
@@ -720,14 +725,37 @@ const swapLocations = async () => {
   useTrackEvent('taxi_locations_swapped')
 }
 
+// Watch for initial location props from parent (URL restoration)
+watch(() => props.initialStartLocation, (newLocation) => {
+  if (newLocation && !selectedStartLocation.value) {
+    selectedStartLocation.value = newLocation
+    startLocationSearch.value = newLocation.displayAddress
+    if (selectedEndLocation.value) {
+      handleCalculateDistance()
+    }
+    emitLocations()
+  }
+}, { immediate: true })
+
+watch(() => props.initialEndLocation, (newLocation) => {
+  if (newLocation && !selectedEndLocation.value) {
+    selectedEndLocation.value = newLocation
+    endLocationSearch.value = newLocation.displayAddress
+    if (selectedStartLocation.value) {
+      handleCalculateDistance()
+    }
+    emitLocations()
+  }
+}, { immediate: true })
+
 // 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置
 onMounted(() => {
   // 檢查瀏覽器是否支援地理定位API
   isGeolocationSupported.value = Boolean(navigator.geolocation)
   useTrackEvent('taxi_calculator_opened')
 
-  // 自動檢測並請求 GPS 定位（如果設備支援）
-  if (isGeolocationSupported.value && !selectedStartLocation.value) {
+  // 自動檢測並請求 GPS 定位（如果設備支援且未從 URL 恢復位置）
+  if (isGeolocationSupported.value && !selectedStartLocation.value && !props.skipGpsAutoRequest) {
     getCurrentLocation()
   }
 })

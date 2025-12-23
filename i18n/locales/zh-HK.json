@@ -1,6 +1,12 @@
 {
   "title": "香港的士車費計算器",
   "description": "為香港市區、新界及大嶼山的士提供準確車費計算",
+  "seo": {
+    "dynamicTitle": {
+      "fromOnly": "由 {from} 出發的士 | 香港的士車費計算器",
+      "fromTo": "由 {from} 到 {to} 的士 | 香港的士車費計算器"
+    }
+  },
   "intro": {
     "showIntroduction": "瞭解更多關於這個計算器",
     "title": "計算器簡介",
@@ -116,7 +122,6 @@
     "geolocationError": "無法獲取你的位置，請檢查位置服務權限",
     "currentLocation": "當前位置",
     "useCurrentLocation": "使用當前位置",
-    "useMyLocation": "使用我的位置",
     "swapLocations": "交換起點和終點",
     "manuallyAdjusted": "已調整",
     "autoCalculated": "自動",
