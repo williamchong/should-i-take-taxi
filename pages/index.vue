@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50">
     <!-- Sticky Fare Summary -->
     <Transition name="slide-down">
-      <div v-if="showStickyFare && fareData" class="fixed top-0 left-0 right-0 z-100 bg-white shadow-lg border-b border-gray-200">
+      <div v-if="showStickyFare && fareData" class="fixed top-0 left-0 right-0 z-[1000] bg-white shadow-lg border-b border-gray-200">
         <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <span class="text-sm text-gray-600">{{ $t('taxiCalculator.estimatedFare') }}:</span>
