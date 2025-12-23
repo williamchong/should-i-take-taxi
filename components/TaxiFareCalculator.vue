@@ -750,6 +750,10 @@ watch(() => props.initialEndLocation, (newLocation) => {
 
 // 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置
 onMounted(() => {
+  emit('update:fare', {
+    totalFare: totalFare.value,
+    breakdown: fareBreakdown.value
+  })
   // 檢查瀏覽器是否支援地理定位API
   isGeolocationSupported.value = Boolean(navigator.geolocation)
   useTrackEvent('taxi_calculator_opened')
@@ -888,6 +892,6 @@ watch(totalFare, (newValue) => {
     totalFare: newValue,
     breakdown: fareBreakdown.value
   })
-}, { immediate: true })
+})
 
 </script>
