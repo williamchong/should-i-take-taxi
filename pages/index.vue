@@ -152,6 +152,7 @@ const showStickyFare = ref(false)
 const fareDisplayRef = ref<HTMLElement | null>(null)
 const locationsRestoredFromUrl = ref(false)
 const isLoadingFromUrl = ref(false)
+const observer = ref<IntersectionObserver | null>(null)
 
 const selectedLocations = ref<{
   start: LocationResult | null;
@@ -384,7 +385,7 @@ onMounted(async () => {
 
   if (typeof window === 'undefined' || !fareDisplayRef.value) return
 
-  const observer = new IntersectionObserver(
+  observer.value = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         // Show sticky header when fare display is out of view
@@ -397,12 +398,14 @@ onMounted(async () => {
     }
   )
 
-  observer.observe(fareDisplayRef.value)
+  observer.value.observe(fareDisplayRef.value)
+})
 
-  // Cleanup on unmount
-  onBeforeUnmount(() => {
-    observer.disconnect()
-  })
+// Cleanup on unmount
+onBeforeUnmount(() => {
+  if (observer.value) {
+    observer.value.disconnect()
+  }
 })
 </script>
 
