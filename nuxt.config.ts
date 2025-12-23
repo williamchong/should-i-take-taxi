@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { generateSitemapUrls } from './config/sitemap-routes'
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
@@ -43,6 +45,10 @@ export default defineNuxtConfig({
   site: {
     url: 'https://shoulditake.taxi',
     name: 'Should I Take Taxi?',
+  },
+
+  sitemap: {
+    urls: generateSitemapUrls
   },
 
   app: {
