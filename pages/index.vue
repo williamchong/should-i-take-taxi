@@ -56,7 +56,7 @@
         class="mb-8"
         :initial-start-location="selectedLocations.start"
         :initial-end-location="selectedLocations.end"
-        :skip-gps-auto-request="locationsRestoredFromUrl"
+        :skip-gps-auto-request="!!route.query.from"
         @update:locations="updateLocations"
         @update:fare="updateFare"
       />
