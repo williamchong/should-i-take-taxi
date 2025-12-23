@@ -1,5 +1,5 @@
 <template>
-  <section class="space-y-8">
+  <div class="space-y-8">
     <div class="bg-white rounded-xl shadow-md p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $t('intro.title') }}</h2>
       <p class="text-gray-600">
@@ -73,7 +73,7 @@
         {{ $t('intro.openSource.repository') }}
       </a>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">

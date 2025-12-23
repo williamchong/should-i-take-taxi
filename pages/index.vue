@@ -28,16 +28,19 @@
         @update:locations="updateLocations"
       />
 
-      <div class="relative mb-12">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-gray-300"/>
-        </div>
-        <div class="relative flex justify-center">
-          <span class="px-4 bg-gray-50 text-lg text-gray-500">{{ $t('intro.divider') }}</span>
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <button
+          type="button"
+          class="w-full flex items-center justify-between text-left"
+          @click="showIntroduction = !showIntroduction"
+        >
+          <h2 class="text-xl font-semibold text-gray-900">{{ $t('intro.showIntroduction') }}</h2>
+          <span class="text-gray-600 text-lg">{{ showIntroduction ? '▼' : '▶' }}</span>
+        </button>
+        <div v-show="showIntroduction" class="mt-4">
+          <IntroductionSection />
         </div>
       </div>
-
-      <IntroductionSection />
     </div>
   </div>
 </template>
@@ -49,6 +52,8 @@ import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
+
+const showIntroduction = ref(false)
 
 const selectedLocations = ref<{
   start: LocationResult | null;

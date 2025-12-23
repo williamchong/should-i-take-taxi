@@ -75,20 +75,6 @@
             </div>
           </div>
 
-          <!-- 計算距離按鈕 -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <div />
-            <button
-              type="button"
-              class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="!canCalculateDistance || isCalculatingDistance" @click="handleCalculateDistance">
-              <span v-if="isCalculatingDistance" class="mr-2">
-                <div class="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
-              </span>
-              {{ $t('taxiCalculator.calculateDistance') }}
-            </button>
-          </div>
-
           <div v-if="routeInfo.distance > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <div />
             <div class="text-sm text-gray-700">
@@ -310,12 +296,12 @@
     </form>
 
     <!-- 計算結果 始終顯示 -->
-    <div class="mt-6 p-4 bg-gray-50 rounded-md">
-      <h3 class="text-lg font-medium text-gray-900">{{ $t('taxiCalculator.estimatedFare') }}</h3>
-      <p class="text-2xl font-bold text-blue-600">HK$ {{ totalFare.toFixed(2) }}</p>
+    <div class="mt-6 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
+      <h3 class="text-xl font-medium text-gray-900">{{ $t('taxiCalculator.estimatedFare') }}</h3>
+      <p class="text-5xl font-bold text-blue-600 mt-2 mb-4">HK$ {{ totalFare.toFixed(2) }}</p>
 
       <!-- 計算結果詳細內容 -->
-      <div class="mt-3 text-sm text-gray-600">
+      <div class="border-t border-blue-200 pt-4 mt-4 text-sm text-gray-600">
         <div class="grid grid-cols-2 gap-2">
           <span>{{ getTaxiTypeLabel }} {{ $t('taxiCalculator.flagFall') }}:</span>
           <span class="text-right">HK$ {{ rates.flagFall.toFixed(2) }}</span>

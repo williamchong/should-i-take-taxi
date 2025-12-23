@@ -2,6 +2,7 @@
   "title": "香港的士車費計算器",
   "description": "為香港市區、新界及大嶼山的士提供準確車費計算",
   "intro": {
+    "showIntroduction": "瞭解更多關於這個計算器",
     "title": "計算器簡介",
     "description": "這個計算器幫助你計算香港三種類型的士的準確車費。包括自動路線計算、隧道費、行李費及其他附加費，為你提供最準確的車費估算。",
     "divider": "簡介",
@@ -110,7 +111,6 @@
     "startLocation": "起點",
     "endLocation": "終點",
     "searchPlace": "搜尋地點...",
-    "calculateDistance": "計算路程",
     "calculatedDistance": "預算距離",
     "estimatedTime": "預算時間",
     "geolocationNotSupported": "你的裝置唔支援地理定位功能",

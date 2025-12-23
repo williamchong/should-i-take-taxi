@@ -2,6 +2,7 @@
   "title": "Hong Kong Taxi Fare Calculator",
   "description": "Calculate accurate taxi fares for Urban, New Territories, and Lantau taxis in Hong Kong",
   "intro": {
+    "showIntroduction": "Learn More About This Calculator",
     "title": "Calculator Introduction",
     "description": "This calculator helps you calculate accurate taxi fares for all three types of Hong Kong taxis. It includes automatic route calculation, tunnel fees, luggage charges, and other surcharges to give you the most accurate fare estimate possible.",
     "divider": "Introduction",
@@ -110,7 +111,6 @@
     "startLocation": "Start Location",
     "endLocation": "End Location",
     "searchPlace": "Search place...",
-    "calculateDistance": "Calculate Distance",
     "calculatedDistance": "Calculated Distance",
     "estimatedTime": "Estimated Time",
     "geolocationNotSupported": "Your browser does not support geolocation",
