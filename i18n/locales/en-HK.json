@@ -1,6 +1,7 @@
 {
   "title": "Hong Kong Taxi Fare Calculator",
   "description": "Calculate accurate taxi fares for Urban, New Territories, and Lantau taxis in Hong Kong",
+  "loading": "Loading...",
   "seo": {
     "dynamicTitle": {
       "fromOnly": "Taxi from {from} | Hong Kong Taxi Fare Calculator",

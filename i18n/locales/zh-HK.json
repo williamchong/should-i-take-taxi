@@ -1,6 +1,7 @@
 {
   "title": "香港的士車費計算器",
   "description": "為香港市區、新界及大嶼山的士提供準確車費計算",
+  "loading": "載入中...",
   "seo": {
     "dynamicTitle": {
       "fromOnly": "由 {from} 出發的士 | 香港的士車費計算器",

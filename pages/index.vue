@@ -25,14 +25,32 @@
         <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
         <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
         <div class="flex justify-center mb-8">
-          <picture>
-            <source :srcset="LogoEnWebp" type="image/webp">
-            <img
-              :src="LogoEn"
-              alt="Crazy Taxi"
-              class="h-40 w-auto rounded-lg shadow-md"
+          <div class="relative">
+            <picture>
+              <source :srcset="LogoEnWebp" type="image/webp">
+              <img
+                :src="LogoEn"
+                alt="Crazy Taxi"
+                :class="[
+                  'h-40 w-auto rounded-lg shadow-md transition-opacity',
+                  isLoadingFromUrl ? 'opacity-50' : 'opacity-100'
+                ]"
+              >
+            </picture>
+            <!-- Loading overlay -->
+            <div
+              v-if="isLoadingFromUrl"
+              class="absolute inset-0 flex flex-col items-center justify-center"
             >
-          </picture>
+              <div class="relative w-16 h-16 mb-2">
+                <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full" />
+                <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full animate-spin border-t-transparent" />
+              </div>
+              <p class="text-sm font-semibold text-blue-600 bg-white px-3 py-1 rounded-full shadow-md">
+                {{ $t('loading') }}
+              </p>
+            </div>
+          </div>
         </div>
       </template>
 
@@ -133,6 +151,7 @@ const showIntroduction = ref(false)
 const showStickyFare = ref(false)
 const fareDisplayRef = ref<HTMLElement | null>(null)
 const locationsRestoredFromUrl = ref(false)
+const isLoadingFromUrl = ref(false)
 
 const selectedLocations = ref<{
   start: LocationResult | null;
@@ -174,6 +193,8 @@ async function parseQueryParams() {
   const toParam = route.query.to as string | undefined
 
   if (!fromParam && !toParam) return
+
+  isLoadingFromUrl.value = true
 
   try {
     let startLocation: LocationResult | null = null
@@ -254,6 +275,8 @@ async function parseQueryParams() {
     }
   } catch (error) {
     console.error('Error parsing query parameters:', error)
+  } finally {
+    isLoadingFromUrl.value = false
   }
 }
 
