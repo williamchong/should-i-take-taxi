@@ -557,14 +557,16 @@ const canCalculateDistance = computed(() => {
 const isLantauLocation = (location: LocationResult | null): boolean => {
   if (!location) return false
 
-  const address = location.displayAddress.toLowerCase()
-  const lantauKeywords = [
-    'lantau', '大嶼山', '東涌', 'tung chung', 'chek lap kok', '赤鱲角',
-    'airport', '機場', 'disneyland', '迪士尼', 'ngong ping', '昂坪',
-    'mui wo', '梅窩', 'discovery bay', '愉景灣', 'tai o', '大澳'
-  ]
+  // Lantau Island boundaries (approximate)
+  // Covers main Lantau Island, Airport, Disneyland, Tung Chung, Mui Wo, Tai O, Discovery Bay, Ngong Ping
+  // Northern boundary: Airport area (~22.35°N)
+  // Southern boundary: Southern coast (~22.18°N)
+  // Western boundary: Tai O (~113.86°E)
+  // Eastern boundary: Discovery Bay/Mui Wo (~114.04°E)
+  const lat = location.y
+  const lng = location.x
 
-  return lantauKeywords.some(keyword => address.includes(keyword))
+  return lat >= 22.18 && lat <= 22.35 && lng >= 113.86 && lng <= 114.04
 }
 
 // Suggest taxi type based on route
