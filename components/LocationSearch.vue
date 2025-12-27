@@ -52,7 +52,8 @@
 import { ref, watch } from 'vue'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import { useRecentLocations } from '../composables/useRecentLocations'
-import type { LocationResult } from '~/types/location';
+import type { LocationResult } from '~/types/location'
+import { UI_CONSTANTS } from '~/types/constants'
 
 const props = defineProps<{
   id: string
@@ -94,11 +95,11 @@ const debounceSearch = () => {
     isSearching.value = true
     try {
       const results = await searchLocation(searchText.value)
-      searchResults.value = results.slice(0, 5)
+      searchResults.value = results.slice(0, UI_CONSTANTS.MAX_SEARCH_RESULTS)
     } finally {
       isSearching.value = false
     }
-  }, 500) as unknown as number
+  }, UI_CONSTANTS.SEARCH_DEBOUNCE_MS) as unknown as number
 }
 
 const handleSelect = async (location: LocationResult) => {

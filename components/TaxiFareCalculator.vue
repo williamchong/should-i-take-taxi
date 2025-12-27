@@ -85,252 +85,28 @@
         </div>
 
         <!-- 距離 - Enhanced with inline editing -->
-        <div class="border-t border-gray-200 pt-6 grid grid-cols-2 gap-4 items-start">
-          <label for="distance" class="text-gray-700 font-medium pt-2">{{ $t('taxiCalculator.distance') }}</label>
-
-          <div class="space-y-2">
-            <!-- Read-only display by default -->
-            <div v-if="!isEditingDistance" class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-lg">{{ displayDistance }} km</span>
-
-              <!-- Badge: Auto-calculated or Manual -->
-              <span v-if="isManualOverride" class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-                {{ $t('taxiCalculator.manuallyAdjusted') || '已調整' }}
-              </span>
-              <span v-else-if="autoCalculatedDistance > 0" class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                {{ $t('taxiCalculator.autoCalculated') || '自動' }}
-              </span>
-
-              <!-- Edit button -->
-              <button
-                type="button"
-                class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
-                :title="$t('taxiCalculator.manualAdjust') || '手動調整距離'"
-                @click="enableDistanceEdit"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-                <span class="hidden sm:inline">{{ $t('taxiCalculator.manualAdjust') || '手動調整' }}</span>
-              </button>
-            </div>
-
-            <!-- Editable mode -->
-            <div v-else class="space-y-2">
-              <div class="flex items-center gap-2">
-                <div class="relative">
-                  <input
-                    ref="distanceInput"
-                    v-model.number="manualDistance"
-                    type="number"
-                    min="0.1"
-                    max="200"
-                    step="0.1"
-                    class="w-24 px-3 py-2 border-2 border-blue-500 rounded-md font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    @keyup.enter="saveManualDistance"
-                    @keyup.esc="cancelDistanceEdit"
-                  >
-                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 text-sm">km</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                  :title="$t('taxiCalculator.confirm') || '確認'"
-                  @click="saveManualDistance"
-                >
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </button>
-
-                <button
-                  type="button"
-                  class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
-                  :title="$t('taxiCalculator.cancel') || '取消'"
-                  @click="cancelDistanceEdit"
-                >
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Show auto-calculated reference -->
-              <div v-if="autoCalculatedDistance > 0" class="text-xs text-gray-600 flex items-center gap-1 bg-gray-50 p-2 rounded">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ $t('taxiCalculator.autoCalculatedDistance') || '自動計算距離' }}: {{ autoCalculatedDistance }} km</span>
-                <button
-                  type="button"
-                  class="text-blue-600 hover:underline ml-auto flex items-center gap-1"
-                  @click="resetToAutoCalculated"
-                >
-                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  {{ $t('taxiCalculator.restore') || '恢復' }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DistanceInput
+          v-model="distance"
+          v-model:is-manual-override="isManualOverride"
+          :auto-calculated-distance="autoCalculatedDistance"
+        />
 
         <!-- 的士類型選擇 -->
-        <div class="grid grid-cols-2 gap-4 items-center">
-          <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
-          <div class="flex space-x-4">
-            <label class="inline-flex items-center">
-              <input
-                v-model="taxiType" type="radio" value="urban" class="form-radio text-red-600"
-                @change="useTrackEvent('taxi_type_selected')">
-              <span class="ml-2 h-4 w-4 rounded-full bg-red-600" :title="$t('taxiCalculator.urban')" />
-            </label>
-            <label class="inline-flex items-center">
-              <input
-                v-model="taxiType" type="radio" value="newTerritories" class="form-radio text-green-600"
-                @change="useTrackEvent('taxi_type_selected')">
-              <span class="ml-2 h-4 w-4 rounded-full bg-green-600" :title="$t('taxiCalculator.newTerritories')" />
-            </label>
-            <label class="inline-flex items-center">
-              <input
-                v-model="taxiType" type="radio" value="lantau" class="form-radio text-blue-600"
-                @change="useTrackEvent('taxi_type_selected')">
-              <span class="ml-2 h-4 w-4 rounded-full bg-blue-600" :title="$t('taxiCalculator.lantau')" />
-            </label>
-          </div>
-        </div>
+        <TaxiTypeSelector
+          v-model="taxiType"
+          :suggested-taxi-type="suggestedTaxiType"
+          :show-suggestion="showSuggestion"
+          @accept-suggestion="showSuggestion = false"
+          @dismiss-suggestion="dismissSuggestion"
+        />
 
-        <!-- Taxi Type Suggestion Banner -->
-        <div v-if="showSuggestion && suggestedTaxiType" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <p class="text-sm text-blue-800">
-                {{ $t('taxiCalculator.suggestedTaxiType', { type: $t(`taxiCalculator.${suggestedTaxiType}`) }) }}
-              </p>
-            </div>
-            <div class="flex gap-2 ml-4">
-              <button
-                type="button"
-                class="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-                @click="acceptSuggestion"
-              >
-                {{ $t('taxiCalculator.useSuggested') }}
-              </button>
-              <button
-                type="button"
-                class="px-3 py-1 text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors"
-                @click="dismissSuggestion"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 進階選項切換 -->
-        <div class="border-t border-gray-200 pt-6 mt-6">
-          <button
-            type="button"
-            class="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center"
-            @click="toggleAdvancedOptions"
-          >
-            <span class="mr-2">{{ showAdvancedOptions ? '▼' : '▶' }}</span>
-            {{ $t('taxiCalculator.advancedOptions') }}
-            <span class="ml-2 text-xs text-gray-500">({{ $t('taxiCalculator.tunnelsLuggage') }})</span>
-          </button>
-        </div>
-
-        <!-- 進階選項內容 -->
-        <div v-show="showAdvancedOptions" class="space-y-6 mt-6">
-          <!-- 隧道費 -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-          <label class="text-gray-700 font-medium pt-1">{{ $t('taxiCalculator.tunnelFee') }}</label>
-          <div class="space-y-2">
-            <!-- 過海隧道選項 -->
-            <div class="flex items-center">
-              <input
-                id="tunnel-crossHarbour"
-                v-model="selectedTunnels"
-                type="checkbox"
-                value="crossHarbour"
-                class="form-checkbox text-blue-600"
-                @change="useTrackEvent('taxi_tunnel_selected')"
-              >
-              <label for="tunnel-crossHarbour" class="ml-2 block text-sm text-gray-700">
-                {{ t('taxiCalculator.tunnels.crossHarbour') }} (HK$ 25)
-              </label>
-            </div>
-
-            <!-- 其他隧道選項（可折疊） -->
-            <div>
-              <button
-                type="button"
-                class="text-sm text-gray-600 hover:text-gray-900 flex items-center"
-                @click="showOtherTunnels = !showOtherTunnels"
-              >
-                <span class="mr-1">{{ showOtherTunnels ? '▼' : '▶' }}</span>
-                {{ $t('taxiCalculator.otherTunnels') }}
-              </button>
-              <div v-show="showOtherTunnels" class="mt-2 ml-4 space-y-2">
-                <div
-                  v-for="tunnel in otherTunnelOptions"
-                  :key="tunnel.id"
-                  class="flex items-center"
-                >
-                  <input
-                    :id="`tunnel-${tunnel.id}`"
-                    v-model="selectedTunnels"
-                    type="checkbox"
-                    :value="tunnel.id"
-                    class="form-checkbox text-blue-600"
-                    @change="useTrackEvent('taxi_tunnel_selected')"
-                  >
-                  <label :for="`tunnel-${tunnel.id}`" class="ml-2 block text-sm text-gray-700">
-                    {{ tunnel.name }} (HK$ {{ tunnel.fee }})
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="hasSelectedCrossHarbourTunnel" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-          <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.crossHarbourTaxiStand') }}</label>
-          <div>
-            <label class="inline-flex items-center">
-              <input
-                v-model="isCrossHarbourTaxiStand" type="checkbox" class="form-checkbox text-blue-600"
-                @change="useTrackEvent('taxi_cross_harbour_stand')">
-              <span class="ml-2 text-sm text-gray-700">{{ $t('taxiCalculator.yes') }}</span>
-            </label>
-          </div>
-        </div>
-
-          <!-- 行李數量 -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.luggage') }}</label>
-            <div class="relative rounded-md shadow-sm">
-              <input
-                v-model.number="luggageCount" type="number" min="0" step="1"
-                class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                @input.once="useTrackEvent('taxi_luggage_input')" @change="useTrackEvent('taxi_luggage_change')">
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 sm:text-sm">{{ $t('taxiCalculator.pieces') }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End of 進階選項內容 -->
+        <!-- 進階選項 -->
+        <AdvancedOptions
+          v-model:selected-tunnels="selectedTunnels"
+          v-model:is-cross-harbour-taxi-stand="isCrossHarbourTaxiStand"
+          v-model:luggage-count="luggageCount"
+          v-model:show-advanced-options="showAdvancedOptions"
+        />
 
       </div>
     </form>
@@ -341,14 +117,19 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLocationSearch } from '../composables/useLocationSearch'
+import { useLocationDetection } from '../composables/useLocationDetection'
 import LocationSearch from './LocationSearch.vue'
+import TaxiTypeSelector from './TaxiTypeSelector.vue'
+import DistanceInput from './DistanceInput.vue'
+import AdvancedOptions from './AdvancedOptions.vue'
 import type { LocationResult } from '~/types/location'
+import type { TaxiType, TunnelId } from '~/types/constants'
 import {
-  LANTAU_BOUNDING_BOX,
-  HK_ISLAND_BOX_1,
-  HK_ISLAND_BOX_2,
-  isWithinBoundingBox,
-} from '~/utils/boundingBoxes'
+  TAXI_RATES,
+  TAXI_FARE_CONSTANTS,
+  TUNNEL_FEES,
+  GEOLOCATION_CONSTANTS,
+} from '~/types/constants'
 
 const props = defineProps<{
   initialStartLocation?: LocationResult | null
@@ -360,15 +141,16 @@ const emit = defineEmits(['update:locations', 'update:fare'])
 
 const { t } = useI18n()
 const { calculateDrivingDistance, reverseGeocode } = useLocationSearch()
+const { shouldAutoSelectCrossHarbour, suggestTaxiType: detectTaxiType } = useLocationDetection()
 
-const taxiType = ref<'urban' | 'newTerritories' | 'lantau'>('urban')
-const suggestedTaxiType = ref<'urban' | 'newTerritories' | 'lantau' | null>(null)
+const taxiType = ref<TaxiType>('urban')
+const suggestedTaxiType = ref<TaxiType | null>(null)
 const showSuggestion = ref(false)
 const distance = ref(0)
-const selectedTunnels = ref([] as string[])
+const selectedTunnels = ref<TunnelId[]>([])
 const isCrossHarbourTaxiStand = ref(false)
 const luggageCount = ref(0)
-const showOtherTunnels = ref(false)
+const showAdvancedOptions = ref(false)
 const isGeolocationSupported = ref(false)
 
 // 地點搜尋相關
@@ -381,130 +163,14 @@ const isGettingLocation = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
 
 // 距離編輯相關
-const isEditingDistance = ref(false)
-const manualDistance = ref(0)
 const autoCalculatedDistance = ref(0)
 const isManualOverride = ref(false)
-const distanceInput = ref<HTMLInputElement | null>(null)
 
-// 進階選項
-const showAdvancedOptions = ref(false)
-
-// Computed distance: manual if overridden, else auto-calculated or manual input
-const displayDistance = computed(() => {
-  if (isManualOverride.value) {
-    return distance.value
-  }
-  if (autoCalculatedDistance.value > 0) {
-    return autoCalculatedDistance.value
-  }
-  return distance.value
-})
-
-// 距離編輯方法
-const enableDistanceEdit = () => {
-  manualDistance.value = distance.value
-  isEditingDistance.value = true
-  useTrackEvent('taxi_distance_manual_edit_opened')
-
-  // Focus input after Vue updates the DOM
-  nextTick(() => {
-    distanceInput.value?.focus()
-    distanceInput.value?.select()
-  })
-}
-
-const validateManualDistance = (): boolean => {
-  if (!manualDistance.value || manualDistance.value < 0.1) {
-    alert(t('taxiCalculator.distanceTooSmall') || '距離必須大於 0.1 公里')
-    return false
-  }
-
-  if (manualDistance.value > 200) {
-    alert(t('taxiCalculator.distanceTooLarge') || '距離不能超過 200 公里。如需計算更長距離，請分段計算。')
-    return false
-  }
-
-  // Warn if significantly different from auto-calculated
-  if (autoCalculatedDistance.value > 0) {
-    const diff = Math.abs(manualDistance.value - autoCalculatedDistance.value)
-    const percentDiff = (diff / autoCalculatedDistance.value) * 100
-
-    if (percentDiff > 50) {
-      const confirmed = confirm(
-        t('taxiCalculator.distanceDifferenceWarning', {
-          manual: manualDistance.value,
-          auto: autoCalculatedDistance.value,
-          percent: Math.round(percentDiff)
-        }) ||
-        `你輸入的距離 (${manualDistance.value} km) 與建議路線 (${autoCalculatedDistance.value} km) 相差超過 ${Math.round(percentDiff)}%。\n\n確定要使用此距離?`
-      )
-      return confirmed
-    }
-  }
-
-  return true
-}
-
-const saveManualDistance = () => {
-  if (!validateManualDistance()) {
-    return
-  }
-
-  distance.value = manualDistance.value
-  isManualOverride.value = true
-  isEditingDistance.value = false
-  useTrackEvent('taxi_distance_manually_set', {
-    distance: manualDistance.value,
-    wasAutoCalculated: autoCalculatedDistance.value > 0
-  })
-}
-
-const cancelDistanceEdit = () => {
-  isEditingDistance.value = false
-  useTrackEvent('taxi_distance_edit_cancelled')
-}
-
-const resetToAutoCalculated = () => {
-  if (autoCalculatedDistance.value > 0) {
-    distance.value = autoCalculatedDistance.value
-    manualDistance.value = autoCalculatedDistance.value
-    isManualOverride.value = false
-    isEditingDistance.value = false
-    useTrackEvent('taxi_distance_reset_to_auto')
-  }
-}
-
-// 進階選項切換
-const toggleAdvancedOptions = () => {
-  showAdvancedOptions.value = !showAdvancedOptions.value
-  useTrackEvent('taxi_advanced_options_toggled', { expanded: showAdvancedOptions.value })
-}
-
-// 選擇地點
-// Function to detect if a location is on Hong Kong Island
-const isOnHongKongIsland = (lat: number, lng: number): boolean => {
-  // Using two boxes to accurately cover Hong Kong Island while excluding Kowloon
-  const mainIsland = isWithinBoundingBox(lat, lng, HK_ISLAND_BOX_1)
-  const northernShore = isWithinBoundingBox(lat, lng, HK_ISLAND_BOX_2)
-  return mainIsland || northernShore
-}
-
-// Function to auto-select Cross Harbour Tunnel for cross-harbour routes
+// Auto-select Cross Harbour Tunnel for cross-harbour routes
 const autoSelectCrossHarbourTunnel = () => {
   if (!selectedStartLocation.value || !selectedEndLocation.value) return
 
-  const startIsOnHKIsland = isOnHongKongIsland(
-    selectedStartLocation.value.y,
-    selectedStartLocation.value.x
-  )
-  const endIsOnHKIsland = isOnHongKongIsland(
-    selectedEndLocation.value.y,
-    selectedEndLocation.value.x
-  )
-
-  // If one location is on HK Island and the other is not, auto-select Cross Harbour Tunnel
-  if (startIsOnHKIsland !== endIsOnHKIsland) {
+  if (shouldAutoSelectCrossHarbour(selectedStartLocation.value, selectedEndLocation.value)) {
     if (!selectedTunnels.value.includes('crossHarbour')) {
       selectedTunnels.value.push('crossHarbour')
       showAdvancedOptions.value = true // Auto-expand to show the auto-selected tunnel
@@ -557,29 +223,15 @@ const canCalculateDistance = computed(() => {
   return selectedStartLocation.value && selectedEndLocation.value
 })
 
-// Detect if a location is in Lantau Island
-const isLantauLocation = (location: LocationResult | null): boolean => {
-  if (!location) return false
-
-  const lat = location.y
-  const lng = location.x
-
-  return isWithinBoundingBox(lat, lng, LANTAU_BOUNDING_BOX)
-}
-
 // Suggest taxi type based on route
 const suggestTaxiType = () => {
-  const startIsLantau = isLantauLocation(selectedStartLocation.value)
-  const endIsLantau = isLantauLocation(selectedEndLocation.value)
+  const suggested = detectTaxiType(selectedStartLocation.value, selectedEndLocation.value)
 
-  // If either start or end is in Lantau, suggest Lantau taxi
-  if (startIsLantau || endIsLantau) {
-    if (taxiType.value !== 'lantau') {
-      suggestedTaxiType.value = 'lantau'
-      showSuggestion.value = true
-      useTrackEvent('taxi_type_suggestion_shown', { suggested: 'lantau' })
-      return
-    }
+  if (suggested && taxiType.value !== suggested) {
+    suggestedTaxiType.value = suggested
+    showSuggestion.value = true
+    useTrackEvent('taxi_type_suggestion_shown', { suggested })
+    return
   }
 
   // Clear suggestion if not applicable
@@ -587,19 +239,9 @@ const suggestTaxiType = () => {
   showSuggestion.value = false
 }
 
-// Accept suggested taxi type
-const acceptSuggestion = () => {
-  if (suggestedTaxiType.value) {
-    taxiType.value = suggestedTaxiType.value
-    showSuggestion.value = false
-    useTrackEvent('taxi_type_suggestion_accepted', { suggested: suggestedTaxiType.value })
-  }
-}
-
-// Dismiss suggestion
+// Handle suggestion dismissal
 const dismissSuggestion = () => {
   showSuggestion.value = false
-  useTrackEvent('taxi_type_suggestion_dismissed', { suggested: suggestedTaxiType.value })
 }
 
 // 重構計算距離函數
@@ -646,9 +288,9 @@ const getCurrentLocation = async () => {
   try {
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+        enableHighAccuracy: GEOLOCATION_CONSTANTS.ENABLE_HIGH_ACCURACY,
+        timeout: GEOLOCATION_CONSTANTS.TIMEOUT,
+        maximumAge: GEOLOCATION_CONSTANTS.MAXIMUM_AGE
       })
     })
 
@@ -779,79 +421,32 @@ const getTaxiTypeLabel = computed(() => {
 // 獲取隧道費總額
 const getTunnelFees = computed(() =>
   selectedTunnels.value.reduce((total, tunnelId) => {
-    const tunnel = tunnelOptions.value.find(t => t.id === tunnelId);
-    return total + (tunnel?.fee || 0);
+    return total + (TUNNEL_FEES[tunnelId] || 0);
   }, 0)
 )
 
 // 獲取行李費總額
 const getLuggageFees = computed(() => Number(luggageCount.value) * rates.value.luggageFee)
 
-// 檢查是否選擇了過海隧道
-const hasSelectedCrossHarbourTunnel = computed(() => selectedTunnels.value.includes('crossHarbour'))
-
 // 計算回程收費
-const getReturnTollFee = computed(() =>
-  (hasSelectedCrossHarbourTunnel.value && !isCrossHarbourTaxiStand.value) ? 25 : 0
-)
-
-const tunnelOptions = computed(() => [
-  { id: 'crossHarbour', name: t('taxiCalculator.tunnels.crossHarbour'), fee: 25 },
-  { id: 'tatesCairn', name: t('taxiCalculator.tunnels.tatesCairn'), fee: 20 },
-  { id: 'taiLam', name: t('taxiCalculator.tunnels.taiLam'), fee: 58 },
-  { id: 'lions', name: t('taxiCalculator.tunnels.lions'), fee: 8 },
-  { id: 'shingMun', name: t('taxiCalculator.tunnels.shingMun'), fee: 5 },
-  { id: 'aberdeen', name: t('taxiCalculator.tunnels.aberdeen'), fee: 5 },
-  { id: 'shaTinHeights', name: t('taxiCalculator.tunnels.shaTinHeights'), fee: 8 },
-])
-
-const otherTunnelOptions = computed(() =>
-  tunnelOptions.value.filter(tunnel => tunnel.id !== 'crossHarbour')
-)
+const getReturnTollFee = computed(() => {
+  const hasSelectedCrossHarbour = selectedTunnels.value.includes('crossHarbour')
+  return (hasSelectedCrossHarbour && !isCrossHarbourTaxiStand.value) ? TUNNEL_FEES.crossHarbour : 0
+})
 
 const rates = computed(() => {
-  const rateMap = {
-    'urban': {
-      flagFall: 29,
-      firstTierDistance: 2,
-      incrementalRate: 2.1,
-      incrementalRateAfterThreshold: 1.4,
-      thresholdAmount: 102.5,
-      luggageFee: 6,
-      additionalFee: 5,
-    },
-    'newTerritories': {
-      flagFall: 25.5,
-      firstTierDistance: 2,
-      incrementalRate: 1.9,
-      incrementalRateAfterThreshold: 1.4,
-      thresholdAmount: 82.5,
-      luggageFee: 6,
-      additionalFee: 5,
-    },
-    'lantau': {
-      flagFall: 24,
-      firstTierDistance: 2,
-      incrementalRate: 1.9,
-      incrementalRateAfterThreshold: 1.6,
-      thresholdAmount: 195,
-      luggageFee: 6,
-      additionalFee: 5,
-    }
-  };
-
-  return rateMap[taxiType.value] || rateMap.urban;
+  return TAXI_RATES[taxiType.value]
 })
 
 // 使用 computed 計算距離費用
 const distanceFare = computed(() => {
   // 如果距離為0或未填寫，不計算距離費用
-  if (!distance.value || distance.value <= 0 || distance.value <= rates.value.firstTierDistance) {
+  if (!distance.value || distance.value <= 0 || distance.value <= TAXI_FARE_CONSTANTS.FIRST_TIER_DISTANCE) {
     return 0;
   }
 
-  const additionalDistance = distance.value - rates.value.firstTierDistance;
-  const additionalSegments = Math.ceil(additionalDistance / 0.2);
+  const additionalDistance = distance.value - TAXI_FARE_CONSTANTS.FIRST_TIER_DISTANCE;
+  const additionalSegments = Math.ceil(additionalDistance / TAXI_FARE_CONSTANTS.INCREMENTAL_SEGMENT);
   const { incrementalRate, incrementalRateAfterThreshold, thresholdAmount } = rates.value;
   const baseFare = rates.value.flagFall;
 
