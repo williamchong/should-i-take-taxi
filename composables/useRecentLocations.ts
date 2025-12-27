@@ -1,8 +1,9 @@
 import type { LocationResult } from '@/types/location'
+import { UI_CONSTANTS, STORAGE_CONSTANTS } from '@/types/constants'
 
 export function useRecentLocations() {
-  const RECENT_LOCATIONS_KEY = 'taxi_recent_locations'
-  const MAX_RECENT = 5
+  const RECENT_LOCATIONS_KEY = STORAGE_CONSTANTS.RECENT_LOCATIONS_KEY
+  const MAX_RECENT = UI_CONSTANTS.MAX_RECENT_LOCATIONS
 
   const getRecentLocations = (): LocationResult[] => {
     if (typeof window === 'undefined') return []
@@ -25,8 +26,8 @@ export function useRecentLocations() {
     try {
       const recent = getRecentLocations()
 
-      // Remove duplicate if exists (by comparing display_name)
-      const filtered = recent.filter(loc => loc.display_name !== location.display_name)
+      // Remove duplicate if exists (by comparing displayAddress)
+      const filtered = recent.filter(loc => loc.displayAddress !== location.displayAddress)
 
       // Add new location to front
       const updated = [location, ...filtered].slice(0, MAX_RECENT)

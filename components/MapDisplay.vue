@@ -8,11 +8,11 @@
     <ClientOnly>
       <LMap
         ref="map"
-        :zoom="13"
+        :zoom="MAP_CONSTANTS.DEFAULT_ZOOM"
         :center="center"
         :use-global-leaflet="false"
-        :min-zoom="11"
-        :max-zoom="17"
+        :min-zoom="MAP_CONSTANTS.MIN_ZOOM"
+        :max-zoom="MAP_CONSTANTS.MAX_ZOOM"
         @ready="onMapReady"
       >
         <LTileLayer
@@ -30,9 +30,9 @@
         <LPolyline
           v-if="routeCoordinates.length > 0"
           :lat-lngs="routeCoordinates"
-          color="#2563eb"
-          :weight="5"
-          :opacity="0.8"
+          :color="MAP_CONSTANTS.ROUTE_COLOR"
+          :weight="MAP_CONSTANTS.ROUTE_WEIGHT"
+          :opacity="MAP_CONSTANTS.ROUTE_OPACITY"
         />
         <!-- Bounding box visualization -->
         <LRectangle
@@ -81,6 +81,7 @@ import {
   HK_ISLAND_BOX_2,
   toBounds,
 } from '~/utils/boundingBoxes'
+import { MAP_CONSTANTS } from '~/types/constants'
 
 const props = defineProps<{
   startLocation: LocationResult | null
@@ -106,7 +107,7 @@ const center = computed((): [number, number] => {
   if (props.endLocation) {
     return [props.endLocation.y, props.endLocation.x]
   }
-  return [22.302711, 114.177216]
+  return MAP_CONSTANTS.DEFAULT_CENTER
 })
 
 const routeCoordinates = computed(() => {
@@ -118,7 +119,7 @@ watch(() => props.startLocation, (newVal) => {
     map.value?.leafletObject?.fitBounds([
       [newVal.y, newVal.x],
       [props.endLocation.y, props.endLocation.x],
-    ], { padding: [25, 25] })
+    ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
   }
 })
 watch(() => props.endLocation, (newVal) => {
@@ -126,7 +127,7 @@ watch(() => props.endLocation, (newVal) => {
     map.value?.leafletObject?.fitBounds([
       [props.startLocation.y, props.startLocation.x],
       [newVal.y, newVal.x],
-    ], { padding: [25, 25] })
+    ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
   }
 })
 
@@ -136,7 +137,7 @@ const onMapReady = () => {
     map.value?.leafletObject?.fitBounds([
       [props.startLocation.y, props.startLocation.x],
       [props.endLocation.y, props.endLocation.x],
-    ], { padding: [25, 25] })
+    ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
   }
 }
 
