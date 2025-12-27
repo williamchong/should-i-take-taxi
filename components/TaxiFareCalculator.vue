@@ -731,6 +731,7 @@ watch(() => props.initialStartLocation, (newLocation) => {
     selectedStartLocation.value = newLocation
     startLocationSearch.value = newLocation.displayAddress
     if (selectedEndLocation.value) {
+      autoSelectCrossHarbourTunnel()
       handleCalculateDistance()
     }
     emitLocations()
@@ -742,6 +743,7 @@ watch(() => props.initialEndLocation, (newLocation) => {
     selectedEndLocation.value = newLocation
     endLocationSearch.value = newLocation.displayAddress
     if (selectedStartLocation.value) {
+      autoSelectCrossHarbourTunnel()
       handleCalculateDistance()
     }
     emitLocations()
