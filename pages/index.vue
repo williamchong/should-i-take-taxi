@@ -362,13 +362,85 @@ useSeoMeta({
   ogTitle: dynamicTitle
 })
 
-useHead({
-  link: [
+// API preloading when from/to coordinates are in URL
+const shouldPreloadApis = computed(() => {
+  return !!(route.query.from || route.query.to)
+})
+
+// Helper function to parse coordinate string
+function parseCoordinates(coordStr: string | undefined): { lat: number; lng: number } | null {
+  if (!coordStr || typeof coordStr !== 'string') return null
+
+  const [latStr, lngStr] = coordStr.split(',')
+  const lat = parseFloat(latStr)
+  const lng = parseFloat(lngStr)
+
+  if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return null
+  }
+
+  return { lat, lng }
+}
+
+useHead(() => {
+  const links: any[] = [
     {
       rel: 'canonical',
-      href: canonicalUrl
+      href: canonicalUrl.value
     }
   ]
+
+  // Add DNS prefetch and preconnect for APIs when coordinates are in URL
+  if (shouldPreloadApis.value) {
+    // Nominatim API (reverse geocoding)
+    links.push(
+      { rel: 'dns-prefetch', href: 'https://nominatim.openstreetmap.org' },
+      { rel: 'preconnect', href: 'https://nominatim.openstreetmap.org', crossorigin: 'anonymous' as const }
+    )
+
+    // Preload specific Nominatim reverse geocoding requests
+    const fromCoords = parseCoordinates(route.query.from as string)
+    const toCoords = parseCoordinates(route.query.to as string)
+
+    if (fromCoords) {
+      const nominatimFromUrl = `https://nominatim.openstreetmap.org/reverse?lat=${fromCoords.lat}&lon=${fromCoords.lng}&format=json&accept-language=${locale.value}`
+      links.push({
+        rel: 'preload',
+        as: 'fetch',
+        href: nominatimFromUrl,
+        crossorigin: 'anonymous' as const
+      })
+    }
+
+    if (toCoords) {
+      const nominatimToUrl = `https://nominatim.openstreetmap.org/reverse?lat=${toCoords.lat}&lon=${toCoords.lng}&format=json&accept-language=${locale.value}`
+      links.push({
+        rel: 'preload',
+        as: 'fetch',
+        href: nominatimToUrl,
+        crossorigin: 'anonymous' as const
+      })
+    }
+
+    // OSRM routing API (only if both from and to are present)
+    if (fromCoords && toCoords) {
+      links.push(
+        { rel: 'dns-prefetch', href: 'https://router.project-osrm.org' },
+        { rel: 'preconnect', href: 'https://router.project-osrm.org', crossorigin: 'anonymous' as const }
+      )
+
+      // Preload specific OSRM routing request
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${fromCoords.lng},${fromCoords.lat};${toCoords.lng},${toCoords.lat}?overview=full&geometries=geojson`
+      links.push({
+        rel: 'preload',
+        as: 'fetch',
+        href: osrmUrl,
+        crossorigin: 'anonymous' as const
+      })
+    }
+  }
+
+  return { link: links }
 })
 
 // Scroll to fare display
