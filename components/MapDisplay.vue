@@ -34,6 +34,39 @@
           :weight="5"
           :opacity="0.8"
         />
+        <!-- Bounding box visualization -->
+        <LRectangle
+          v-if="showBoundingBoxes"
+          :bounds="toBounds(LANTAU_BOUNDING_BOX)"
+          :color="'#3b82f6'"
+          :weight="2"
+          :fillOpacity="0.1"
+          :dashArray="'5, 5'"
+        >
+          <LTooltip :content="'Lantau Island Bounding Box'" />
+        </LRectangle>
+        <!-- Hong Kong Island: Box 1 (Main Island) -->
+        <LRectangle
+          v-if="showBoundingBoxes"
+          :bounds="toBounds(HK_ISLAND_BOX_1)"
+          :color="'#ef4444'"
+          :weight="2"
+          :fillOpacity="0.1"
+          :dashArray="'5, 5'"
+        >
+          <LTooltip :content="'HK Island Box 1: Main Island'" />
+        </LRectangle>
+        <!-- Hong Kong Island: Box 2 (Northern Shore Extension) -->
+        <LRectangle
+          v-if="showBoundingBoxes"
+          :bounds="toBounds(HK_ISLAND_BOX_2)"
+          :color="'#ef4444'"
+          :weight="2"
+          :fillOpacity="0.15"
+          :dashArray="'5, 5'"
+        >
+          <LTooltip :content="'HK Island Box 2: Northern Shore'" />
+        </LRectangle>
       </LMap>
     </ClientOnly>
   </div>
@@ -42,11 +75,18 @@
 <script setup lang="ts">
 import type { LocationResult } from '~/types/location'
 import type { LatLngExpression } from 'leaflet'
+import {
+  LANTAU_BOUNDING_BOX,
+  HK_ISLAND_BOX_1,
+  HK_ISLAND_BOX_2,
+  toBounds,
+} from '~/utils/boundingBoxes'
 
 const props = defineProps<{
   startLocation: LocationResult | null
   endLocation: LocationResult | null
   routeCoordinates?: [number, number][]
+  showBoundingBoxes?: boolean
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

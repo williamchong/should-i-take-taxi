@@ -66,6 +66,7 @@
           :start-location="selectedLocations.start"
           :end-location="selectedLocations.end"
           :route-coordinates="selectedLocations.coordinates"
+          :show-bounding-boxes="showBoundingBoxes"
         />
       </div>
 
@@ -149,6 +150,9 @@ const { gtag } = useGtag()
 
 const showIntroduction = ref(false)
 const showStickyFare = ref(false)
+
+// Show bounding boxes for debugging when debug=1 is in query string
+const showBoundingBoxes = computed(() => route.query.debug === '1')
 const fareDisplayRef = ref<HTMLElement | null>(null)
 const locationsRestoredFromUrl = ref(false)
 const isLoadingFromUrl = ref(false)
@@ -283,7 +287,7 @@ async function parseQueryParams() {
 
 // Update URL with current locations
 function updateUrlParams(locations: { start: LocationResult | null; end: LocationResult | null }) {
-  const params = new URLSearchParams()
+  const params = new URLSearchParams(route.query as Record<string, string>)
 
   if (locations.start) {
     const { y, x } = locations.start

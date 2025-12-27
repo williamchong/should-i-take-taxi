@@ -343,6 +343,12 @@ import { useI18n } from 'vue-i18n'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import LocationSearch from './LocationSearch.vue'
 import type { LocationResult } from '~/types/location'
+import {
+  LANTAU_BOUNDING_BOX,
+  HK_ISLAND_BOX_1,
+  HK_ISLAND_BOX_2,
+  isWithinBoundingBox,
+} from '~/utils/boundingBoxes'
 
 const props = defineProps<{
   initialStartLocation?: LocationResult | null
@@ -479,14 +485,8 @@ const toggleAdvancedOptions = () => {
 // Function to detect if a location is on Hong Kong Island
 const isOnHongKongIsland = (lat: number, lng: number): boolean => {
   // Using two boxes to accurately cover Hong Kong Island while excluding Kowloon
-
-  // Box 1: Main Hong Kong Island
-  // Covers Kennedy Town to Chai Wan, including Wan Chai, southern areas like Stanley
-  const mainIsland = lat >= 22.19 && lat <= 22.285 && lng >= 114.11 && lng <= 114.264
-
-  // Box 2: Northern shore extension (North Point, Quarry Bay area)
-  // Extends further north but only on the eastern side to avoid Tsim Sha Tsui (22.297°N, 114.174°E)
-  const northernShore = lat >= 22.285 && lat <= 22.2931 && lng >= 114.11 && lng <= 114.226
+  const mainIsland = isWithinBoundingBox(lat, lng, HK_ISLAND_BOX_1)
+  const northernShore = isWithinBoundingBox(lat, lng, HK_ISLAND_BOX_2)
   return mainIsland || northernShore
 }
 
@@ -561,16 +561,10 @@ const canCalculateDistance = computed(() => {
 const isLantauLocation = (location: LocationResult | null): boolean => {
   if (!location) return false
 
-  // Lantau Island boundaries (approximate)
-  // Covers main Lantau Island, Airport, Disneyland, Tung Chung, Mui Wo, Tai O, Discovery Bay, Ngong Ping
-  // Northern boundary: Airport area (~22.35°N)
-  // Southern boundary: Southern coast (~22.18°N)
-  // Western boundary: Tai O (~113.86°E)
-  // Eastern boundary: Discovery Bay/Mui Wo (~114.04°E)
   const lat = location.y
   const lng = location.x
 
-  return lat >= 22.18 && lat <= 22.355 && lng >= 113.83 && lng <= 114.07
+  return isWithinBoundingBox(lat, lng, LANTAU_BOUNDING_BOX)
 }
 
 // Suggest taxi type based on route
