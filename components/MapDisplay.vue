@@ -40,8 +40,8 @@
           :bounds="toBounds(LANTAU_BOUNDING_BOX)"
           :color="'#3b82f6'"
           :weight="2"
-          :fillOpacity="0.1"
-          :dashArray="'5, 5'"
+          :fill-opacity="0.1"
+          :dash-array="'5, 5'"
         >
           <LTooltip :content="'Lantau Island Bounding Box'" />
         </LRectangle>
@@ -51,8 +51,8 @@
           :bounds="toBounds(HK_ISLAND_BOX_1)"
           :color="'#ef4444'"
           :weight="2"
-          :fillOpacity="0.1"
-          :dashArray="'5, 5'"
+          :fill-opacity="0.1"
+          :dash-array="'5, 5'"
         >
           <LTooltip :content="'HK Island Box 1: Main Island'" />
         </LRectangle>
@@ -62,8 +62,8 @@
           :bounds="toBounds(HK_ISLAND_BOX_2)"
           :color="'#ef4444'"
           :weight="2"
-          :fillOpacity="0.15"
-          :dashArray="'5, 5'"
+          :fill-opacity="0.15"
+          :dash-array="'5, 5'"
         >
           <LTooltip :content="'HK Island Box 2: Northern Shore'" />
         </LRectangle>
