@@ -478,12 +478,16 @@ const toggleAdvancedOptions = () => {
 // 選擇地點
 // Function to detect if a location is on Hong Kong Island
 const isOnHongKongIsland = (lat: number, lng: number): boolean => {
-  // Hong Kong Island boundaries (approximate)
-  // Northern boundary: Victoria Harbour (~22.29°N)
-  // Southern boundary: (~22.25°N)
-  // Western boundary: (~114.13°E)
-  // Eastern boundary: (~114.22°E)
-  return lat >= 22.24 && lat <= 22.30 && lng >= 114.12 && lng <= 114.23
+  // Using two boxes to accurately cover Hong Kong Island while excluding Kowloon
+
+  // Box 1: Main Hong Kong Island
+  // Covers Kennedy Town to Chai Wan, including Wan Chai, southern areas like Stanley
+  const mainIsland = lat >= 22.19 && lat <= 22.285 && lng >= 114.11 && lng <= 114.264
+
+  // Box 2: Northern shore extension (North Point, Quarry Bay area)
+  // Extends further north but only on the eastern side to avoid Tsim Sha Tsui (22.297°N, 114.174°E)
+  const northernShore = lat >= 22.285 && lat <= 22.2931 && lng >= 114.11 && lng <= 114.226
+  return mainIsland || northernShore
 }
 
 // Function to auto-select Cross Harbour Tunnel for cross-harbour routes
@@ -566,7 +570,7 @@ const isLantauLocation = (location: LocationResult | null): boolean => {
   const lat = location.y
   const lng = location.x
 
-  return lat >= 22.18 && lat <= 22.35 && lng >= 113.86 && lng <= 114.04
+  return lat >= 22.18 && lat <= 22.355 && lng >= 113.83 && lng <= 114.07
 }
 
 // Suggest taxi type based on route
