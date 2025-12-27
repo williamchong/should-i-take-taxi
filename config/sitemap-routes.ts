@@ -11,92 +11,92 @@ export interface Location {
 
 export const popularLocations: Record<string, Location> = {
   airport: {
-    lat: 22.308046,
-    lng: 113.918480,
+    lat: 22.314020,
+    lng: 113.912747,
     nameEN: 'Hong Kong International Airport',
     nameZH: '香港國際機場'
   },
   central: {
-    lat: 22.282110,
-    lng: 114.158290,
+    lat: 22.281886,
+    lng: 114.159360,
     nameEN: 'Central',
     nameZH: '中環'
   },
   causewaybay: {
-    lat: 22.279870,
-    lng: 114.182650,
+    lat: 22.282302,
+    lng: 114.186209,
     nameEN: 'Causeway Bay',
     nameZH: '銅鑼灣'
   },
   tsimshatsui: {
-    lat: 22.297100,
-    lng: 114.172290,
+    lat: 22.300093,
+    lng: 114.172575,
     nameEN: 'Tsim Sha Tsui',
     nameZH: '尖沙咀'
   },
   mongkok: {
-    lat: 22.319280,
-    lng: 114.169050,
+    lat: 22.320104,
+    lng: 114.171488,
     nameEN: 'Mong Kok',
     nameZH: '旺角'
   },
   disneyland: {
-    lat: 22.312810,
-    lng: 114.041480,
+    lat: 22.312743,
+    lng: 114.042123,
     nameEN: 'Hong Kong Disneyland',
     nameZH: '香港迪士尼樂園'
   },
   oceanpark: {
-    lat: 22.246680,
-    lng: 114.175530,
+    lat: 22.248706,
+    lng: 114.174324,
     nameEN: 'Ocean Park',
     nameZH: '海洋公園'
   },
   victoriapeak: {
-    lat: 22.271430,
-    lng: 114.148930,
+    lat: 22.275969,
+    lng: 114.145398,
     nameEN: 'Victoria Peak',
     nameZH: '太平山頂'
   },
   wanchai: {
-    lat: 22.277600,
-    lng: 114.172280,
+    lat: 22.278979,
+    lng: 114.173100,
     nameEN: 'Wan Chai',
     nameZH: '灣仔'
   },
   admiralty: {
-    lat: 22.279280,
-    lng: 114.165050,
+    lat: 22.279421,
+    lng: 114.164348,
     nameEN: 'Admiralty',
     nameZH: '金鐘'
   },
   jordan: {
-    lat: 22.304830,
-    lng: 114.172080,
+    lat: 22.304807,
+    lng: 114.171653,
     nameEN: 'Jordan',
     nameZH: '佐敦'
   },
   kwuntong: {
-    lat: 22.312080,
-    lng: 114.225830,
+    lat: 22.311329,
+    lng: 114.222412,
     nameEN: 'Kwun Tong',
     nameZH: '觀塘'
   },
   shatin: {
-    lat: 22.382580,
-    lng: 114.194420,
+    lat: 22.389179,
+    lng: 114.191140,
     nameEN: 'Sha Tin',
     nameZH: '沙田'
   },
   tsuenwan: {
-    lat: 22.371310,
-    lng: 114.118590,
+    lat: 22.374444,
+    lng: 114.107236,
     nameEN: 'Tsuen Wan',
     nameZH: '荃灣'
   },
   tungchung: {
-    lat: 22.288890,
-    lng: 113.943700,
+    lat: 22.282965,
+    lng: 113.938872,
     nameEN: 'Tung Chung',
     nameZH: '東涌'
   }
