@@ -56,7 +56,7 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
 
-        { rel: 'preconnect', href: 'https://geodata.gov.hk', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://www.map.gov.hk', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: 'https://www.geodetic.gov.hk', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: 'https://router.project-osrm.org', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: 'https://nominatim.openstreetmap.org', crossorigin: 'anonymous' },

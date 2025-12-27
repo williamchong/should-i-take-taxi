@@ -57,7 +57,7 @@ export function useLocationSearch() {
     if (cached) return cached
 
     try {
-      const results = await $fetch('https://geodata.gov.hk/gs/api/v1.0.0/locationSearch', {
+      const results = await $fetch('https://www.map.gov.hk/gs/api/v1.0.0/locationSearch', {
         query: { q : query },
       }) as LocationResult[]
 
