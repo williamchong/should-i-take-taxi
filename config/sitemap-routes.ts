@@ -158,27 +158,16 @@ export function generateSitemapUrls() {
     urls.push({
       loc: `/?from=${fromLoc.lat.toFixed(6)},${fromLoc.lng.toFixed(6)}&to=${toLoc.lat.toFixed(6)},${toLoc.lng.toFixed(6)}`,
       changefreq: 'weekly',
-      priority: 0.8
+      priority: 0.8,
+      _i18nTransform: true,
     })
 
     // Reverse direction (to -> from)
     urls.push({
       loc: `/?from=${toLoc.lat.toFixed(6)},${toLoc.lng.toFixed(6)}&to=${fromLoc.lat.toFixed(6)},${fromLoc.lng.toFixed(6)}`,
       changefreq: 'weekly',
-      priority: 0.8
-    })
-
-    // Add zh-hk locale versions
-    urls.push({
-      loc: `/zh-hk/?from=${fromLoc.lat.toFixed(6)},${fromLoc.lng.toFixed(6)}&to=${toLoc.lat.toFixed(6)},${toLoc.lng.toFixed(6)}`,
-      changefreq: 'weekly',
-      priority: 0.8
-    })
-
-    urls.push({
-      loc: `/zh-hk/?from=${toLoc.lat.toFixed(6)},${toLoc.lng.toFixed(6)}&to=${fromLoc.lat.toFixed(6)},${fromLoc.lng.toFixed(6)}`,
-      changefreq: 'weekly',
-      priority: 0.8
+      priority: 0.8,
+      _i18nTransform: true,
     })
   })
 
