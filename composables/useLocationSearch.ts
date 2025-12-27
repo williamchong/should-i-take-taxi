@@ -138,7 +138,7 @@ export function useLocationSearch() {
         const address = data.address || {}
 
         // 構建地址組件
-        const name = address.amenity || address.building || ''
+        const name = data.name || address.amenity || address.building || ''
         const street = address.road || address.pedestrian || ''
         const district = address.suburb || address.quarter || address.neighbourhood || ''
         const city = address.city || address.town || address.village || ''
