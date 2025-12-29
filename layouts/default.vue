@@ -79,8 +79,8 @@ useHead({
         browserRequirements: 'Requires JavaScript. Requires HTML5.',
         softwareVersion: '1.0',
         releaseNotes: locale.value.startsWith('zh')
-          ? '計算準確的香港的士車費，包含路線規劃和全面費用明細。'
-          : 'Calculate accurate Hong Kong taxi fares with route planning and comprehensive fee breakdown.',
+          ? 'GPS自動定位同埋自動計算距離，即時獲得準確香港的士車費，無需手動輸入。'
+          : 'Automatic GPS location detection and distance calculation for instant accurate Hong Kong taxi fares - no manual input needed.',
         featureList: getFeatureList(),
         offers: {
           '@type': 'Offer',
@@ -113,8 +113,8 @@ useHead({
           alternateName: locale.value.startsWith('zh') ? '香港特別行政區' : 'Hong Kong SAR'
         },
         keywords: locale.value.startsWith('zh')
-          ? '香港的士車費計算器, 的士車費估算, 香港交通, 市區的士, 新界的士, 大嶼山的士, 海底隧道'
-          : 'Hong Kong taxi fare calculator, taxi fare estimation, Hong Kong transportation, urban taxi, new territories taxi, lantau taxi, cross harbour tunnel',
+          ? '香港的士車費計算器, GPS自動測距, 自動計算距離, 的士車費估算, 香港交通, 市區的士, 新界的士, 大嶼山的士, 自動定位, 海底隧道'
+          : 'Hong Kong taxi fare calculator, GPS auto-distance, automatic distance calculation, taxi fare estimation, automatic location detection, Hong Kong transportation, urban taxi, new territories taxi, lantau taxi, cross harbour tunnel',
         availableLanguage: locales.value.map(loc => loc.language || loc.code),
         sameAs: getAllLocaleUrls()
       })
