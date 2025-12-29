@@ -2,6 +2,18 @@
   "title": "香港的士車費計算器 GPS 自動測距",
   "description": "自動定位同埋計算距離嘅智能的士車費計算器。只需選擇起點同終點，無需估算或手動輸入距離，即刻獲得準確車費。",
   "loading": "載入中...",
+  "schema": {
+    "releaseNotes": "GPS自動定位同埋自動計算距離，即時獲得準確香港的士車費，無需手動輸入。",
+    "authorName": "William Chong",
+    "authorUrl": "https://blog.williamchong.cloud",
+    "potentialActionResult": "香港的士車費計算",
+    "serviceType": "交通計算器",
+    "areaServedName": "香港",
+    "areaServedAlternateName": "香港特別行政區",
+    "keywords": "香港的士車費計算器, GPS自動測距, 自動計算距離, 的士車費估算, 香港交通, 市區的士, 新界的士, 大嶼山的士, 自動定位, 海底隧道",
+    "breadcrumbHome": "首頁",
+    "offerCatalogName": "的士車費計算服務"
+  },
   "seo": {
     "dynamicTitle": {
       "fromOnly": "由 {from} 出發的士 | 香港的士車費計算器 GPS 自動測距",

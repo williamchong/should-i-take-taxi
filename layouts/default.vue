@@ -78,9 +78,7 @@ useHead({
         operatingSystem: 'Web',
         browserRequirements: 'Requires JavaScript. Requires HTML5.',
         softwareVersion: '1.0',
-        releaseNotes: locale.value.startsWith('zh')
-          ? 'GPS自動定位同埋自動計算距離，即時獲得準確香港的士車費，無需手動輸入。'
-          : 'Automatic GPS location detection and distance calculation for instant accurate Hong Kong taxi fares - no manual input needed.',
+        releaseNotes: t('schema.releaseNotes'),
         featureList: getFeatureList(),
         offers: {
           '@type': 'Offer',
@@ -90,31 +88,29 @@ useHead({
         },
         author: {
           '@type': 'Person',
-          name: 'William Chong',
-          url: 'https://blog.williamchong.cloud'
+          name: t('schema.authorName'),
+          url: t('schema.authorUrl')
         },
         creator: {
           '@type': 'Person',
-          name: 'William Chong',
-          url: 'https://blog.williamchong.cloud'
+          name: t('schema.authorName'),
+          url: t('schema.authorUrl')
         },
         potentialAction: {
           '@type': 'UseAction',
           target: 'https://shoulditake.taxi',
           result: {
             '@type': 'Thing',
-            name: 'Hong Kong Taxi Fare Calculation'
+            name: t('schema.potentialActionResult')
           }
         },
-        serviceType: locale.value.startsWith('zh') ? '交通計算器' : 'Transportation Calculator',
+        serviceType: t('schema.serviceType'),
         areaServed: {
           '@type': 'Country',
-          name: locale.value.startsWith('zh') ? '香港' : 'Hong Kong',
-          alternateName: locale.value.startsWith('zh') ? '香港特別行政區' : 'Hong Kong SAR'
+          name: t('schema.areaServedName'),
+          alternateName: t('schema.areaServedAlternateName')
         },
-        keywords: locale.value.startsWith('zh')
-          ? '香港的士車費計算器, GPS自動測距, 自動計算距離, 的士車費估算, 香港交通, 市區的士, 新界的士, 大嶼山的士, 自動定位, 海底隧道'
-          : 'Hong Kong taxi fare calculator, GPS auto-distance, automatic distance calculation, taxi fare estimation, automatic location detection, Hong Kong transportation, urban taxi, new territories taxi, lantau taxi, cross harbour tunnel',
+        keywords: t('schema.keywords'),
         availableLanguage: locales.value.map(loc => loc.language || loc.code),
         sameAs: getAllLocaleUrls()
       })
@@ -137,7 +133,7 @@ useHead({
           {
             '@type': 'ListItem',
             position: 1,
-            name: locale.value.startsWith('zh') ? '首頁' : 'Home',
+            name: t('schema.breadcrumbHome'),
             item: getLocaleUrl(locale.value)
           },
           {
@@ -159,17 +155,17 @@ useHead({
         inLanguage: locale.value,
         provider: {
           '@type': 'Person',
-          name: 'William Chong',
-          url: 'https://blog.williamchong.cloud'
+          name: t('schema.authorName'),
+          url: t('schema.authorUrl')
         },
         areaServed: {
           '@type': 'Country',
-          name: locale.value.startsWith('zh') ? '香港' : 'Hong Kong'
+          name: t('schema.areaServedName')
         },
-        serviceType: locale.value.startsWith('zh') ? '交通計算器' : 'Transportation Calculator',
+        serviceType: t('schema.serviceType'),
         hasOfferCatalog: {
           '@type': 'OfferCatalog',
-          name: locale.value.startsWith('zh') ? '的士車費計算服務' : 'Taxi Fare Calculation Services',
+          name: t('schema.offerCatalogName'),
           itemListElement: (() => {
             const serviceNames = getServiceNames()
             return [
@@ -208,13 +204,13 @@ useHead({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: t('title'),
-        alternateName: locale.value.startsWith('zh') ? '香港的士車費計算器' : 'Hong Kong Taxi Fare Calculator',
+        alternateName: t('taxiCalculator.title'),
         url: 'https://shoulditake.taxi',
-        inLanguage: ['en-HK', 'zh-HK'],
+        inLanguage: locales.value.map(loc => loc.language || loc.code),
         author: {
           '@type': 'Person',
-          name: 'William Chong',
-          url: 'https://blog.williamchong.cloud'
+          name: t('schema.authorName'),
+          url: t('schema.authorUrl')
         },
         sameAs: getAllLocaleUrls()
       })

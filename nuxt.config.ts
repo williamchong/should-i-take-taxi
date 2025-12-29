@@ -32,6 +32,11 @@ export default defineNuxtConfig({
         code: 'zh-hk',
         language: 'zh-HK',
         file: 'zh-HK.json'
+      },
+      {
+        code: 'zh-tw',
+        language: 'zh-TW',
+        file: 'zh-TW.json'
       }
     ],
     lazy: true,
@@ -44,7 +49,7 @@ export default defineNuxtConfig({
 
   site: {
     url: 'https://shoulditake.taxi',
-    name: 'Should I Take Taxi?',
+    name: 'Hong Kong Taxi Fare Calculator with GPS Auto-Distance',
   },
 
   sitemap: {

@@ -1,0 +1,160 @@
+{
+  "title": "香港計程車車資計算器 GPS 自動測距",
+  "description": "自動定位及計算距離的智慧計程車車資計算器。只需選擇起點與目的地，無需估算或手動輸入距離，即刻獲得準確車資。",
+  "loading": "載入中...",
+  "schema": {
+    "releaseNotes": "GPS自動定位及自動計算距離，即時獲得準確香港計程車車資，無需手動輸入。",
+    "authorName": "William Chong",
+    "authorUrl": "https://blog.williamchong.cloud",
+    "potentialActionResult": "香港計程車車資計算",
+    "serviceType": "交通計算器",
+    "areaServedName": "香港",
+    "areaServedAlternateName": "香港特別行政區",
+    "keywords": "香港計程車車資計算器, GPS自動測距, 自動計算距離, 計程車車資估算, 香港交通, 市區計程車, 新界計程車, 大嶼山計程車, 自動定位, 海底隧道",
+    "breadcrumbHome": "首頁",
+    "offerCatalogName": "計程車車資計算服務"
+  },
+  "seo": {
+    "dynamicTitle": {
+      "fromOnly": "由 {from} 出發計程車 | 香港計程車車資計算器 GPS 自動測距",
+      "fromTo": "由 {from} 到 {to} 計程車 | 香港計程車車資計算器 GPS 自動測距"
+    }
+  },
+  "intro": {
+    "showIntroduction": "瞭解更多關於這個計算器",
+    "title": "計算器簡介",
+    "description": "這個計算器協助您計算香港三種類型計程車的準確車資。包括自動路線計算、隧道費、行李費及其他附加費，為您提供最準確的車資估算。",
+    "divider": "簡介",
+    "usage": {
+      "title": "如何使用這個計算器？",
+      "steps": [
+        "選擇地點：選擇起點與目的地，或讓計算器自動偵測您的當前位置。",
+        "計算路線：系統會自動計算您所選地點之間的行車距離與預估行車時間。",
+        "選擇計程車類型：根據您的路線選擇市區紅色、新界綠色或大嶼山藍色計程車。",
+        "加入附加費用：包括隧道費、行李費及其他適用的附加費用，獲得完整的車資計算。"
+      ]
+    },
+    "features": {
+      "title": "計算器功能",
+      "list": [
+        {
+          "title": "自動定位偵測",
+          "description": "即時用 GPS 找到您的當前位置，無需手動輸入起點"
+        },
+        {
+          "title": "自動距離計算",
+          "description": "自動計算準確行車距離，不必手動輸入距離或估計"
+        },
+        {
+          "title": "全港計程車準確車資",
+          "description": "即時計算市區紅色、新界綠色、大嶼山藍色計程車車資，使用官方收費標準"
+        },
+        {
+          "title": "完整費用明細",
+          "description": "詳細顯示所有收費包括隧道費、行李費及附加費"
+        }
+      ]
+    },
+    "concept": {
+      "title": "為什麼要使用這個計程車車資計算器？",
+      "description": "在香港要知道準確的計程車車資估算可能很複雜，因為涉及不同計程車類型、隧道費和各種附加費。這個計算器將所有因素納入考慮，為您提供最準確的車資估算。",
+      "benefits": [
+        "準確車資估算：基於運輸署官方收費標準提供精確的車資計算",
+        "路線優化：自動計算香港任何兩點之間的最佳行車路線",
+        "完全費用透明：詳細顯示包括隧道費和附加費在內的所有收費明細",
+        "多種計程車支援：比較市區、新界和大嶼山計程車服務的車資"
+      ],
+      "conclusion": "使用這個計算器獲得準確計程車車資估算，在香港做出明智的交通決定。"
+    },
+    "openSource": {
+      "title": "開放原始碼",
+      "description": "這個專案是開放原始碼的，在 GitHub 上面可以找到。",
+      "contribute": "如果您發現任何問題或有改善建議，歡迎提出：",
+      "repository": "GitHub 儲存庫"
+    },
+    "faq": {
+      "questions": [
+        {
+          "question": "這個計算器與其他計程車車資計算器有什麼不同？",
+          "answer": "不同於傳統需要手動輸入距離的計算器，我們的計算器會自動用 GPS 偵測您的位置，並自動計算準確的行車距離。只需選擇起點與目的地，即刻獲得準確車資，完全不需估計。"
+        },
+        {
+          "question": "香港計程車車資計算器有多準確？",
+          "answer": "計算器使用運輸署官方收費標準與即時路線計算，提供高度準確的車資估算。它包括所有附加費、隧道費與行李費，基於現行香港計程車規定。"
+        },
+        {
+          "question": "支援哪些類型的香港計程車？",
+          "answer": "計算器支援香港三種計程車類型：市區紅色、新界綠色與大嶼山藍色，每種都有特定的收費結構與路線限制。"
+        },
+        {
+          "question": "計算器是否包括隧道費與附加費？",
+          "answer": "是的，計算器包括所有主要隧道費（海底隧道、東區海底隧道、西區海底隧道等）、行李費與回程隧道費。它可以自動偵測過海路線並建議適當的隧道費。"
+        },
+        {
+          "question": "我可以使用當前位置來計算車資嗎？",
+          "answer": "是的，計算器可以自動偵測您的當前 GPS 位置並用作起點。它整合了香港政府地點資料以進行準確的地址對應。"
+        },
+        {
+          "question": "計程車車資計算器有中文版本嗎？",
+          "answer": "是的，計算器完全支援多語言，包括英文與繁體中文，包括在地化地址搜尋與車資明細顯示。"
+        }
+      ]
+    }
+  },
+  "taxiCalculator": {
+    "title": "香港計程車車資計算器",
+    "regionHongKong": "香港",
+    "taxiType": "計程車類型",
+    "urban": "市區紅色",
+    "newTerritories": "新界綠色",
+    "lantau": "大嶼山藍色",
+    "distance": "行車距離",
+    "tunnelFee": "隧道費",
+    "crossHarbourTaxiStand": "過海計程車站",
+    "yes": "是",
+    "luggage": "行李",
+    "pieces": "件",
+    "estimatedFare": "預估車資",
+    "flagFall": "起跳費",
+    "distanceFare": "距離收費",
+    "tunnelTotal": "隧道費總額",
+    "luggageTotal": "行李費總額",
+    "returnToll": "回程隧道費",
+    "tunnels": {
+      "crossHarbour": "過海隧道 (紅隧/東隧/西隧)",
+      "tatesCairn": "大老山隧道",
+      "taiLam": "大欖隧道",
+      "lions": "獅子山隧道",
+      "shingMun": "城門隧道",
+      "aberdeen": "香港仔隧道",
+      "shaTinHeights": "沙田嶺隧道/尖山隧道/大圍隧道"
+    },
+    "otherTunnels": "其他隧道",
+    "startLocation": "起點",
+    "endLocation": "目的地",
+    "searchPlace": "搜尋地點...",
+    "calculatedDistance": "預估距離",
+    "estimatedTime": "預估時間",
+    "geolocationNotSupported": "您的裝置不支援地理定位功能",
+    "geolocationError": "無法獲取您的位置，請檢查位置服務權限",
+    "currentLocation": "當前位置",
+    "useCurrentLocation": "使用當前位置",
+    "swapLocations": "交換起點與目的地",
+    "manuallyAdjusted": "已調整",
+    "autoCalculated": "自動",
+    "manualAdjust": "手動調整",
+    "confirm": "確認",
+    "cancel": "取消",
+    "autoCalculatedDistance": "自動計算距離",
+    "restore": "還原",
+    "distanceTooSmall": "距離必須大於 0.1 公里",
+    "distanceTooLarge": "距離不能超過 200 公里。如需計算更長距離，請分段計算。",
+    "distanceDifferenceWarning": "您輸入的距離 ({manual} km) 與建議路線 ({auto} km) 相差超過 {percent}%。\n\n確定要使用此距離？",
+    "advancedOptions": "進階選項",
+    "tunnelsLuggage": "隧道、行李",
+    "recentLocations": "最近使用地點",
+    "suggestedTaxiType": "根據您的路線，我們建議使用{type}",
+    "useSuggested": "使用建議",
+    "viewDetails": "檢視詳情"
+  }
+}
