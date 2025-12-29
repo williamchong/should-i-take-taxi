@@ -2,11 +2,11 @@
   <div class="min-h-screen bg-gray-50">
     <!-- Sticky Fare Summary -->
     <Transition name="slide-down">
-      <div v-if="showStickyFare && fareData" class="fixed top-0 left-0 right-0 z-[1000] bg-white shadow-lg border-b border-gray-200">
+      <div v-if="showStickyFare" class="fixed top-0 left-0 right-0 z-[1000] bg-white shadow-lg border-b border-gray-200">
         <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <span class="text-sm text-gray-600">{{ $t('taxiCalculator.estimatedFare') }}:</span>
-            <span class="text-2xl font-bold text-blue-600">HK$ {{ fareData.totalFare.toFixed(2) }}</span>
+            <span class="text-2xl font-bold text-blue-600">HK$ {{ fareData?.totalFare.toFixed(2) }}</span>
           </div>
           <button
             type="button"
@@ -20,56 +20,54 @@
     </Transition>
 
     <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <!-- 1. Title/Logo (only when no locations selected) -->
-      <template v-if="!hasSelectedLocations">
-        <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
-        <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
-        <div class="flex justify-center mb-8">
-          <div class="relative">
-            <picture>
-              <source :srcset="LogoEnWebp" type="image/webp">
-              <img
-                :src="LogoEn"
-                alt="Crazy Taxi"
-                :class="[
-                  'h-40 w-auto rounded-lg shadow-md transition-opacity',
-                  isLoadingFromUrl ? 'opacity-50' : 'opacity-100'
-                ]"
-              >
-            </picture>
-            <!-- Loading overlay -->
-            <div
-              v-if="isLoadingFromUrl"
-              class="absolute inset-0 flex flex-col items-center justify-center"
-            >
-              <div class="relative w-16 h-16 mb-2">
-                <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full" />
-                <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full animate-spin border-t-transparent" />
-              </div>
-              <p class="text-sm font-semibold text-blue-600 bg-white px-3 py-1 rounded-full shadow-md">
-                {{ $t('loading') }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </template>
-
       <!-- 2. Map (when locations exist - topmost priority) -->
       <div
-        v-if="hasSelectedLocations"
         :class="[
           'mb-8',
-          showStickyFare && fareData ? 'pt-16' : ''
+          showStickyFare ? 'pt-16' : ''
         ]"
       >
+        <!-- 1. Title/Logo (only when no locations selected) -->
+        <template v-if="!hasSelectedLocations">
+          <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
+          <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
+          <div class="flex justify-center mb-8">
+            <div class="relative">
+              <picture>
+                <source :srcset="LogoEnWebp" type="image/webp">
+                <img
+                  :src="LogoEn"
+                  alt="Crazy Taxi"
+                  :class="[
+                    'h-40 w-auto rounded-lg shadow-md transition-opacity',
+                    isLoadingFromUrl ? 'opacity-50' : 'opacity-100'
+                  ]"
+                >
+              </picture>
+              <!-- Loading overlay -->
+              <div
+                v-if="isLoadingFromUrl"
+                class="absolute inset-0 flex flex-col items-center justify-center"
+              >
+                <div class="relative w-16 h-16 mb-2">
+                  <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full" />
+                  <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full animate-spin border-t-transparent" />
+                </div>
+                <p class="text-sm font-semibold text-blue-600 bg-white px-3 py-1 rounded-full shadow-md">
+                  {{ $t('loading') }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </template>
         <MapDisplay
+          v-else
           :start-location="selectedLocations.start"
           :end-location="selectedLocations.end"
           :route-coordinates="selectedLocations.coordinates"
           :show-bounding-boxes="showBoundingBoxes"
         />
       </div>
-
       <!-- 3. TaxiFareCalculator -->
       <TaxiFareCalculator
         class="mb-8"
@@ -81,7 +79,7 @@
       />
 
       <!-- 4. Fare Display (prominent, when calculated) -->
-      <div v-if="fareData && fareData.totalFare > 0" ref="fareDisplayRef" class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
+      <div v-if="fareData" ref="fareDisplayRef" class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
         <h3 class="text-xl font-medium text-gray-900">{{ $t('taxiCalculator.estimatedFare') }}</h3>
         <p class="text-5xl font-bold text-blue-600 mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
 
@@ -149,7 +147,10 @@ const { reverseGeocode } = useLocationSearch()
 const { gtag } = useGtag()
 
 const showIntroduction = ref(false)
-const showStickyFare = ref(false)
+const isFareVisible = ref(false)
+const showStickyFare = computed(() => {
+  return !isFareVisible.value && hasSelectedLocations.value && fareData.value !== null
+})
 
 // Show bounding boxes for debugging when debug=1 is in query string
 const showBoundingBoxes = computed(() => route.query.debug === '1')
@@ -465,7 +466,7 @@ onMounted(async () => {
     (entries) => {
       entries.forEach((entry) => {
         // Show sticky header when fare display is out of view
-        showStickyFare.value = !entry.isIntersecting && fareData.value !== null && fareData.value.totalFare > 0
+        isFareVisible.value = entry.isIntersecting
       })
     },
     {
