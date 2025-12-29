@@ -1,0 +1,160 @@
+{
+  "title": "香港出租车车费计算器 GPS 自动测距",
+  "description": "自动定位及计算距离的智能出租车车费计算器。只需选择起点与目的地，无需估算或手动输入距离，即刻获得准确车费。",
+  "loading": "载入中...",
+  "schema": {
+    "releaseNotes": "GPS自动定位及自动计算距离，即时获得准确香港出租车车费，无需手动输入。",
+    "authorName": "William Chong",
+    "authorUrl": "https://blog.williamchong.cloud",
+    "potentialActionResult": "香港出租车车费计算",
+    "serviceType": "交通计算器",
+    "areaServedName": "香港",
+    "areaServedAlternateName": "香港特别行政区",
+    "keywords": "香港出租车车费计算器, GPS自动测距, 自动计算距离, 出租车车费估算, 香港交通, 市区出租车, 新界出租车, 大屿山出租车, 自动定位, 海底隧道",
+    "breadcrumbHome": "首页",
+    "offerCatalogName": "出租车车费计算服务"
+  },
+  "seo": {
+    "dynamicTitle": {
+      "fromOnly": "由 {from} 出发出租车 | 香港出租车车费计算器 GPS 自动测距",
+      "fromTo": "由 {from} 到 {to} 出租车 | 香港出租车车费计算器 GPS 自动测距"
+    }
+  },
+  "intro": {
+    "showIntroduction": "了解更多关于这个计算器",
+    "title": "计算器简介",
+    "description": "这个计算器帮助您计算香港三种类型出租车的准确车费。包括自动路线计算、隧道费、行李费及其他附加费，为您提供最准确的车费估算。",
+    "divider": "简介",
+    "usage": {
+      "title": "如何使用这个计算器？",
+      "steps": [
+        "选择地点：选择起点与目的地，或让计算器自动侦测您的当前位置。",
+        "计算路线：系统会自动计算您所选地点之间的行车距离与预估行车时间。",
+        "选择出租车类型：根据您的路线选择市区红色、新界绿色或大屿山蓝色出租车。",
+        "加入附加费用：包括隧道费、行李费及其他适用的附加费用，获得完整的车费计算。"
+      ]
+    },
+    "features": {
+      "title": "计算器功能",
+      "list": [
+        {
+          "title": "自动定位侦测",
+          "description": "即时用 GPS 找到您的当前位置，无需手动输入起点"
+        },
+        {
+          "title": "自动距离计算",
+          "description": "自动计算准确行车距离，不必手动输入距离或估计"
+        },
+        {
+          "title": "全港出租车准确车费",
+          "description": "即时计算市区红色、新界绿色、大屿山蓝色出租车车费，使用官方收费标准"
+        },
+        {
+          "title": "完整费用明细",
+          "description": "详细显示所有收费包括隧道费、行李费及附加费"
+        }
+      ]
+    },
+    "concept": {
+      "title": "为什么要使用这个出租车车费计算器？",
+      "description": "在香港要知道准确的出租车车费估算可能很复杂，因为涉及不同出租车类型、隧道费和各种附加费。这个计算器将所有因素纳入考虑，为您提供最准确的车费估算。",
+      "benefits": [
+        "准确车费估算：基于运输署官方收费标准提供精确的车费计算",
+        "路线优化：自动计算香港任何两点之间的最佳行车路线",
+        "完全费用透明：详细显示包括隧道费和附加费在内的所有收费明细",
+        "多种出租车支持：比较市区、新界和大屿山出租车服务的车费"
+      ],
+      "conclusion": "使用这个计算器获得准确出租车车费估算，在香港做出明智的交通决定。"
+    },
+    "openSource": {
+      "title": "开放源代码",
+      "description": "这个项目是开放源代码的，在 GitHub 上面可以找到。",
+      "contribute": "如果您发现任何问题或有改善建议，欢迎提出：",
+      "repository": "GitHub 仓库"
+    },
+    "faq": {
+      "questions": [
+        {
+          "question": "这个计算器与其他出租车车费计算器有什么不同？",
+          "answer": "不同于传统需要手动输入距离的计算器，我们的计算器会自动用 GPS 侦测您的位置，并自动计算准确的行车距离。只需选择起点与目的地，即刻获得准确车费，完全不需估计。"
+        },
+        {
+          "question": "香港出租车车费计算器有多准确？",
+          "answer": "计算器使用运输署官方收费标准与实时路线计算，提供高度准确的车费估算。它包括所有附加费、隧道费与行李费，基于现行香港出租车规定。"
+        },
+        {
+          "question": "支持哪些类型的香港出租车？",
+          "answer": "计算器支持香港三种出租车类型：市区红色、新界绿色与大屿山蓝色，每种都有特定的收费结构与路线限制。"
+        },
+        {
+          "question": "计算器是否包括隧道费与附加费？",
+          "answer": "是的，计算器包括所有主要隧道费（海底隧道、东区海底隧道、西区海底隧道等）、行李费与回程隧道费。它可以自动侦测过海路线并建议适当的隧道费。"
+        },
+        {
+          "question": "我可以使用当前位置来计算车费吗？",
+          "answer": "是的，计算器可以自动侦测您的当前 GPS 位置并用作起点。它整合了香港政府地点数据以进行准确的地址对应。"
+        },
+        {
+          "question": "出租车车费计算器有中文版本吗？",
+          "answer": "是的，计算器完全支持多语言，包括英文与繁体中文、简体中文，包括本地化地址搜索与车费明细显示。"
+        }
+      ]
+    }
+  },
+  "taxiCalculator": {
+    "title": "香港出租车车费计算器",
+    "regionHongKong": "香港",
+    "taxiType": "出租车类型",
+    "urban": "市区红色",
+    "newTerritories": "新界绿色",
+    "lantau": "大屿山蓝色",
+    "distance": "行车距离",
+    "tunnelFee": "隧道费",
+    "crossHarbourTaxiStand": "过海出租车站",
+    "yes": "是",
+    "luggage": "行李",
+    "pieces": "件",
+    "estimatedFare": "预估车费",
+    "flagFall": "起步费",
+    "distanceFare": "距离收费",
+    "tunnelTotal": "隧道费总额",
+    "luggageTotal": "行李费总额",
+    "returnToll": "回程隧道费",
+    "tunnels": {
+      "crossHarbour": "过海隧道 (红隧/东隧/西隧)",
+      "tatesCairn": "大老山隧道",
+      "taiLam": "大榄隧道",
+      "lions": "狮子山隧道",
+      "shingMun": "城门隧道",
+      "aberdeen": "香港仔隧道",
+      "shaTinHeights": "沙田岭隧道/尖山隧道/大围隧道"
+    },
+    "otherTunnels": "其他隧道",
+    "startLocation": "起点",
+    "endLocation": "目的地",
+    "searchPlace": "搜索地点...",
+    "calculatedDistance": "预估距离",
+    "estimatedTime": "预估时间",
+    "geolocationNotSupported": "您的设备不支持地理定位功能",
+    "geolocationError": "无法获取您的位置，请检查位置服务权限",
+    "currentLocation": "当前位置",
+    "useCurrentLocation": "使用当前位置",
+    "swapLocations": "交换起点与目的地",
+    "manuallyAdjusted": "已调整",
+    "autoCalculated": "自动",
+    "manualAdjust": "手动调整",
+    "confirm": "确认",
+    "cancel": "取消",
+    "autoCalculatedDistance": "自动计算距离",
+    "restore": "还原",
+    "distanceTooSmall": "距离必须大于 0.1 公里",
+    "distanceTooLarge": "距离不能超过 200 公里。如需计算更长距离，请分段计算。",
+    "distanceDifferenceWarning": "您输入的距离 ({manual} km) 与建议路线 ({auto} km) 相差超过 {percent}%。\n\n确定要使用此距离？",
+    "advancedOptions": "高级选项",
+    "tunnelsLuggage": "隧道、行李",
+    "recentLocations": "最近使用地点",
+    "suggestedTaxiType": "根据您的路线，我们建议使用{type}",
+    "useSuggested": "使用建议",
+    "viewDetails": "查看详情"
+  }
+}
