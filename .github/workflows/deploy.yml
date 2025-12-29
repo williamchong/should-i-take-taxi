@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - feature/taxi
+      - develop
 jobs:
   build:
     runs-on: ubuntu-latest
