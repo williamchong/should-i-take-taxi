@@ -2,7 +2,7 @@
   <div>
     <!-- Taxi Type Selection -->
     <div class="grid grid-cols-2 gap-4 items-center">
-      <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
+      <label class="text-gray-700 dark:text-gray-300 font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
       <div class="flex space-x-4">
         <label class="inline-flex items-center">
           <input
@@ -38,24 +38,24 @@
     </div>
 
     <!-- Taxi Type Suggestion Banner -->
-    <div v-if="showSuggestion && suggestedTaxiType" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+    <div v-if="showSuggestion && suggestedTaxiType" class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mt-4">
       <div class="flex items-start justify-between">
         <div class="flex-1">
-          <p class="text-sm text-blue-800">
+          <p class="text-sm text-blue-800 dark:text-blue-200">
             {{ $t('taxiCalculator.suggestedTaxiType', { type: $t(`taxiCalculator.${suggestedTaxiType}`) }) }}
           </p>
         </div>
         <div class="flex gap-2 ml-4">
           <button
             type="button"
-            class="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+            class="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-md transition-colors"
             @click="handleAcceptSuggestion"
           >
             {{ $t('taxiCalculator.useSuggested') }}
           </button>
           <button
             type="button"
-            class="px-3 py-1 text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors"
+            class="px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
             @click="handleDismissSuggestion"
           >
             ✕

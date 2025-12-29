@@ -1,16 +1,19 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Theme Toggle -->
+    <ThemeToggle />
+
     <!-- Sticky Fare Summary -->
     <Transition name="slide-down">
-      <div v-if="showStickyFare" class="fixed top-0 left-0 right-0 z-[1000] bg-white shadow-lg border-b border-gray-200">
+      <div v-if="showStickyFare" class="fixed top-0 left-0 right-0 z-[1000] bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
         <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <span class="text-sm text-gray-600">{{ $t('taxiCalculator.estimatedFare') }}:</span>
-            <span class="text-2xl font-bold text-blue-600">HK$ {{ fareData?.totalFare.toFixed(2) }}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taxiCalculator.estimatedFare') }}:</span>
+            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">HK$ {{ fareData?.totalFare.toFixed(2) }}</span>
           </div>
           <button
             type="button"
-            class="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+            class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
             @click="scrollToFare"
           >
             {{ $t('taxiCalculator.viewDetails') }}
@@ -29,8 +32,8 @@
       >
         <!-- 1. Title/Logo (only when no locations selected) -->
         <template v-if="!hasSelectedLocations">
-          <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-2">{{ $t('title') }}</h1>
-          <p class="text-center text-gray-600 text-lg mb-8">{{ $t('description') }}</p>
+          <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">{{ $t('title') }}</h1>
+          <p class="text-center text-gray-600 dark:text-gray-400 text-lg mb-8">{{ $t('description') }}</p>
           <div class="flex justify-center mb-8">
             <div class="relative">
               <picture>
@@ -53,7 +56,7 @@
                   <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full" />
                   <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full animate-spin border-t-transparent" />
                 </div>
-                <p class="text-sm font-semibold text-blue-600 bg-white px-3 py-1 rounded-full shadow-md">
+                <p class="text-sm font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-md">
                   {{ $t('loading') }}
                 </p>
               </div>
@@ -79,12 +82,12 @@
       />
 
       <!-- 4. Fare Display (prominent, when calculated) -->
-      <div v-if="fareData" ref="fareDisplayRef" class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200">
-        <h3 class="text-xl font-medium text-gray-900">{{ $t('taxiCalculator.estimatedFare') }}</h3>
-        <p class="text-5xl font-bold text-blue-600 mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
+      <div v-if="fareData" ref="fareDisplayRef" class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border-2 border-blue-200 dark:border-blue-700">
+        <h3 class="text-xl font-medium text-gray-900 dark:text-gray-100">{{ $t('taxiCalculator.estimatedFare') }}</h3>
+        <p class="text-5xl font-bold text-blue-600 dark:text-blue-400 mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
 
-        <div class="border-t border-blue-200 pt-4 mt-4">
-          <div class="text-sm text-gray-600">
+        <div class="border-t border-blue-200 dark:border-blue-700 pt-4 mt-4">
+          <div class="text-sm text-gray-600 dark:text-gray-400">
             <div class="grid grid-cols-2 gap-2">
               <span>{{ fareData.breakdown.taxiTypeLabel }} {{ $t('taxiCalculator.flagFall') }}:</span>
               <span class="text-right">HK$ {{ fareData.breakdown.flagFall.toFixed(2) }}</span>
@@ -114,14 +117,14 @@
       </div>
 
       <!-- 5. Introduction (collapsible) -->
-      <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
         <button
           type="button"
           class="w-full flex items-center justify-between text-left"
           @click="showIntroduction = !showIntroduction"
         >
-          <h2 class="text-xl font-semibold text-gray-900">{{ $t('intro.showIntroduction') }}</h2>
-          <span class="text-gray-600 text-lg">{{ showIntroduction ? '▼' : '▶' }}</span>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ $t('intro.showIntroduction') }}</h2>
+          <span class="text-gray-600 dark:text-gray-400 text-lg">{{ showIntroduction ? '▼' : '▶' }}</span>
         </button>
         <div v-show="showIntroduction" class="mt-4">
           <IntroductionSection />

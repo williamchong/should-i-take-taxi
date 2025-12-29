@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white rounded-xl shadow-md p-6 sm:p-8 mb-8">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 sm:p-8 mb-8">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-gray-900">{{ $t('taxiCalculator.title') }}</h2>
-      <div class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600 flex items-center">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('taxiCalculator.title') }}</h2>
+      <div class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-600 dark:text-gray-300 flex items-center">
         <span class="mr-1">🇭🇰</span>
         <span>{{ $t('taxiCalculator.regionHongKong') }}</span>
       </div>
@@ -14,7 +14,7 @@
         <div class="grid grid-cols-1 gap-6">
           <!-- 起點搜尋 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label for="startLocation" class="text-gray-700 font-medium">
+            <label for="startLocation" class="text-gray-700 dark:text-gray-300 font-medium">
               {{ $t('taxiCalculator.startLocation') }}
             </label>
             <div class="flex space-x-2">
@@ -28,7 +28,7 @@
               <button
                 v-if="isGeolocationSupported"
                 type="button"
-                class="inline-flex items-center justify-center gap-2 py-2 px-4 border border-transparent shadow-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="inline-flex items-center justify-center gap-2 py-2 px-4 border border-transparent shadow-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 :disabled="isGettingLocation"
                 :title="$t('taxiCalculator.useCurrentLocation')"
                 @click="getCurrentLocation"
@@ -48,7 +48,7 @@
 
           <!-- 終點搜尋 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label for="endLocation" class="text-gray-700 font-medium">
+            <label for="endLocation" class="text-gray-700 dark:text-gray-300 font-medium">
               {{ $t('taxiCalculator.endLocation') }}
             </label>
             <div class="flex space-x-2">
@@ -61,7 +61,7 @@
               <!-- 交換起終點按鈕 -->
               <button
                 type="button"
-                class="inline-flex justify-center py-2 px-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex justify-center py-2 px-3 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 :disabled="!selectedStartLocation || !selectedEndLocation"
                 :title="$t('taxiCalculator.swapLocations')"
                 @click="swapLocations"
@@ -75,7 +75,7 @@
 
           <div v-if="routeInfo.distance > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <div />
-            <div class="text-sm text-gray-700">
+            <div class="text-sm text-gray-700 dark:text-gray-300">
               <p>{{ $t('taxiCalculator.calculatedDistance') }}: <span class="font-bold">{{ (routeInfo.distance /
                   1000).toFixed(1) }}km</span></p>
               <p>{{ $t('taxiCalculator.estimatedTime') }}: <span class="font-bold">{{ Math.round(routeInfo.time / 60) }}

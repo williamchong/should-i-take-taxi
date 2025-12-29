@@ -1,15 +1,15 @@
 <template>
   <div>
     <!-- Advanced Options Toggle -->
-    <div class="border-t border-gray-200 pt-6 mt-6">
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
       <button
         type="button"
-        class="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center"
+        class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center"
         @click="toggleAdvancedOptions"
       >
         <span class="mr-2">{{ showAdvancedOptions ? '▼' : '▶' }}</span>
         {{ $t('taxiCalculator.advancedOptions') }}
-        <span class="ml-2 text-xs text-gray-500">({{ $t('taxiCalculator.tunnelsLuggage') }})</span>
+        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">({{ $t('taxiCalculator.tunnelsLuggage') }})</span>
       </button>
     </div>
 
@@ -17,7 +17,7 @@
     <div v-show="showAdvancedOptions" class="space-y-6 mt-6">
       <!-- Tunnel Fees -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-        <label class="text-gray-700 font-medium pt-1">{{ $t('taxiCalculator.tunnelFee') }}</label>
+        <label class="text-gray-700 dark:text-gray-300 font-medium pt-1">{{ $t('taxiCalculator.tunnelFee') }}</label>
         <div class="space-y-2">
           <!-- Cross Harbour Tunnel Option -->
           <div class="flex items-center">
@@ -26,10 +26,10 @@
               :checked="selectedTunnels.includes('crossHarbour')"
               type="checkbox"
               value="crossHarbour"
-              class="form-checkbox text-blue-600"
+              class="form-checkbox text-blue-600 dark:text-blue-400"
               @change="handleTunnelChange('crossHarbour', $event)"
             >
-            <label for="tunnel-crossHarbour" class="ml-2 block text-sm text-gray-700">
+            <label for="tunnel-crossHarbour" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
               {{ t('taxiCalculator.tunnels.crossHarbour') }} (HK$ {{ TUNNEL_FEES.crossHarbour }})
             </label>
           </div>
@@ -38,7 +38,7 @@
           <div>
             <button
               type="button"
-              class="text-sm text-gray-600 hover:text-gray-900 flex items-center"
+              class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 flex items-center"
               @click="showOtherTunnels = !showOtherTunnels"
             >
               <span class="mr-1">{{ showOtherTunnels ? '▼' : '▶' }}</span>
@@ -55,10 +55,10 @@
                   :checked="selectedTunnels.includes(tunnel.id)"
                   type="checkbox"
                   :value="tunnel.id"
-                  class="form-checkbox text-blue-600"
+                  class="form-checkbox text-blue-600 dark:text-blue-400"
                   @change="handleTunnelChange(tunnel.id, $event)"
                 >
-                <label :for="`tunnel-${tunnel.id}`" class="ml-2 block text-sm text-gray-700">
+                <label :for="`tunnel-${tunnel.id}`" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                   {{ tunnel.name }} (HK$ {{ tunnel.fee }})
                 </label>
               </div>
@@ -69,35 +69,35 @@
 
       <!-- Cross Harbour Taxi Stand Option -->
       <div v-if="hasSelectedCrossHarbourTunnel" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-        <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.crossHarbourTaxiStand') }}</label>
+        <label class="text-gray-700 dark:text-gray-300 font-medium">{{ $t('taxiCalculator.crossHarbourTaxiStand') }}</label>
         <div>
           <label class="inline-flex items-center">
             <input
               :checked="isCrossHarbourTaxiStand"
               type="checkbox"
-              class="form-checkbox text-blue-600"
+              class="form-checkbox text-blue-600 dark:text-blue-400"
               @change="handleCrossHarbourStandChange"
             >
-            <span class="ml-2 text-sm text-gray-700">{{ $t('taxiCalculator.yes') }}</span>
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('taxiCalculator.yes') }}</span>
           </label>
         </div>
       </div>
 
       <!-- Luggage Count -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-        <label class="text-gray-700 font-medium">{{ $t('taxiCalculator.luggage') }}</label>
+        <label class="text-gray-700 dark:text-gray-300 font-medium">{{ $t('taxiCalculator.luggage') }}</label>
         <div class="relative rounded-md shadow-sm">
           <input
             :value="luggageCount"
             type="number"
             min="0"
             step="1"
-            class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            class="block w-full pl-3 pr-12 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 sm:text-sm"
             @input="handleLuggageInput"
             @change="handleLuggageChange"
           >
           <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <span class="text-gray-500 sm:text-sm">{{ $t('taxiCalculator.pieces') }}</span>
+            <span class="text-gray-500 dark:text-gray-400 sm:text-sm">{{ $t('taxiCalculator.pieces') }}</span>
           </div>
         </div>
       </div>

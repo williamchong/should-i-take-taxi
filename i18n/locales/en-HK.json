@@ -2,6 +2,19 @@
   "title": "Hong Kong Taxi Fare Calculator with GPS Auto-Distance",
   "description": "Calculate taxi fares instantly with automatic location detection and distance calculation. Just select your start and destination - no need to guess or enter distance manually.",
   "loading": "Loading...",
+  "theme": {
+    "mode": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "toggle": {
+      "system": "Toggle theme (System mode)",
+      "light": "Toggle theme (Light mode)",
+      "dark": "Toggle theme (Dark mode)"
+    },
+    "currentMode": "Current theme: {mode}"
+  },
   "schema": {
     "releaseNotes": "Automatic GPS location detection and distance calculation for instant accurate Hong Kong taxi fares - no manual input needed.",
     "authorName": "William Chong",

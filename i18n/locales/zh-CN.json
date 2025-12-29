@@ -2,6 +2,19 @@
   "title": "香港出租车车费计算器 GPS 自动测距",
   "description": "自动定位及计算距离的智能出租车车费计算器。只需选择起点与目的地，无需估算或手动输入距离，即刻获得准确车费。",
   "loading": "载入中...",
+  "theme": {
+    "mode": {
+      "system": "跟随系统",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "toggle": {
+      "system": "切换主题（跟随系统）",
+      "light": "切换主题（浅色模式）",
+      "dark": "切换主题（深色模式）"
+    },
+    "currentMode": "当前主题：{mode}"
+  },
   "schema": {
     "releaseNotes": "GPS自动定位及自动计算距离，即时获得准确香港出租车车费，无需手动输入。",
     "authorName": "William Chong",

@@ -1,0 +1,82 @@
+import { useStorage } from '@vueuse/core'
+
+export type ThemeMode = 'system' | 'light' | 'dark'
+
+const STORAGE_KEY = 'taxi-calc-theme-preference'
+
+export const useDarkMode = () => {
+  // User's explicit preference (synced with localStorage via VueUse)
+  const themePreference = useStorage<ThemeMode>(STORAGE_KEY, 'system')
+
+  // Actual theme currently applied
+  const isDark = useState<boolean>('is-dark-mode', () => false)
+
+  const getEffectiveTheme = (): boolean => {
+    if (themePreference.value === 'dark') return true
+    if (themePreference.value === 'light') return false
+
+    // System mode
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    return false
+  }
+
+  const applyTheme = () => {
+    if (typeof window === 'undefined') return
+
+    const shouldBeDark = getEffectiveTheme()
+    isDark.value = shouldBeDark
+
+    if (shouldBeDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }
+
+  const handleSystemThemeChange = () => {
+    if (themePreference.value === 'system') {
+      applyTheme()
+    }
+  }
+
+  const initializeTheme = () => {
+    if (typeof window === 'undefined') return
+
+    applyTheme()
+
+    // Listen for system changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', handleSystemThemeChange)
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleSystemThemeChange)
+    }
+  }
+
+  const setThemePreference = (mode: ThemeMode) => {
+    themePreference.value = mode
+    applyTheme()
+
+    // Track theme change event
+    const { gtag } = useGtag()
+    gtag('event', 'theme_preference_changed', { mode })
+  }
+
+  // Cycle: system → light → dark → system
+  const cycleTheme = () => {
+    const modes: ThemeMode[] = ['system', 'light', 'dark']
+    const currentIndex = modes.indexOf(themePreference.value)
+    const nextIndex = (currentIndex + 1) % modes.length
+    setThemePreference(modes[nextIndex])
+  }
+
+  return {
+    themePreference: readonly(themePreference),
+    isDark: readonly(isDark),
+    initializeTheme,
+    setThemePreference,
+    cycleTheme
+  }
+}

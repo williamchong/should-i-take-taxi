@@ -2,7 +2,7 @@
   <div
     class="h-[33vh] md:h-[40vh] w-full rounded-lg shadow-md overflow-hidden relative"
   >
-    <div v-if="isLoading" class="absolute inset-0 bg-gray-100/80 flex items-center justify-center z-[100]">
+    <div v-if="isLoading" class="absolute inset-0 bg-gray-100/80 dark:bg-gray-800/80 flex items-center justify-center z-[100]">
       <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"/>
     </div>
     <ClientOnly>
@@ -16,7 +16,7 @@
         @ready="onMapReady"
       >
         <LTileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          :url="tileLayerUrl"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         <LMarker
@@ -93,6 +93,14 @@ const props = defineProps<{
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const map = ref(null as any)
 const isLoading = ref(true)
+
+const { isDark } = useDarkMode()
+
+const tileLayerUrl = computed(() => {
+  return isDark.value
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+})
 
 const center = computed((): [number, number] => {
   if (props.startLocation && props.endLocation) {

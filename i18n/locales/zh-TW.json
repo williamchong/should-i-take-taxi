@@ -2,6 +2,19 @@
   "title": "香港計程車車資計算器 GPS 自動測距",
   "description": "自動定位及計算距離的智慧計程車車資計算器。只需選擇起點與目的地，無需估算或手動輸入距離，即刻獲得準確車資。",
   "loading": "載入中...",
+  "theme": {
+    "mode": {
+      "system": "跟隨系統",
+      "light": "淺色",
+      "dark": "深色"
+    },
+    "toggle": {
+      "system": "切換主題（跟隨系統）",
+      "light": "切換主題（淺色模式）",
+      "dark": "切換主題（深色模式）"
+    },
+    "currentMode": "目前主題：{mode}"
+  },
   "schema": {
     "releaseNotes": "GPS自動定位及自動計算距離，即時獲得準確香港計程車車資，無需手動輸入。",
     "authorName": "William Chong",
