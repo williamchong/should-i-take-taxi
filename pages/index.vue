@@ -329,14 +329,13 @@ watch(() => selectedLocations.value, (newLocations) => {
 const dynamicTitle = computed(() => {
   const start = selectedLocations.value.start
   const end = selectedLocations.value.end
-  const isZh = locale.value === 'zh-hk'
 
   if (start && end) {
-    const fromName = isZh ? (start.nameZH || start.addressZH) : (start.nameEN || start.addressEN)
-    const toName = isZh ? (end.nameZH || end.addressZH) : (end.nameEN || end.addressEN)
+    const fromName = start.displayAddress
+    const toName = end.displayAddress
     return t('seo.dynamicTitle.fromTo', { from: fromName, to: toName })
   } else if (start) {
-    const fromName = isZh ? (start.nameZH || start.addressZH) : (start.nameEN || start.addressEN)
+    const fromName = start.displayAddress
     return t('seo.dynamicTitle.fromOnly', { from: fromName })
   }
 
