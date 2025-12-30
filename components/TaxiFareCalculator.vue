@@ -368,11 +368,18 @@ const swapLocations = async () => {
 }
 
 // Watch for initial location props from parent (URL restoration)
-watch(() => props.initialStartLocation, (newLocation) => {
-  if (newLocation && !selectedStartLocation.value) {
+watch(() => props.initialStartLocation, (newLocation, oldLocation) => {
+  if (newLocation) {
+    // Check if coordinates actually changed
+    const coordsChanged = !oldLocation ||
+      oldLocation.x !== newLocation.x ||
+      oldLocation.y !== newLocation.y
+
     selectedStartLocation.value = newLocation
     startLocationSearch.value = newLocation.displayAddress
-    if (selectedEndLocation.value) {
+
+    // Only trigger distance calculation if coordinates changed
+    if (coordsChanged && selectedEndLocation.value) {
       autoSelectCrossHarbourTunnel()
       handleCalculateDistance()
     }
@@ -380,11 +387,18 @@ watch(() => props.initialStartLocation, (newLocation) => {
   }
 }, { immediate: true })
 
-watch(() => props.initialEndLocation, (newLocation) => {
-  if (newLocation && !selectedEndLocation.value) {
+watch(() => props.initialEndLocation, (newLocation, oldLocation) => {
+  if (newLocation) {
+    // Check if coordinates actually changed
+    const coordsChanged = !oldLocation ||
+      oldLocation.x !== newLocation.x ||
+      oldLocation.y !== newLocation.y
+
     selectedEndLocation.value = newLocation
     endLocationSearch.value = newLocation.displayAddress
-    if (selectedStartLocation.value) {
+
+    // Only trigger distance calculation if coordinates changed
+    if (coordsChanged && selectedStartLocation.value) {
       autoSelectCrossHarbourTunnel()
       handleCalculateDistance()
     }

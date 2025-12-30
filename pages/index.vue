@@ -196,6 +196,21 @@ function updateFare(data: any) {
   fareData.value = data
 }
 
+// Helper function to create basic location from coordinates
+function createBasicLocation(lat: number, lng: number): LocationResult {
+  return {
+    x: lng,
+    y: lat,
+    nameEN: 'Custom Location',
+    nameZH: '自定義位置',
+    addressEN: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+    addressZH: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+    districtEN: '',
+    districtZH: '',
+    displayAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+  }
+}
+
 // Parse query parameters from URL and restore locations
 async function parseQueryParams() {
   const fromParam = route.query.from as string | undefined
@@ -206,68 +221,23 @@ async function parseQueryParams() {
   isLoadingFromUrl.value = true
 
   try {
+    // Parse coordinates synchronously
+    const fromCoords = parseCoordinates(fromParam)
+    const toCoords = parseCoordinates(toParam)
+
+    // Create basic locations immediately for fast distance calculation
     let startLocation: LocationResult | null = null
     let endLocation: LocationResult | null = null
 
-    // Parse 'from' parameter
-    if (fromParam) {
-      const [latStr, lngStr] = fromParam.split(',')
-      const lat = parseFloat(latStr)
-      const lng = parseFloat(lngStr)
-
-      if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-        const result = await reverseGeocode(lat, lng)
-        if (result) {
-          startLocation = result
-        } else {
-          // Fallback if reverse geocoding fails
-          startLocation = {
-            x: lng,
-            y: lat,
-            nameEN: 'Custom Location',
-            nameZH: '自定義位置',
-            addressEN: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-            addressZH: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-            districtEN: '',
-            districtZH: '',
-            displayAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-          }
-        }
-      } else {
-        console.warn('Invalid coordinates in "from" parameter:', fromParam)
-      }
+    if (fromCoords) {
+      startLocation = createBasicLocation(fromCoords.lat, fromCoords.lng)
     }
 
-    // Parse 'to' parameter
-    if (toParam) {
-      const [latStr, lngStr] = toParam.split(',')
-      const lat = parseFloat(latStr)
-      const lng = parseFloat(lngStr)
-
-      if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-        const result = await reverseGeocode(lat, lng)
-        if (result) {
-          endLocation = result
-        } else {
-          // Fallback if reverse geocoding fails
-          endLocation = {
-            x: lng,
-            y: lat,
-            nameEN: 'Custom Location',
-            nameZH: '自定義位置',
-            addressEN: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-            addressZH: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-            districtEN: '',
-            districtZH: '',
-            displayAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-          }
-        }
-      } else {
-        console.warn('Invalid coordinates in "to" parameter:', toParam)
-      }
+    if (toCoords) {
+      endLocation = createBasicLocation(toCoords.lat, toCoords.lng)
     }
 
-    // Set locations if we successfully parsed any
+    // Set locations immediately so distance calculation can start
     if (startLocation || endLocation) {
       selectedLocations.value = {
         start: startLocation,
@@ -281,6 +251,33 @@ async function parseQueryParams() {
         has_start: !!startLocation,
         has_end: !!endLocation
       })
+    }
+
+    // Run reverse geocoding in parallel to get proper addresses
+    const geocodePromises: Promise<LocationResult | null>[] = []
+
+    if (fromCoords) {
+      geocodePromises.push(reverseGeocode(fromCoords.lat, fromCoords.lng))
+    } else {
+      geocodePromises.push(Promise.resolve(null))
+    }
+
+    if (toCoords) {
+      geocodePromises.push(reverseGeocode(toCoords.lat, toCoords.lng))
+    } else {
+      geocodePromises.push(Promise.resolve(null))
+    }
+
+    // Wait for all reverse geocoding to complete
+    const [fromGeocodedResult, toGeocodedResult] = await Promise.all(geocodePromises)
+
+    // Update locations with proper addresses if reverse geocoding succeeded
+    if (fromGeocodedResult || toGeocodedResult) {
+      selectedLocations.value = {
+        start: fromGeocodedResult || startLocation,
+        end: toGeocodedResult || endLocation,
+        coordinates: selectedLocations.value.coordinates // Preserve coordinates from distance calc
+      }
     }
   } catch (error) {
     console.error('Error parsing query parameters:', error)
