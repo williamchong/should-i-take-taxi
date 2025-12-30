@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Theme Toggle -->
-    <ThemeToggle />
+    <ClientOnly><ThemeToggle /></ClientOnly>
 
     <!-- Sticky Fare Summary -->
     <Transition name="slide-down">
