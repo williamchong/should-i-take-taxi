@@ -142,6 +142,7 @@ import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
 import { useLocationSearch } from '@/composables/useLocationSearch'
+import { findLocationByCoordinates } from '@/config/sitemap-routes'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -198,6 +199,25 @@ function updateFare(data: any) {
 
 // Helper function to create basic location from coordinates
 function createBasicLocation(lat: number, lng: number): LocationResult {
+  // Try to find a known location from sitemap routes
+  const knownLocation = findLocationByCoordinates(lat, lng)
+
+  if (knownLocation) {
+    // Use predefined names for known locations
+    return {
+      x: lng,
+      y: lat,
+      nameEN: knownLocation.nameEN,
+      nameZH: knownLocation.nameZH,
+      addressEN: knownLocation.nameEN,
+      addressZH: knownLocation.nameZH,
+      districtEN: '',
+      districtZH: '',
+      displayAddress: locale.value.includes('zh') ? knownLocation.nameZH : knownLocation.nameEN
+    }
+  }
+
+  // Fallback to generic location for unknown coordinates
   return {
     x: lng,
     y: lat,

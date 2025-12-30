@@ -140,6 +140,26 @@ export const popularRoutes: [string, string][] = [
 ]
 
 /**
+ * Find a known location by coordinates with tolerance for floating point differences
+ * @param lat Latitude coordinate
+ * @param lng Longitude coordinate
+ * @param tolerance Tolerance in degrees (default: 0.0001 ≈ 11 meters)
+ * @returns Location object if found, null otherwise
+ */
+export function findLocationByCoordinates(lat: number, lng: number, tolerance = 0.0001): Location | null {
+  for (const location of Object.values(popularLocations)) {
+    const latDiff = Math.abs(location.lat - lat)
+    const lngDiff = Math.abs(location.lng - lng)
+
+    if (latDiff <= tolerance && lngDiff <= tolerance) {
+      return location
+    }
+  }
+
+  return null
+}
+
+/**
  * Generate sitemap URLs for all popular routes in both directions and both locales
  */
 export function generateSitemapUrls() {
