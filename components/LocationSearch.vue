@@ -84,7 +84,7 @@ const props = defineProps<{
   modelValue: string
 }>()
 
-const emit = defineEmits(['update:modelValue', 'select'])
+const emit = defineEmits(['update:modelValue', 'select', 'focus', 'blur'])
 
 const { searchLocation, transformCoordinates } = useLocationSearch()
 const { getRecentLocations, addRecentLocation, clearRecentLocations } = useRecentLocations()
@@ -104,11 +104,13 @@ onMounted(() => {
 })
 
 watch(() => props.modelValue, (newValue) => {
-  searchText.value = newValue
-  // Update last committed value when parent changes it (e.g., from swap or GPS)
-  if (!isFocused.value) {
+  // Update lastCommittedValue only when:
+  // 1. Not focused (normal updates like initial load)
+  // 2. Focused but value changed externally (map click, swap, GPS - not from typing)
+  if (!isFocused.value || searchText.value !== newValue) {
     lastCommittedValue.value = newValue
   }
+  searchText.value = newValue
 })
 
 const setTimeout = (callback: () => void, delay: number) => {
@@ -118,11 +120,13 @@ const setTimeout = (callback: () => void, delay: number) => {
 const handleFocus = () => {
   isFocused.value = true
   hasSelectedDuringFocus.value = false
+  emit('focus')
 }
 
 const handleBlur = () => {
   setTimeout(() => {
     isFocused.value = false
+    emit('blur')
     // If user typed but didn't select anything, revert to last committed value
     if (!hasSelectedDuringFocus.value && searchText.value !== lastCommittedValue.value) {
       searchText.value = lastCommittedValue.value
@@ -139,6 +143,10 @@ const handleClear = () => {
   emit('update:modelValue', '')
   emit('select', null)
   searchResults.value = []
+  // Focus back to input after clearing
+  nextTick(() => {
+    inputRef.value?.focus()
+  })
 }
 
 const handleClearRecent = () => {

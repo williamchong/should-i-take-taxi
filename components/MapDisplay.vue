@@ -16,6 +16,7 @@
         :min-zoom="MAP_CONSTANTS.MIN_ZOOM"
         :max-zoom="MAP_CONSTANTS.MAX_ZOOM"
         @ready="onMapReady"
+        @click="handleMapClick"
       >
         <LTileLayer
           :url="tileLayerUrl"
@@ -97,10 +98,12 @@ const props = defineProps<{
   routeCoordinates?: [number, number][]
   showBoundingBoxes?: boolean
   isCalculatingDistance?: boolean
+  focusedInput?: 'start' | 'end' | null
 }>()
 
 const emit = defineEmits<{
   'marker-dragged': [{ type: 'start' | 'end', latitude: number, longitude: number }]
+  'map-clicked': [{ latitude: number, longitude: number }]
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -198,6 +201,18 @@ const onMapReady = () => {
       [props.startLocation.y, props.startLocation.x],
       [props.endLocation.y, props.endLocation.x],
     ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
+  }
+}
+
+// Handle map click to set location
+const handleMapClick = (event: any) => {
+  // Only emit if an input is focused and its corresponding marker doesn't exist
+  const canSetStart = props.focusedInput === 'start' && !props.startLocation
+  const canSetEnd = props.focusedInput === 'end' && !props.endLocation
+
+  if (canSetStart || canSetEnd) {
+    const { lat, lng } = event.latlng
+    emit('map-clicked', { latitude: lat, longitude: lng })
   }
 }
 

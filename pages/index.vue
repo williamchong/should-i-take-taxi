@@ -74,7 +74,9 @@
           :route-coordinates="selectedLocations.coordinates"
           :show-bounding-boxes="showBoundingBoxes"
           :is-calculating-distance="fareData?.isCalculating ?? false"
+          :focused-input="focusedInput"
           @marker-dragged="handleMarkerDragged"
+          @map-clicked="handleMapClick"
         />
         <!-- Hint text for draggable markers -->
         <div v-if="hasSelectedLocations" class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
@@ -93,6 +95,7 @@
         :skip-gps-auto-request="!!route.query.from"
         @update:locations="updateLocations"
         @update:fare="updateFare"
+        @update:focused-input="updateFocusedInput"
       />
 
       <!-- 4. Fare Display (prominent, when calculated) -->
@@ -181,6 +184,7 @@ const taxiFareCalculatorRef = ref<InstanceType<typeof TaxiFareCalculator> | null
 const locationsRestoredFromUrl = ref(false)
 const isLoadingFromUrl = ref(false)
 const observer = ref<IntersectionObserver | null>(null)
+const focusedInput = ref<'start' | 'end' | null>(null)
 
 const selectedLocations = ref<{
   start: LocationResult | null;
@@ -223,6 +227,19 @@ function handleMarkerDragged(event: { type: 'start' | 'end', latitude: number, l
   if (taxiFareCalculatorRef.value) {
     taxiFareCalculatorRef.value.handleMarkerDragged(event)
   }
+}
+
+// Handle map click event from MapDisplay
+function handleMapClick(event: { latitude: number, longitude: number }) {
+  // Call the exposed method on TaxiFareCalculator
+  if (taxiFareCalculatorRef.value) {
+    taxiFareCalculatorRef.value.handleMapClick(event.latitude, event.longitude)
+  }
+}
+
+// Update focused input state from TaxiFareCalculator
+function updateFocusedInput(input: 'start' | 'end' | null) {
+  focusedInput.value = input
 }
 
 // Helper function to create basic location from coordinates

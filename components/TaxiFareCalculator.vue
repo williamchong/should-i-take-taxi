@@ -35,6 +35,8 @@
                 v-model="startLocationSearch"
                 class="flex-grow"
                 @select="selectStartLocation"
+                @focus="focusedInput = 'start'"
+                @blur="focusedInput = null"
               />
               <!-- 只在支援地理位置時才顯示定位按鈕 -->
               <button
@@ -70,6 +72,8 @@
                 v-model="endLocationSearch"
                 class="flex-grow"
                 @select="selectEndLocation"
+                @focus="focusedInput = 'end'"
+                @blur="focusedInput = null"
               />
               <!-- 交換起終點按鈕 -->
               <button
@@ -150,7 +154,7 @@ const props = defineProps<{
   skipGpsAutoRequest?: boolean
 }>()
 
-const emit = defineEmits(['update:locations', 'update:fare'])
+const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput'])
 
 const { t } = useI18n()
 const { calculateDrivingDistance, reverseGeocode } = useLocationSearch()
@@ -174,6 +178,7 @@ const selectedEndLocation = ref<LocationResult | null>(null)
 const isCalculatingDistance = ref(false)
 const isGettingLocation = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
+const focusedInput = ref<'start' | 'end' | null>(null)
 
 // 距離編輯相關
 const autoCalculatedDistance = ref(0)
@@ -669,9 +674,78 @@ watch(isCalculating, () => {
   })
 })
 
-// Expose handleMarkerDragged to parent component
+// Watch focusedInput and emit to parent
+watch(focusedInput, (newValue) => {
+  emit('update:focusedInput', newValue)
+})
+
+// Handle map click to set location
+const handleMapClick = async (latitude: number, longitude: number) => {
+  // Only set location if the corresponding marker doesn't exist
+  if (focusedInput.value === 'start' && !selectedStartLocation.value) {
+    const tempLocation = createFallbackLocation(latitude, longitude)
+    selectedStartLocation.value = tempLocation
+    startLocationSearch.value = tempLocation.displayAddress
+    emitLocations()
+
+    // Track analytics
+    useTrackEvent('taxi_map_click_set_start')
+
+    // Do reverse geocoding in background
+    try {
+      const location = await reverseGeocode(latitude, longitude)
+      if (location) {
+        selectedStartLocation.value = location
+        startLocationSearch.value = location.displayAddress
+        emitLocations()
+      }
+    } catch (error) {
+      console.error('Error reverse geocoding map click:', error)
+    }
+
+    // Auto-focus end location input after setting start
+    if (!selectedEndLocation.value) {
+      nextTick(() => {
+        endLocationSearchRef.value?.focus()
+      })
+    }
+  } else if (focusedInput.value === 'end' && !selectedEndLocation.value) {
+    const tempLocation = createFallbackLocation(latitude, longitude)
+    selectedEndLocation.value = tempLocation
+    endLocationSearch.value = tempLocation.displayAddress
+    emitLocations()
+
+    // Track analytics
+    useTrackEvent('taxi_map_click_set_end')
+
+    // Auto-select cross-harbour tunnel if applicable
+    if (selectedStartLocation.value) {
+      autoSelectCrossHarbourTunnel()
+    }
+
+    // Calculate route if both locations are set
+    if (canCalculateDistance.value) {
+      await handleCalculateDistance()
+    }
+
+    // Do reverse geocoding in background
+    try {
+      const location = await reverseGeocode(latitude, longitude)
+      if (location) {
+        selectedEndLocation.value = location
+        endLocationSearch.value = location.displayAddress
+        emitLocations()
+      }
+    } catch (error) {
+      console.error('Error reverse geocoding map click:', error)
+    }
+  }
+}
+
+// Expose handleMarkerDragged and handleMapClick to parent component
 defineExpose({
-  handleMarkerDragged
+  handleMarkerDragged,
+  handleMapClick
 })
 
 </script>

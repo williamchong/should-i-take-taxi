@@ -173,6 +173,6 @@
     "useSuggested": "Use Suggested",
     "viewDetails": "View Details",
     "customLocation": "Custom Location",
-    "markerDragHint": "Drag markers to adjust locations"
+    "markerDragHint": "Drag markers to adjust locations or click on the map to set location when an input is focused"
   }
 }

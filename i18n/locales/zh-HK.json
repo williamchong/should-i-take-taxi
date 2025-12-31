@@ -173,6 +173,6 @@
     "useSuggested": "使用建議",
     "viewDetails": "查看詳情",
     "customLocation": "自訂位置",
-    "markerDragHint": "拖曳標記以調整位置"
+    "markerDragHint": "拖曳標記以調整位置，或在輸入框聚焦時點擊地圖設定位置"
   }
 }
