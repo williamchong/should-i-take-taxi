@@ -185,7 +185,7 @@ const autoCalculatedDistance = ref(0)
 const isManualOverride = ref(false)
 
 // Template refs
-const endLocationSearchRef = ref<{ focus: () => void } | null>(null)
+const endLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | null>(null)
 
 // Helper function to create fallback location when reverse geocoding fails
 const createFallbackLocation = (latitude: number, longitude: number): LocationResult => {
@@ -243,7 +243,7 @@ const selectStartLocation = async (location: LocationResult | null) => {
   // Auto-focus end location input if start location is set but end is not
   if (location && !selectedEndLocation.value) {
     nextTick(() => {
-      endLocationSearchRef.value?.focus()
+      endLocationSearchRef.value?.focus({ preventScroll: true })
     })
   }
 }
@@ -706,7 +706,7 @@ const handleMapClick = async (latitude: number, longitude: number) => {
     // Auto-focus end location input after setting start
     if (!selectedEndLocation.value) {
       nextTick(() => {
-        endLocationSearchRef.value?.focus()
+        endLocationSearchRef.value?.focus({ preventScroll: true })
       })
     }
   } else if (focusedInput.value === 'end' && !selectedEndLocation.value) {

@@ -145,7 +145,7 @@ const handleClear = () => {
   searchResults.value = []
   // Focus back to input after clearing
   nextTick(() => {
-    inputRef.value?.focus()
+    inputRef.value?.focus({ preventScroll: true })
   })
 }
 
@@ -194,7 +194,7 @@ onBeforeUnmount(() => {
 // Expose focus method so parent can focus this input
 defineExpose({
   focus: () => {
-    inputRef.value?.focus()
+    inputRef.value?.focus({ preventScroll: true })
   }
 })
 </script>

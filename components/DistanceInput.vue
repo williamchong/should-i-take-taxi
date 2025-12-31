@@ -136,7 +136,7 @@ const enableDistanceEdit = () => {
 
   // Focus input after Vue updates the DOM
   nextTick(() => {
-    distanceInput.value?.focus()
+    distanceInput.value?.focus({ preventScroll: true })
     distanceInput.value?.select()
   })
 }
