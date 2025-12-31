@@ -128,6 +128,7 @@
     "luggage": "Luggage",
     "pieces": "pieces",
     "estimatedFare": "Estimated Fare",
+    "calculatingFare": "Calculating fare...",
     "flagFall": "Flag Fall",
     "distanceFare": "Distance Fare",
     "tunnelTotal": "Tunnel Fees Total",

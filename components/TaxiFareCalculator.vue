@@ -410,7 +410,8 @@ watch(() => props.initialEndLocation, (newLocation, oldLocation) => {
 onMounted(() => {
   emit('update:fare', {
     totalFare: totalFare.value,
-    breakdown: fareBreakdown.value
+    breakdown: fareBreakdown.value,
+    isCalculating: isCalculatingDistance.value
   })
   // 檢查瀏覽器是否支援地理定位API
   isGeolocationSupported.value = Boolean(navigator.geolocation)
@@ -501,7 +502,17 @@ watch(totalFare, (newValue) => {
   // Emit fare data to parent component
   emit('update:fare', {
     totalFare: newValue,
-    breakdown: fareBreakdown.value
+    breakdown: fareBreakdown.value,
+    isCalculating: isCalculatingDistance.value
+  })
+})
+
+// Watch isCalculatingDistance to emit updates
+watch(isCalculatingDistance, () => {
+  emit('update:fare', {
+    totalFare: totalFare.value,
+    breakdown: fareBreakdown.value,
+    isCalculating: isCalculatingDistance.value
   })
 })
 

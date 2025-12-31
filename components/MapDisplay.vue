@@ -2,9 +2,11 @@
   <div
     class="h-[33vh] md:h-[40vh] w-full rounded-lg shadow-md overflow-hidden relative"
   >
-    <div v-if="isLoading" class="absolute inset-0 bg-gray-100/80 dark:bg-gray-800/80 flex items-center justify-center z-[100]">
-      <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"/>
-    </div>
+    <Transition name="fade">
+      <div v-if="isLoading || isCalculatingDistance" class="absolute inset-0 bg-gray-100/80 dark:bg-gray-800/80 flex items-center justify-center z-[1000]">
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"/>
+      </div>
+    </Transition>
     <ClientOnly>
       <LMap
         ref="map"
@@ -88,6 +90,7 @@ const props = defineProps<{
   endLocation: LocationResult | null
   routeCoordinates?: [number, number][]
   showBoundingBoxes?: boolean
+  isCalculatingDistance?: boolean
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -150,3 +153,20 @@ const onMapReady = () => {
 }
 
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+</style>

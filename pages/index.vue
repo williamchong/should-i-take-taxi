@@ -9,7 +9,11 @@
         <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taxiCalculator.estimatedFare') }}:</span>
-            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">HK$ {{ fareData?.totalFare.toFixed(2) }}</span>
+            <span v-if="fareData?.isCalculating" class="text-lg font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
+              <span class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
+              {{ $t('taxiCalculator.calculatingFare') }}
+            </span>
+            <span v-else class="text-2xl font-bold text-blue-600 dark:text-blue-400">HK$ {{ fareData?.totalFare.toFixed(2) }}</span>
           </div>
           <button
             type="button"
@@ -69,6 +73,7 @@
           :end-location="selectedLocations.end"
           :route-coordinates="selectedLocations.coordinates"
           :show-bounding-boxes="showBoundingBoxes"
+          :is-calculating-distance="fareData?.isCalculating ?? false"
         />
       </div>
       <!-- 3. TaxiFareCalculator -->
@@ -84,7 +89,11 @@
       <!-- 4. Fare Display (prominent, when calculated) -->
       <div v-if="fareData" ref="fareDisplayRef" class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border-2 border-blue-200 dark:border-blue-700">
         <h3 class="text-xl font-medium text-gray-900 dark:text-gray-100">{{ $t('taxiCalculator.estimatedFare') }}</h3>
-        <p class="text-5xl font-bold text-blue-600 dark:text-blue-400 mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
+        <p v-if="fareData.isCalculating" class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2 mb-4 flex items-center gap-3">
+          <span class="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
+          {{ $t('taxiCalculator.calculatingFare') }}
+        </p>
+        <p v-else class="text-5xl font-bold text-blue-600 dark:text-blue-400 mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
 
         <div class="border-t border-blue-200 dark:border-blue-700 pt-4 mt-4">
           <div class="text-sm text-gray-600 dark:text-gray-400">
@@ -183,6 +192,7 @@ const fareData = ref<{
     returnToll: number;
     taxiTypeLabel: string;
   };
+  isCalculating: boolean;
 } | null>(null)
 
 const hasSelectedLocations = computed(() =>
