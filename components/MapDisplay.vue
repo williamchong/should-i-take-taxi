@@ -25,11 +25,15 @@
           v-if="startLocation && startIcon"
           :lat-lng="[startLocation.y, startLocation.x]"
           :icon="startIcon"
+          :draggable="true"
+          @dragend="handleStartMarkerDragEnd"
         />
         <LMarker
           v-if="endLocation && endIcon"
           :lat-lng="[endLocation.y, endLocation.x]"
           :icon="endIcon"
+          :draggable="true"
+          @dragend="handleEndMarkerDragEnd"
         />
         <LPolyline
           v-if="routeCoordinates.length > 0"
@@ -95,6 +99,10 @@ const props = defineProps<{
   isCalculatingDistance?: boolean
 }>()
 
+const emit = defineEmits<{
+  'marker-dragged': [{ type: 'start' | 'end', latitude: number, longitude: number }]
+}>()
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const map = ref(null as any)
 const isLoading = ref(true)
@@ -127,6 +135,17 @@ if (import.meta.client) {
       shadowSize: [41, 41]
     })
   })
+}
+
+// Drag event handlers
+const handleStartMarkerDragEnd = (event: any) => {
+  const { lat, lng } = event.target.getLatLng()
+  emit('marker-dragged', { type: 'start', latitude: lat, longitude: lng })
+}
+
+const handleEndMarkerDragEnd = (event: any) => {
+  const { lat, lng } = event.target.getLatLng()
+  emit('marker-dragged', { type: 'end', latitude: lat, longitude: lng })
 }
 
 const tileLayerUrl = computed(() => {

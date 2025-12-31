@@ -171,6 +171,8 @@
     "clearRecentLocations": "Clear recent locations",
     "suggestedTaxiType": "Based on your route, we suggest using {type}",
     "useSuggested": "Use Suggested",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "customLocation": "Custom Location",
+    "markerDragHint": "Drag markers to adjust locations"
   }
 }

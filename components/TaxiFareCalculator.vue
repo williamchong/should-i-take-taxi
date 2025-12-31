@@ -179,6 +179,23 @@ const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number
 const autoCalculatedDistance = ref(0)
 const isManualOverride = ref(false)
 
+// Helper function to create fallback location when reverse geocoding fails
+const createFallbackLocation = (latitude: number, longitude: number): LocationResult => {
+  const coordsLabel = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+
+  return {
+    x: longitude,
+    y: latitude,
+    nameEN: 'Custom Location',
+    nameZH: '自訂位置',
+    addressEN: coordsLabel,
+    addressZH: coordsLabel,
+    districtEN: '',
+    districtZH: '',
+    displayAddress: `${t('taxiCalculator.customLocation')} (${coordsLabel})`
+  }
+}
+
 // Auto-select Cross Harbour Tunnel for cross-harbour routes
 const autoSelectCrossHarbourTunnel = () => {
   if (!selectedStartLocation.value || !selectedEndLocation.value) return
@@ -271,6 +288,65 @@ const suggestTaxiType = () => {
 // Handle suggestion dismissal
 const dismissSuggestion = () => {
   showSuggestion.value = false
+}
+
+// Handle marker dragged events
+const handleMarkerDragged = async ({ type, latitude, longitude }: { type: 'start' | 'end', latitude: number, longitude: number }) => {
+  // Track analytics
+  useTrackEvent(`taxi_marker_dragged_${type}`)
+
+  // Immediately update location with coordinates (non-blocking)
+  const tempLocation = createFallbackLocation(latitude, longitude)
+
+  if (type === 'start') {
+    selectedStartLocation.value = tempLocation
+    startLocationSearch.value = tempLocation.displayAddress
+  } else {
+    selectedEndLocation.value = tempLocation
+    endLocationSearch.value = tempLocation.displayAddress
+  }
+
+  // Emit to parent immediately
+  emitLocations()
+
+  // Auto-select cross-harbour tunnel if applicable
+  if (selectedStartLocation.value && selectedEndLocation.value) {
+    autoSelectCrossHarbourTunnel()
+  }
+
+  // Recalculate route (this will show loading overlay, but that's for route calculation)
+  if (canCalculateDistance.value) {
+    await handleCalculateDistance()
+  }
+
+  // Do reverse geocoding in background to get proper address
+  try {
+    const location = await reverseGeocode(latitude, longitude)
+
+    // Update with geocoded address if successful
+    if (location) {
+      if (type === 'start') {
+        selectedStartLocation.value = location
+        startLocationSearch.value = location.displayAddress
+        useTrackEvent('taxi_start_location_dragged')
+      } else {
+        selectedEndLocation.value = location
+        endLocationSearch.value = location.displayAddress
+        useTrackEvent('taxi_end_location_dragged')
+      }
+
+      // Emit updated location to parent
+      emitLocations()
+    } else {
+      // Geocoding failed, keep the coordinates-based location
+      console.warn('Reverse geocoding failed, using coordinates only')
+      useTrackEvent(`taxi_marker_drag_geocode_failed_${type}`)
+    }
+  } catch (error) {
+    console.error(`Error in reverse geocoding for ${type} marker:`, error)
+    useTrackEvent(`taxi_marker_drag_error_${type}`)
+    // Keep the coordinates-based location on error
+  }
 }
 
 // 重構計算距離函數
@@ -469,10 +545,11 @@ watch(() => props.initialEndLocation, (newLocation, oldLocation) => {
 
 // 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置
 onMounted(() => {
+  // Note: isCalculating computed will be available after this, so we use direct values for now
   emit('update:fare', {
     totalFare: totalFare.value,
     breakdown: fareBreakdown.value,
-    isCalculating: isCalculatingDistance.value
+    isCalculating: false
   })
   // 檢查瀏覽器是否支援地理定位API
   isGeolocationSupported.value = Boolean(navigator.geolocation)
@@ -564,17 +641,27 @@ watch(totalFare, (newValue) => {
   emit('update:fare', {
     totalFare: newValue,
     breakdown: fareBreakdown.value,
-    isCalculating: isCalculatingDistance.value
+    isCalculating: isCalculating.value
   })
 })
 
-// Watch isCalculatingDistance to emit updates
-watch(isCalculatingDistance, () => {
+// Use isCalculatingDistance directly for loading state
+const isCalculating = computed(() => {
+  return isCalculatingDistance.value
+})
+
+// Watch isCalculating to emit updates
+watch(isCalculating, () => {
   emit('update:fare', {
     totalFare: totalFare.value,
     breakdown: fareBreakdown.value,
-    isCalculating: isCalculatingDistance.value
+    isCalculating: isCalculating.value
   })
+})
+
+// Expose handleMarkerDragged to parent component
+defineExpose({
+  handleMarkerDragged
 })
 
 </script>

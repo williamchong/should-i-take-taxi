@@ -171,6 +171,8 @@
     "clearRecentLocations": "清除最近使用地點",
     "suggestedTaxiType": "根據你的路線，我們建議使用{type}",
     "useSuggested": "使用建議",
-    "viewDetails": "查看詳情"
+    "viewDetails": "查看詳情",
+    "customLocation": "自訂位置",
+    "markerDragHint": "拖曳標記以調整位置"
   }
 }

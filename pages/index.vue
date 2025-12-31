@@ -74,10 +74,19 @@
           :route-coordinates="selectedLocations.coordinates"
           :show-bounding-boxes="showBoundingBoxes"
           :is-calculating-distance="fareData?.isCalculating ?? false"
+          @marker-dragged="handleMarkerDragged"
         />
+        <!-- Hint text for draggable markers -->
+        <div v-if="hasSelectedLocations" class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ $t('taxiCalculator.markerDragHint') }}</span>
+        </div>
       </div>
       <!-- 3. TaxiFareCalculator -->
       <TaxiFareCalculator
+        ref="taxiFareCalculatorRef"
         class="mb-8"
         :initial-start-location="selectedLocations.start"
         :initial-end-location="selectedLocations.end"
@@ -168,6 +177,7 @@ const showStickyFare = computed(() => {
 // Show bounding boxes for debugging when debug=1 is in query string
 const showBoundingBoxes = computed(() => route.query.debug === '1')
 const fareDisplayRef = ref<HTMLElement | null>(null)
+const taxiFareCalculatorRef = ref<InstanceType<typeof TaxiFareCalculator> | null>(null)
 const locationsRestoredFromUrl = ref(false)
 const isLoadingFromUrl = ref(false)
 const observer = ref<IntersectionObserver | null>(null)
@@ -205,6 +215,14 @@ function updateLocations(locations: { start: LocationResult | null; end: Locatio
 
 function updateFare(data: any) {
   fareData.value = data
+}
+
+// Handle marker dragged event from MapDisplay
+function handleMarkerDragged(event: { type: 'start' | 'end', latitude: number, longitude: number }) {
+  // Call the exposed method on TaxiFareCalculator
+  if (taxiFareCalculatorRef.value) {
+    taxiFareCalculatorRef.value.handleMarkerDragged(event)
+  }
 }
 
 // Helper function to create basic location from coordinates
