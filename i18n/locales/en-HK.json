@@ -167,6 +167,7 @@
     "advancedOptions": "Advanced Options",
     "tunnelsLuggage": "tunnels, luggage",
     "recentLocations": "Recent Locations",
+    "clearRecentLocations": "Clear recent locations",
     "suggestedTaxiType": "Based on your route, we suggest using {type}",
     "useSuggested": "Use Suggested",
     "viewDetails": "View Details"

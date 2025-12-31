@@ -167,6 +167,7 @@
     "advancedOptions": "進階選項",
     "tunnelsLuggage": "隧道、行李",
     "recentLocations": "最近使用地點",
+    "clearRecentLocations": "清除最近使用地點",
     "suggestedTaxiType": "根據你的路線，我們建議使用{type}",
     "useSuggested": "使用建議",
     "viewDetails": "查看詳情"
