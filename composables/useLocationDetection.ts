@@ -61,8 +61,8 @@ export function useLocationDetection() {
     const startIsLantau = isLantauLocation(startLocation)
     const endIsLantau = isLantauLocation(endLocation)
 
-    // If either start or end is in Lantau, suggest Lantau taxi
-    if (startIsLantau || endIsLantau) {
+    // If start and end is in Lantau, suggest Lantau taxi
+    if (startIsLantau && endIsLantau) {
       return 'lantau'
     }
 
