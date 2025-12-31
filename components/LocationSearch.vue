@@ -7,8 +7,8 @@
       class="block w-full pl-3 pr-10 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 sm:text-sm"
       :placeholder="$t('taxiCalculator.searchPlace')"
       @input="debounceSearch"
-      @focus="isFocused = true"
-      @blur="setTimeout(() => { isFocused = false }, 500)"
+      @focus="handleFocus"
+      @blur="handleBlur"
     >
     <div v-if="isSearching" class="absolute inset-y-0 right-0 pr-3 flex items-center">
       <div class="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent" />
@@ -70,6 +70,8 @@ const searchResults = ref<LocationResult[]>([])
 const isSearching = ref(false)
 const isFocused = ref(false)
 const recentLocations = ref<LocationResult[]>([])
+const lastCommittedValue = ref(props.modelValue)
+const hasSelectedDuringFocus = ref(false)
 
 // Load recent locations on mount
 onMounted(() => {
@@ -78,17 +80,38 @@ onMounted(() => {
 
 watch(() => props.modelValue, (newValue) => {
   searchText.value = newValue
+  // Update last committed value when parent changes it (e.g., from swap or GPS)
+  if (!isFocused.value) {
+    lastCommittedValue.value = newValue
+  }
 })
 
 const setTimeout = (callback: () => void, delay: number) => {
   return window.setTimeout(callback, delay)
 }
 
+const handleFocus = () => {
+  isFocused.value = true
+  hasSelectedDuringFocus.value = false
+}
+
+const handleBlur = () => {
+  setTimeout(() => {
+    isFocused.value = false
+    // If user typed but didn't select anything, revert to last committed value
+    if (!hasSelectedDuringFocus.value && searchText.value !== lastCommittedValue.value) {
+      searchText.value = lastCommittedValue.value
+      emit('update:modelValue', lastCommittedValue.value)
+      searchResults.value = []
+    }
+  }, 200)
+}
+
 let searchTimeout: number | null = null
 const debounceSearch = () => {
   isFocused.value = true
   emit('update:modelValue', searchText.value)
-  emit('select', null)
+  // Don't clear selection immediately when typing - only clear when a new location is selected
 
   if (searchTimeout) clearTimeout(searchTimeout)
   searchTimeout = setTimeout(async () => {
@@ -103,7 +126,9 @@ const debounceSearch = () => {
 }
 
 const handleSelect = async (location: LocationResult) => {
+  hasSelectedDuringFocus.value = true
   searchText.value = location.displayAddress
+  lastCommittedValue.value = location.displayAddress
   emit('update:modelValue', location.displayAddress)
   searchResults.value = []
 
