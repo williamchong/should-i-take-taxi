@@ -154,6 +154,7 @@
     "currentLocation": "Current Location",
     "useCurrentLocation": "Use Current Location",
     "swapLocations": "Swap start and end locations",
+    "refreshCalculation": "Refresh calculation and clear empty locations",
     "manuallyAdjusted": "Adjusted",
     "autoCalculated": "Auto",
     "manualAdjust": "Manual Adjust",

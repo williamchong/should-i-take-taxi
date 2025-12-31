@@ -2,9 +2,22 @@
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 sm:p-8 mb-8">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('taxiCalculator.title') }}</h2>
-      <div class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-600 dark:text-gray-300 flex items-center">
-        <span class="mr-1">🇭🇰</span>
-        <span>{{ $t('taxiCalculator.regionHongKong') }}</span>
+      <div class="flex items-center gap-2">
+        <div class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-600 dark:text-gray-300 flex items-center">
+          <span class="mr-1">🇭🇰</span>
+          <span>{{ $t('taxiCalculator.regionHongKong') }}</span>
+        </div>
+        <!-- 重新整理按鈕 -->
+        <button
+          type="button"
+          class="inline-flex justify-center p-1.5 border border-gray-200 dark:border-gray-700 shadow-sm text-sm font-medium rounded-full text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
+          :title="$t('taxiCalculator.refreshCalculation')"
+          @click="handleRefresh"
+        >
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -34,10 +47,10 @@
                 @click="getCurrentLocation"
               >
                 <span v-if="isGettingLocation">
-                  <div class="animate-spin h-5 w-5 border-2 border-white rounded-full border-t-transparent" />
+                  <div class="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
                 </span>
                 <template v-else>
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
@@ -61,7 +74,7 @@
               <!-- 交換起終點按鈕 -->
               <button
                 type="button"
-                class="inline-flex justify-center py-2 px-3 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 :disabled="!selectedStartLocation || !selectedEndLocation"
                 :title="$t('taxiCalculator.swapLocations')"
                 @click="swapLocations"
@@ -381,6 +394,38 @@ const swapLocations = async () => {
 
   // 追蹤交換事件
   useTrackEvent('taxi_locations_swapped')
+}
+
+// 重新整理計算 - 作為全面重置的後備方案
+const handleRefresh = async () => {
+  // 清除沒有選擇地點的輸入框
+  if (!selectedStartLocation.value) {
+    startLocationSearch.value = ''
+  }
+  if (!selectedEndLocation.value) {
+    endLocationSearch.value = ''
+  }
+
+  // 如果兩個地點都有設置，重新計算所有內容
+  if (selectedStartLocation.value && selectedEndLocation.value) {
+    // 重置手動覆蓋
+    isManualOverride.value = false
+
+    // 清除舊的路線資訊
+    routeInfo.value = { distance: 0, time: 0, coordinates: [] }
+
+    // 重新清除並檢測過海隧道
+    selectedTunnels.value = selectedTunnels.value.filter(t => t !== 'crossHarbour')
+    autoSelectCrossHarbourTunnel()
+
+    // 重新計算距離
+    await handleCalculateDistance()
+
+    // 重新建議的士類型
+    suggestTaxiType()
+
+    useTrackEvent('taxi_refresh_calculation')
+  }
 }
 
 // Watch for initial location props from parent (URL restoration)

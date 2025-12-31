@@ -154,6 +154,7 @@
     "currentLocation": "當前位置",
     "useCurrentLocation": "使用當前位置",
     "swapLocations": "交換起點和終點",
+    "refreshCalculation": "重新計算同清除空白地點",
     "manuallyAdjusted": "已調整",
     "autoCalculated": "自動",
     "manualAdjust": "手動調整",
