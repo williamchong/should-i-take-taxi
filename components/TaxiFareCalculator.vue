@@ -67,6 +67,7 @@
             <div class="flex space-x-2">
               <LocationSearch
                 id="endLocation"
+                ref="endLocationSearchRef"
                 v-model="endLocationSearch"
                 class="flex-grow"
                 @select="selectEndLocation"
@@ -179,6 +180,9 @@ const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number
 const autoCalculatedDistance = ref(0)
 const isManualOverride = ref(false)
 
+// Template refs
+const endLocationSearchRef = ref<{ focus: () => void } | null>(null)
+
 // Helper function to create fallback location when reverse geocoding fails
 const createFallbackLocation = (latitude: number, longitude: number): LocationResult => {
   const coordsLabel = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
@@ -231,6 +235,13 @@ const selectStartLocation = async (location: LocationResult | null) => {
     await handleCalculateDistance()
   }
   emitLocations()
+
+  // Auto-focus end location input if start location is set but end is not
+  if (location && !selectedEndLocation.value) {
+    nextTick(() => {
+      endLocationSearchRef.value?.focus()
+    })
+  }
 }
 
 const selectEndLocation = async (location: LocationResult | null) => {
