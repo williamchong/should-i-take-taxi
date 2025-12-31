@@ -182,6 +182,14 @@ const autoSelectCrossHarbourTunnel = () => {
 const selectStartLocation = async (location: LocationResult | null) => {
   selectedStartLocation.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
+
+  // Reset distance and auto-calculated distance when location is cleared
+  if (!location) {
+    distance.value = 0
+    autoCalculatedDistance.value = 0
+    isManualOverride.value = false
+  }
+
   useTrackEvent('taxi_start_location_selected')
 
   // Auto-select Cross Harbour Tunnel if needed
@@ -198,6 +206,14 @@ const selectStartLocation = async (location: LocationResult | null) => {
 const selectEndLocation = async (location: LocationResult | null) => {
   selectedEndLocation.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
+
+  // Reset distance and auto-calculated distance when location is cleared
+  if (!location) {
+    distance.value = 0
+    autoCalculatedDistance.value = 0
+    isManualOverride.value = false
+  }
+
   useTrackEvent('taxi_end_location_selected')
 
   // Auto-select Cross Harbour Tunnel if needed

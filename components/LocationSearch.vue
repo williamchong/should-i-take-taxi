@@ -10,6 +10,19 @@
       @focus="handleFocus"
       @blur="handleBlur"
     >
+    <!-- Clear button -->
+    <div v-if="searchText && !isSearching" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+      <button
+        type="button"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none transition-colors"
+        @click="handleClear"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <!-- Loading spinner -->
     <div v-if="isSearching" class="absolute inset-y-0 right-0 pr-3 flex items-center">
       <div class="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent" />
     </div>
@@ -105,6 +118,15 @@ const handleBlur = () => {
       searchResults.value = []
     }
   }, 200)
+}
+
+const handleClear = () => {
+  searchText.value = ''
+  lastCommittedValue.value = ''
+  hasSelectedDuringFocus.value = true // Prevent revert on blur
+  emit('update:modelValue', '')
+  emit('select', null)
+  searchResults.value = []
 }
 
 let searchTimeout: number | null = null
