@@ -22,12 +22,14 @@
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         <LMarker
-          v-if="startLocation"
+          v-if="startLocation && startIcon"
           :lat-lng="[startLocation.y, startLocation.x]"
+          :icon="startIcon"
         />
         <LMarker
-          v-if="endLocation"
+          v-if="endLocation && endIcon"
           :lat-lng="[endLocation.y, endLocation.x]"
+          :icon="endIcon"
         />
         <LPolyline
           v-if="routeCoordinates.length > 0"
@@ -98,6 +100,34 @@ const map = ref(null as any)
 const isLoading = ref(true)
 
 const { isDark } = useDarkMode()
+
+// Custom marker icons - use shallowRef to avoid deep reactivity on Leaflet objects
+// These will be undefined during SSR, but that's fine since the map is in ClientOnly
+const startIcon = shallowRef()
+const endIcon = shallowRef()
+
+// Initialize icons on client side only
+if (import.meta.client) {
+  import('leaflet').then((L) => {
+    startIcon.value = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    })
+
+    endIcon.value = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    })
+  })
+}
 
 const tileLayerUrl = computed(() => {
   return isDark.value
