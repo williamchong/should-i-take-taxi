@@ -4,8 +4,7 @@
       <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('taxiCalculator.title') }}</h2>
       <div class="flex items-center gap-2">
         <div class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-600 dark:text-gray-300 flex items-center">
-          <span class="mr-1">🇭🇰</span>
-          <span>{{ $t('taxiCalculator.regionHongKong') }}</span>
+          <span>🇭🇰</span>
         </div>
         <!-- 重新整理按鈕 -->
         <button

@@ -2,36 +2,33 @@
   <div class="border-t border-gray-200 dark:border-gray-700 pt-6 grid grid-cols-2 gap-4 items-start">
     <label for="distance" class="text-gray-700 dark:text-gray-300 font-medium pt-2">{{ $t('taxiCalculator.distance') }}</label>
 
-    <div class="space-y-2">
+    <div class="pt-2 space-y-2">
       <!-- Read-only display by default -->
       <div v-if="!isEditingDistance" class="flex items-center gap-2 flex-wrap">
         <span class="font-bold text-lg text-gray-900 dark:text-gray-100">{{ displayDistance }} km</span>
 
         <!-- Badge: Auto-calculated or Manual -->
-        <span v-if="isManualOverride" class="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs rounded-full flex items-center gap-1">
+        <button
+          v-if="isManualOverride"
+          class="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs rounded-full flex items-center gap-1"
+          :title="$t('taxiCalculator.manualAdjust') || '手動調整距離'"
+          @click="enableDistanceEdit"
+        >
           <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
           {{ $t('taxiCalculator.manuallyAdjusted') || '已調整' }}
-        </span>
-        <span v-else-if="autoCalculatedDistance > 0" class="px-2 py-1 bg-blue-100 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full flex items-center gap-1">
+        </button>
+        <button
+          v-else-if="autoCalculatedDistance > 0"
+          class="px-2 py-1 bg-blue-100 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300 text-xs rounded-full flex items-center gap-1"
+          :title="$t('taxiCalculator.manualAdjust') || '手動調整距離'"
+          @click="enableDistanceEdit"
+        >
           <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           {{ $t('taxiCalculator.autoCalculated') || '自動' }}
-        </span>
-
-        <!-- Edit button -->
-        <button
-          type="button"
-          class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 transition-colors"
-          :title="$t('taxiCalculator.manualAdjust') || '手動調整距離'"
-          @click="enableDistanceEdit"
-        >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
-          <span class="hidden sm:inline">{{ $t('taxiCalculator.manualAdjust') || '手動調整' }}</span>
         </button>
       </div>
 
