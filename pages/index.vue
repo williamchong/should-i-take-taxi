@@ -13,15 +13,15 @@
               <span class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
               {{ $t('taxiCalculator.calculatingFare') }}
             </span>
-            <span v-else class="text-2xl font-bold text-blue-600 dark:text-blue-400">HK$ {{ fareData?.totalFare.toFixed(2) }}</span>
+            <button
+              v-else
+              type="button"
+              class="text-2xl font-bold text-blue-600 dark:text-blue-400"
+              @click="scrollToFare"
+            >
+              HK$ {{ fareData?.totalFare.toFixed(2) }}
+            </button>
           </div>
-          <button
-            type="button"
-            class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
-            @click="scrollToFare"
-          >
-            {{ $t('taxiCalculator.viewDetails') }}
-          </button>
         </div>
       </div>
     </Transition>
