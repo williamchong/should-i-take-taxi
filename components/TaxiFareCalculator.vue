@@ -148,6 +148,7 @@ import {
   TUNNEL_FEES,
   GEOLOCATION_CONSTANTS,
 } from '~/types/constants'
+import { createLocationFromCoordinates } from '~/utils/location'
 
 const props = defineProps<{
   initialStartLocation?: LocationResult | null
@@ -189,21 +190,9 @@ const isManualOverride = ref(false)
 // Template refs
 const endLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | null>(null)
 
-// Helper function to create fallback location when reverse geocoding fails
 const createFallbackLocation = (latitude: number, longitude: number): LocationResult => {
   const coordsLabel = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-
-  return {
-    x: longitude,
-    y: latitude,
-    nameEN: 'Custom Location',
-    nameZH: '自訂位置',
-    addressEN: coordsLabel,
-    addressZH: coordsLabel,
-    districtEN: '',
-    districtZH: '',
-    displayAddress: `${t('taxiCalculator.customLocation')} (${coordsLabel})`
-  }
+  return createLocationFromCoordinates(latitude, longitude, `${t('taxiCalculator.customLocation')} (${coordsLabel})`)
 }
 
 // Auto-select Cross Harbour Tunnel for cross-harbour routes

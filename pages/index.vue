@@ -174,6 +174,7 @@ import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
 import { useLocationSearch } from '@/composables/useLocationSearch'
 import { findLocationByCoordinates } from '@/config/sitemap-routes'
+import { createLocationFromCoordinates } from '~/utils/location'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -260,32 +261,17 @@ function createBasicLocation(lat: number, lng: number): LocationResult {
   const knownLocation = findLocationByCoordinates(lat, lng)
 
   if (knownLocation) {
-    // Use predefined names for known locations
+    const displayAddress = locale.value.includes('zh') ? knownLocation.nameZH : knownLocation.nameEN
     return {
-      x: lng,
-      y: lat,
+      ...createLocationFromCoordinates(lat, lng, displayAddress),
       nameEN: knownLocation.nameEN,
       nameZH: knownLocation.nameZH,
       addressEN: knownLocation.nameEN,
       addressZH: knownLocation.nameZH,
-      districtEN: '',
-      districtZH: '',
-      displayAddress: locale.value.includes('zh') ? knownLocation.nameZH : knownLocation.nameEN
     }
   }
 
-  // Fallback to generic location for unknown coordinates
-  return {
-    x: lng,
-    y: lat,
-    nameEN: 'Custom Location',
-    nameZH: '自定義位置',
-    addressEN: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-    addressZH: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-    districtEN: '',
-    districtZH: '',
-    displayAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-  }
+  return createLocationFromCoordinates(lat, lng)
 }
 
 // Parse query parameters from URL and restore locations
