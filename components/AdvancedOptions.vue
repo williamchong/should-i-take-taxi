@@ -67,18 +67,47 @@
         </div>
       </div>
 
-      <!-- Cross Harbour Taxi Stand Option -->
+      <!-- Tunnel Fee Type (One-way / Return) -->
       <div v-if="hasSelectedCrossHarbourTunnel" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-        <label class="text-gray-700 dark:text-gray-300 font-medium">{{ $t('taxiCalculator.crossHarbourTaxiStand') }}</label>
+        <label class="text-gray-700 dark:text-gray-300 font-medium">{{ $t('taxiCalculator.tunnelFeeType') }}</label>
+        <div class="flex items-center space-x-4">
+          <label class="inline-flex items-center">
+            <input
+              :checked="tunnelFeeType === 'oneWay'"
+              type="radio"
+              name="tunnelFeeType"
+              value="oneWay"
+              class="form-radio text-blue-600 dark:text-blue-400"
+              @change="handleTunnelFeeTypeChange('oneWay')"
+            >
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('taxiCalculator.tunnelFeeOneWay') }}</span>
+          </label>
+          <label class="inline-flex items-center">
+            <input
+              :checked="tunnelFeeType === 'return'"
+              type="radio"
+              name="tunnelFeeType"
+              value="return"
+              class="form-radio text-blue-600 dark:text-blue-400"
+              @change="handleTunnelFeeTypeChange('return')"
+            >
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('taxiCalculator.tunnelFeeReturn') }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 85折 Discount Fare -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+        <label class="text-gray-700 dark:text-gray-300 font-medium">{{ $t('taxiCalculator.discountFare') }}</label>
         <div>
           <label class="inline-flex items-center">
             <input
-              :checked="isCrossHarbourTaxiStand"
+              :checked="isDiscountFare"
               type="checkbox"
               class="form-checkbox text-blue-600 dark:text-blue-400"
-              @change="handleCrossHarbourStandChange"
+              @change="handleDiscountFareChange"
             >
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('taxiCalculator.yes') }}</span>
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ $t('taxiCalculator.discountFare') }}</span>
           </label>
         </div>
       </div>
@@ -113,14 +142,16 @@ import type { TunnelId } from '~/types/constants'
 
 const props = defineProps<{
   selectedTunnels: TunnelId[]
-  isCrossHarbourTaxiStand: boolean
+  tunnelFeeType: 'oneWay' | 'return'
+  isDiscountFare: boolean
   luggageCount: number
   showAdvancedOptions?: boolean
 }>()
 
 const emit = defineEmits<{
   'update:selectedTunnels': [value: TunnelId[]]
-  'update:isCrossHarbourTaxiStand': [value: boolean]
+  'update:tunnelFeeType': [value: 'oneWay' | 'return']
+  'update:isDiscountFare': [value: boolean]
   'update:luggageCount': [value: number]
   'update:showAdvancedOptions': [value: boolean]
 }>()
@@ -165,10 +196,15 @@ const handleTunnelChange = (tunnelId: TunnelId, event: Event) => {
   useTrackEvent('taxi_tunnel_selected')
 }
 
-const handleCrossHarbourStandChange = (event: Event) => {
+const handleTunnelFeeTypeChange = (value: 'oneWay' | 'return') => {
+  emit('update:tunnelFeeType', value)
+  useTrackEvent('taxi_tunnel_fee_type_changed', { type: value })
+}
+
+const handleDiscountFareChange = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:isCrossHarbourTaxiStand', target.checked)
-  useTrackEvent('taxi_cross_harbour_stand')
+  emit('update:isDiscountFare', target.checked)
+  useTrackEvent('taxi_discount_fare_toggled', { enabled: target.checked })
 }
 
 const handleLuggageInput = (event: Event) => {

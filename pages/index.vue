@@ -110,12 +110,22 @@
         <div class="border-t border-blue-200 dark:border-blue-700 pt-4 mt-4">
           <div class="text-sm text-gray-600 dark:text-gray-400">
             <div class="grid grid-cols-2 gap-2">
-              <span>{{ fareData.breakdown.taxiTypeLabel }} {{ $t('taxiCalculator.flagFall') }}:</span>
-              <span class="text-right">HK$ {{ fareData.breakdown.flagFall.toFixed(2) }}</span>
+              <template v-if="fareData.breakdown.discount > 0">
+                <span>{{ $t('taxiCalculator.meterFare') }}:</span>
+                <span class="text-right line-through text-gray-400 dark:text-gray-500">HK$ {{ fareData.breakdown.meterFare.toFixed(2) }}</span>
 
-              <template v-if="fareData.breakdown.distanceFare > 0">
-                <span>{{ $t('taxiCalculator.distanceFare') }}:</span>
-                <span class="text-right">HK$ {{ fareData.breakdown.distanceFare.toFixed(2) }}</span>
+                <span>{{ $t('taxiCalculator.discountedFare') }}:</span>
+                <span class="text-right">HK$ {{ (fareData.breakdown.meterFare - fareData.breakdown.discount).toFixed(2) }}</span>
+              </template>
+
+              <template v-else>
+                <span>{{ fareData.breakdown.taxiTypeLabel }} {{ $t('taxiCalculator.flagFall') }}:</span>
+                <span class="text-right">HK$ {{ fareData.breakdown.flagFall.toFixed(2) }}</span>
+
+                <template v-if="fareData.breakdown.distanceFare > 0">
+                  <span>{{ $t('taxiCalculator.distanceFare') }}:</span>
+                  <span class="text-right">HK$ {{ fareData.breakdown.distanceFare.toFixed(2) }}</span>
+                </template>
               </template>
 
               <template v-if="fareData.breakdown.tunnelFees > 0">
@@ -201,6 +211,8 @@ const fareData = ref<{
   breakdown: {
     flagFall: number;
     distanceFare: number;
+    meterFare: number;
+    discount: number;
     tunnelFees: number;
     luggageFees: number;
     returnToll: number;

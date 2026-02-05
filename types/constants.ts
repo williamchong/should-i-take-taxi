@@ -8,6 +8,7 @@ export const TAXI_FARE_CONSTANTS = {
   INCREMENTAL_SEGMENT: 0.2, // km - distance per fare increment
   LUGGAGE_FEE: 6, // HK$ - fee per piece of luggage
   ADDITIONAL_FEE: 5, // HK$ - additional fees for certain taxi types
+  DISCOUNT_RATE: 0.85, // 85折 discount rate applied to meter fare
   RATE_THRESHOLDS: {
     urban: 102.5, // HK$ - threshold where rate changes
     newTerritories: 82.5, // HK$

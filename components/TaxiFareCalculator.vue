@@ -120,7 +120,8 @@
         <!-- 進階選項 -->
         <AdvancedOptions
           v-model:selected-tunnels="selectedTunnels"
-          v-model:is-cross-harbour-taxi-stand="isCrossHarbourTaxiStand"
+          v-model:tunnel-fee-type="tunnelFeeType"
+          v-model:is-discount-fare="isDiscountFare"
           v-model:luggage-count="luggageCount"
           v-model:show-advanced-options="showAdvancedOptions"
         />
@@ -165,7 +166,8 @@ const suggestedTaxiType = ref<TaxiType | null>(null)
 const showSuggestion = ref(false)
 const distance = ref(0)
 const selectedTunnels = ref<TunnelId[]>([])
-const isCrossHarbourTaxiStand = ref(false)
+const tunnelFeeType = ref<'oneWay' | 'return'>('return')
+const isDiscountFare = ref(false)
 const luggageCount = ref(0)
 const showAdvancedOptions = ref(false)
 const isGeolocationSupported = ref(false)
@@ -599,7 +601,7 @@ const getLuggageFees = computed(() => Number(luggageCount.value) * rates.value.l
 // 計算回程收費
 const getReturnTollFee = computed(() => {
   const hasSelectedCrossHarbour = selectedTunnels.value.includes('crossHarbour')
-  return (hasSelectedCrossHarbour && !isCrossHarbourTaxiStand.value) ? TUNNEL_FEES.crossHarbour : 0
+  return (hasSelectedCrossHarbour && tunnelFeeType.value === 'return') ? TUNNEL_FEES.crossHarbour : 0
 })
 
 const rates = computed(() => {
@@ -626,20 +628,28 @@ const distanceFare = computed(() => {
     ((additionalSegments - segmentsToThreshold) * incrementalRateAfterThreshold); // 閾值之後的部分
 });
 
-// 使用 computed 計算總費用
-const totalFare = computed(() => {
-  let fare = rates.value.flagFall + distanceFare.value;
+const meterFare = computed(() => rates.value.flagFall + distanceFare.value)
 
-  // 加入所有費用(隧道費、行李費、回程費)
+const discountAmount = computed(() => {
+  if (!isDiscountFare.value) return 0
+  return meterFare.value * (1 - TAXI_FARE_CONSTANTS.DISCOUNT_RATE)
+})
+
+const totalFare = computed(() => {
+  let fare = isDiscountFare.value
+    ? meterFare.value * TAXI_FARE_CONSTANTS.DISCOUNT_RATE
+    : meterFare.value
+
   fare += getTunnelFees.value + getLuggageFees.value + getReturnTollFee.value;
 
-  // 四捨五入至小數點後一位 (按運輸署規定)
   return Math.round(fare * 10) / 10;
 })
 
 const fareBreakdown = computed(() => ({
   flagFall: rates.value.flagFall,
   distanceFare: distanceFare.value,
+  meterFare: meterFare.value,
+  discount: discountAmount.value,
   tunnelFees: getTunnelFees.value,
   luggageFees: getLuggageFees.value,
   returnToll: getReturnTollFee.value,
