@@ -11,6 +11,7 @@
           type="button"
           class="inline-flex justify-center p-1.5 border border-gray-200 dark:border-gray-700 shadow-sm text-sm font-medium rounded-full text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
           :title="$t('taxiCalculator.refreshCalculation')"
+          :aria-label="$t('taxiCalculator.refreshCalculation')"
           @click="handleRefresh"
         >
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,6 +46,7 @@
                 class="inline-flex items-center justify-center gap-2 py-2 px-4 border border-transparent shadow-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 :disabled="isGettingLocation"
                 :title="$t('taxiCalculator.useCurrentLocation')"
+                :aria-label="$t('taxiCalculator.useCurrentLocation')"
                 @click="getCurrentLocation"
               >
                 <span v-if="isGettingLocation">
@@ -81,6 +83,7 @@
                 class="inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 :disabled="!selectedStartLocation || !selectedEndLocation"
                 :title="$t('taxiCalculator.swapLocations')"
+                :aria-label="$t('taxiCalculator.swapLocations')"
                 @click="swapLocations"
               >
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

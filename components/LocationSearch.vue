@@ -16,6 +16,7 @@
       <button
         type="button"
         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none transition-colors"
+        :aria-label="$t('taxiCalculator.clearSearch')"
         @click="handleClear"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -41,6 +42,7 @@
               type="button"
               class="text-gray-400 hover:text-red-500 dark:hover:text-red-400 focus:outline-none transition-colors ml-2"
               :title="$t('taxiCalculator.clearRecentLocations')"
+              :aria-label="$t('taxiCalculator.clearRecentLocations')"
               @click="handleClearRecent"
             >
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
