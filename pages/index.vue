@@ -380,12 +380,15 @@ function updateUrlParams(locations: { start: LocationResult | null; end: Locatio
   }
 }
 
-// Watch for location changes and update URL
-watch(() => selectedLocations.value, (newLocations) => {
-  if (!locationsRestoredFromUrl.value || newLocations.start || newLocations.end) {
-    updateUrlParams(newLocations)
+watch(
+  [() => selectedLocations.value.start, () => selectedLocations.value.end],
+  () => {
+    const locations = selectedLocations.value
+    if (!locationsRestoredFromUrl.value || locations.start || locations.end) {
+      updateUrlParams(locations)
+    }
   }
-}, { deep: true })
+)
 
 // Dynamic page title
 const dynamicTitle = computed(() => {

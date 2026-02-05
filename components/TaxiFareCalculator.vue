@@ -637,7 +637,6 @@ const totalFare = computed(() => {
   return Math.round(fare * 10) / 10;
 })
 
-// 車費明細 (for emitting to parent)
 const fareBreakdown = computed(() => ({
   flagFall: rates.value.flagFall,
   distanceFare: distanceFare.value,
@@ -647,34 +646,21 @@ const fareBreakdown = computed(() => ({
   taxiTypeLabel: getTaxiTypeLabel.value
 }))
 
-// 監視 totalFare 的變化並追蹤和發送更新
-watch(totalFare, (newValue) => {
-  if (newValue > 0) {
-    useTrackEvent('taxi_fare_calculated')
-  }
-  // Emit fare data to parent component
-  emit('update:fare', {
-    totalFare: newValue,
-    breakdown: fareBreakdown.value,
-    isCalculating: isCalculating.value
-  })
-})
-
-// Use isCalculatingDistance directly for loading state
 const isCalculating = computed(() => {
   return isCalculatingDistance.value
 })
 
-// Watch isCalculating to emit updates
-watch(isCalculating, () => {
+watch([totalFare, isCalculating], ([newTotalFare]) => {
+  if (newTotalFare > 0) {
+    useTrackEvent('taxi_fare_calculated')
+  }
   emit('update:fare', {
-    totalFare: totalFare.value,
+    totalFare: newTotalFare,
     breakdown: fareBreakdown.value,
     isCalculating: isCalculating.value
   })
 })
 
-// Watch focusedInput and emit to parent
 watch(focusedInput, (newValue) => {
   emit('update:focusedInput', newValue)
 })

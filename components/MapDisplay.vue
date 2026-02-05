@@ -177,19 +177,11 @@ const routeCoordinates = computed(() => {
   return (props.routeCoordinates?.map(coord => [coord[1], coord[0]]) || []) as LatLngExpression[]
 })
 
-watch(() => props.startLocation, (newVal) => {
-  if (newVal && props.endLocation) {
+watch([() => props.startLocation, () => props.endLocation], ([start, end]) => {
+  if (start && end) {
     map.value?.leafletObject?.fitBounds([
-      [newVal.y, newVal.x],
-      [props.endLocation.y, props.endLocation.x],
-    ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
-  }
-})
-watch(() => props.endLocation, (newVal) => {
-  if (newVal && props.startLocation) {
-    map.value?.leafletObject?.fitBounds([
-      [props.startLocation.y, props.startLocation.x],
-      [newVal.y, newVal.x],
+      [start.y, start.x],
+      [end.y, end.x],
     ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
   }
 })
