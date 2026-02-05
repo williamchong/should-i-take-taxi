@@ -1,5 +1,6 @@
 import { useI18n } from 'vue-i18n'
 import type { LocationResult } from '~/types/location'
+import { getCache, setCache } from '~/utils/cache'
 
 interface RouteInfo {
   distance: number
@@ -9,32 +10,15 @@ interface RouteInfo {
 
 const CACHE_KEY_PREFIX = 'location_search_'
 
+function coordKey(...nums: number[]): string {
+  return nums.map(n => n.toFixed(6)).join(',')
+}
+
 export function useLocationSearch() {
   const { locale } = useI18n()
 
-  const getCacheKey = (query: string): string => {
-    return `${CACHE_KEY_PREFIX}${locale.value}_${query.toLowerCase().trim()}`
-  }
-
-  const getCachedResults = (query: string): LocationResult[] | null => {
-    if (typeof window === 'undefined') return null
-    
-    try {
-      const cached = sessionStorage.getItem(getCacheKey(query))
-      return cached ? JSON.parse(cached) : null
-    } catch {
-      return null
-    }
-  }
-
-  const setCachedResults = (query: string, results: LocationResult[]): void => {
-    if (typeof window === 'undefined') return
-    
-    try {
-      sessionStorage.setItem(getCacheKey(query), JSON.stringify(results))
-    } catch {
-      // Ignore storage errors
-    }
+  const searchCacheKey = (query: string): string => {
+    return `${locale.value}_${query.toLowerCase().trim()}`
   }
 
   const getLocalizedAddress = (location: LocationResult): string => {
@@ -52,8 +36,7 @@ export function useLocationSearch() {
     const isAscii = /^[\x00-\x7F]+$/.test(query)
     if (isAscii && query.trim().length < 2) return []
 
-    // Check cache first
-    const cached = getCachedResults(query)
+    const cached = getCache<LocationResult[]>(CACHE_KEY_PREFIX, searchCacheKey(query))
     if (cached) return cached
 
     try {
@@ -66,8 +49,7 @@ export function useLocationSearch() {
         displayAddress: getLocalizedAddress(location)
       }))
 
-      // Cache the results
-      setCachedResults(query, processedResults)
+      setCache(CACHE_KEY_PREFIX, searchCacheKey(query), processedResults)
 
       return processedResults
     } catch (error) {
@@ -77,12 +59,19 @@ export function useLocationSearch() {
   }
 
   const transformCoordinates = async (location: LocationResult): Promise<LocationResult> => {
+    const key = coordKey(location.x, location.y)
+    const cached = getCache<{ wgsLat: number; wgsLong: number }>('transform_', key)
+    if (cached) {
+      return { ...location, x: cached.wgsLong, y: cached.wgsLat }
+    }
+
     try {
       const data = await $fetch(
         `https://www.geodetic.gov.hk/transform/v2/?inSys=hkgrid&outSys=wgsgeog&e=${location.x}&n=${location.y}`
       ) as { wgsLat: number; wgsLong: number }
 
       if (data.wgsLat && data.wgsLong) {
+        setCache('transform_', key, data)
         return {
           ...location,
           x: data.wgsLong,
@@ -97,6 +86,10 @@ export function useLocationSearch() {
   }
 
   const calculateDrivingDistance = async (start: LocationResult, end: LocationResult): Promise<RouteInfo> => {
+    const key = coordKey(start.x, start.y, end.x, end.y)
+    const cached = getCache<RouteInfo>('route_', key)
+    if (cached) return cached
+
     try {
       const data = await $fetch(
         `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=full&geometries=geojson`
@@ -104,11 +97,13 @@ export function useLocationSearch() {
 
       if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
         const route = data.routes[0]
-        return {
+        const result: RouteInfo = {
           distance: route.distance,
           time: route.duration,
           coordinates: route.geometry.coordinates
         }
+        setCache('route_', key, result)
+        return result
       }
       throw new Error('No route found or invalid response from OSRM API')
     } catch (error) {
@@ -117,10 +112,12 @@ export function useLocationSearch() {
     }
   }
 
-  // 反向地理編碼：從經緯度獲取地址
   const reverseGeocode = async (latitude: number, longitude: number): Promise<LocationResult | null> => {
+    const key = `${coordKey(latitude, longitude)}_${locale.value}`
+    const cached = getCache<LocationResult | null>('geocode_', key)
+    if (cached !== undefined) return cached
+
     try {
-      // 使用 Nominatim API (OpenStreetMap)
       const data = await $fetch('https://nominatim.openstreetmap.org/reverse', {
         query: {
           lat: latitude.toString(),
@@ -137,16 +134,13 @@ export function useLocationSearch() {
         const isZh = locale.value.startsWith('zh')
         const address = data.address || {}
 
-        // 構建地址組件
         const name = data.name || address.amenity || address.building || ''
         const street = address.road || address.pedestrian || ''
         const district = address.suburb || address.quarter || address.neighbourhood || ''
         const city = address.city || address.town || address.village || ''
 
-        // 構建完整地址
         const fullAddress = [street, district, city].filter(Boolean).join(', ')
 
-        // 返回符合應用格式的位置結果
         const location: LocationResult = {
           x: longitude,
           y: latitude,
@@ -159,8 +153,10 @@ export function useLocationSearch() {
           displayAddress: [name, fullAddress].filter(Boolean).join(', ') || data.display_name
         }
 
+        setCache('geocode_', key, location)
         return location
       }
+      setCache('geocode_', key, null)
       return null
     } catch (error) {
       console.error('Error in reverse geocoding:', error)
