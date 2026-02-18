@@ -181,12 +181,19 @@ const handleSelect = async (location: LocationResult) => {
   emit('update:modelValue', location.displayAddress)
   searchResults.value = []
 
-  const transformedLocation = await transformCoordinates(location)
-  emit('select', transformedLocation)
+  try {
+    const transformedLocation = await transformCoordinates(location)
+    emit('select', transformedLocation)
 
-  // Save to recent locations
-  addRecentLocation(location)
-  recentLocations.value = getRecentLocations()
+    // Save to recent locations
+    addRecentLocation(location)
+    recentLocations.value = getRecentLocations()
+  } catch (error) {
+    console.error('Failed to transform coordinates:', error)
+    searchText.value = ''
+    lastCommittedValue.value = ''
+    emit('update:modelValue', '')
+  }
 }
 
 onBeforeUnmount(() => {

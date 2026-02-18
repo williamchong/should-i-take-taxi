@@ -78,10 +78,10 @@ export function useLocationSearch() {
           y: data.wgsLat
         }
       }
-      return location
+      throw new Error('Invalid response from coordinate transformation API')
     } catch (error) {
       console.error('Error converting coordinates:', error)
-      return location
+      throw error
     }
   }
 
