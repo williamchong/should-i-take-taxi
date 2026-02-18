@@ -1,6 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { generateSitemapUrls } from './config/sitemap-routes'
 
+const siteUrl = 'https://shoulditake.taxi'
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: process.env.NODE_ENV === 'development' },
@@ -16,7 +18,7 @@ export default defineNuxtConfig({
   ],
 
   i18n: {
-    baseUrl: 'https://shoulditake.taxi',
+    baseUrl: siteUrl,
     strategy: 'prefix_and_default',
     detectBrowserLanguage: {
       useCookie: false,
@@ -53,7 +55,7 @@ export default defineNuxtConfig({
   },
 
   site: {
-    url: 'https://shoulditake.taxi',
+    url: siteUrl,
     name: 'Hong Kong Taxi Fare Calculator with GPS Auto-Distance',
   },
 

@@ -8,10 +8,11 @@
 import { useI18n } from 'vue-i18n'
 const { t, tm, rt, locale, locales } = useI18n()
 const i18nHead = useLocaleHead()
+const { url: siteUrl } = useSiteConfig()
 
 // Helper function to get current page URL for the given locale
 const getLocaleUrl = (localeCode: string) => {
-  return `https://shoulditake.taxi${localeCode === 'en-hk' ? '' : '/' + localeCode}`
+  return `${siteUrl}${localeCode === 'en-hk' ? '' : '/' + localeCode}`
 }
 
 // Get all available locale URLs for sameAs
@@ -98,7 +99,7 @@ useHead({
         },
         potentialAction: {
           '@type': 'UseAction',
-          target: 'https://shoulditake.taxi',
+          target: siteUrl,
           result: {
             '@type': 'Thing',
             name: t('schema.potentialActionResult')
@@ -205,7 +206,7 @@ useHead({
         '@type': 'WebSite',
         name: t('title'),
         alternateName: t('taxiCalculator.title'),
-        url: 'https://shoulditake.taxi',
+        url: siteUrl,
         inLanguage: locales.value.map(loc => loc.language || loc.code),
         author: {
           '@type': 'Person',
@@ -222,7 +223,7 @@ useSeoMeta({
   description: () => t('description'),
   ogTitle: () => t('title'),
   ogDescription: () => t('description'),
-  ogImage: 'https://shoulditake.taxi/images/cover.jpg',
+  ogImage: `${siteUrl}/images/cover.jpg`,
   ogType: 'website',
   ogUrl: () => getLocaleUrl(locale.value),
   ogLocale: () => locale.value,

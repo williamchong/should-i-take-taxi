@@ -181,6 +181,7 @@ const route = useRoute()
 const router = useRouter()
 const { reverseGeocode } = useLocationSearch()
 const { gtag } = useGtag()
+const { url: siteUrl } = useSiteConfig()
 
 const showIntroduction = ref(false)
 const isFareVisible = ref(false)
@@ -407,10 +408,9 @@ const dynamicTitle = computed(() => {
 
 // Canonical URL
 const canonicalUrl = computed(() => {
-  const baseUrl = 'https://shoulditake.taxi'
   const localePath = locale.value === 'en-hk' ? '' : `/${locale.value}`
 
-  const url = `${baseUrl}${localePath}/`
+  const url = `${siteUrl}${localePath}/`
 
   const params = new URLSearchParams()
   if (selectedLocations.value.start) {
