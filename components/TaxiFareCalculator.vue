@@ -146,12 +146,10 @@ import AdvancedOptions from './AdvancedOptions.vue'
 import type { LocationResult } from '~/types/location'
 import type { TaxiType, TunnelId } from '~/types/constants'
 import {
-  TAXI_RATES,
-  TAXI_FARE_CONSTANTS,
-  TUNNEL_FEES,
   GEOLOCATION_CONSTANTS,
 } from '~/types/constants'
 import { createLocationFromCoordinates } from '~/utils/location'
+import { calculateTotalFare } from '~/utils/fareCalculation'
 
 const props = defineProps<{
   initialStartLocation?: LocationResult | null
@@ -580,72 +578,20 @@ const getTaxiTypeLabel = computed(() => {
   return typeMap[taxiType.value]
 })
 
-// 獲取隧道費總額
-const getTunnelFees = computed(() =>
-  selectedTunnels.value.reduce((total, tunnelId) => {
-    return total + (TUNNEL_FEES[tunnelId] || 0);
-  }, 0)
-)
+const fareResult = computed(() => calculateTotalFare({
+  distance: distance.value,
+  taxiType: taxiType.value,
+  selectedTunnels: selectedTunnels.value,
+  tunnelFeeType: tunnelFeeType.value,
+  isDiscountFare: isDiscountFare.value,
+  luggageCount: luggageCount.value,
+}))
 
-// 獲取行李費總額
-const getLuggageFees = computed(() => Number(luggageCount.value) * rates.value.luggageFee)
-
-// 計算回程收費
-const getReturnTollFee = computed(() => {
-  const hasSelectedCrossHarbour = selectedTunnels.value.includes('crossHarbour')
-  return (hasSelectedCrossHarbour && tunnelFeeType.value === 'return') ? TUNNEL_FEES.crossHarbour : 0
-})
-
-const rates = computed(() => {
-  return TAXI_RATES[taxiType.value]
-})
-
-// 使用 computed 計算距離費用
-const distanceFare = computed(() => {
-  // 如果距離為0或未填寫，不計算距離費用
-  if (!distance.value || distance.value <= 0 || distance.value <= TAXI_FARE_CONSTANTS.FIRST_TIER_DISTANCE) {
-    return 0;
-  }
-
-  const additionalDistance = distance.value - TAXI_FARE_CONSTANTS.FIRST_TIER_DISTANCE;
-  const additionalSegments = Math.ceil(additionalDistance / TAXI_FARE_CONSTANTS.INCREMENTAL_SEGMENT);
-  const { incrementalRate, incrementalRateAfterThreshold, thresholdAmount } = rates.value;
-  const baseFare = rates.value.flagFall;
-
-  const segmentsToThreshold = Math.floor((thresholdAmount - baseFare) / incrementalRate);
-
-  return additionalSegments <= segmentsToThreshold
-    ? additionalSegments * incrementalRate // 所有距離費用都在閾值之前
-    : (segmentsToThreshold * incrementalRate) + // 閾值之前的部分
-    ((additionalSegments - segmentsToThreshold) * incrementalRateAfterThreshold); // 閾值之後的部分
-});
-
-const meterFare = computed(() => rates.value.flagFall + distanceFare.value)
-
-const discountAmount = computed(() => {
-  if (!isDiscountFare.value) return 0
-  return meterFare.value * (1 - TAXI_FARE_CONSTANTS.DISCOUNT_RATE)
-})
-
-const totalFare = computed(() => {
-  let fare = isDiscountFare.value
-    ? meterFare.value * TAXI_FARE_CONSTANTS.DISCOUNT_RATE
-    : meterFare.value
-
-  fare += getTunnelFees.value + getLuggageFees.value + getReturnTollFee.value;
-
-  return Math.round(fare * 10) / 10;
-})
+const totalFare = computed(() => fareResult.value.totalFare)
 
 const fareBreakdown = computed(() => ({
-  flagFall: rates.value.flagFall,
-  distanceFare: distanceFare.value,
-  meterFare: meterFare.value,
-  discount: discountAmount.value,
-  tunnelFees: getTunnelFees.value,
-  luggageFees: getLuggageFees.value,
-  returnToll: getReturnTollFee.value,
-  taxiTypeLabel: getTaxiTypeLabel.value
+  ...fareResult.value.breakdown,
+  taxiTypeLabel: getTaxiTypeLabel.value,
 }))
 
 const isCalculating = computed(() => {

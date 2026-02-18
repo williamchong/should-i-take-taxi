@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
@@ -29,7 +31,12 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.4.1",
+    "@nuxt/test-utils": "^3.23.0",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^20.5.0",
+    "playwright-core": "^1.58.1",
     "typescript": "^5.8.3",
+    "vitest": "^3.2.4",
     "vue-tsc": "^2.1.10"
   },
   "overrides": {
