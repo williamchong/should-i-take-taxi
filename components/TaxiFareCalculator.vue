@@ -209,8 +209,10 @@ const autoSelectCrossHarbourTunnel = () => {
   }
 }
 
-const selectStartLocation = async (location: LocationResult | null) => {
-  selectedStartLocation.value = location
+const selectLocation = async (type: 'start' | 'end', location: LocationResult | null) => {
+  const locationRef = type === 'start' ? selectedStartLocation : selectedEndLocation
+  const otherLocationRef = type === 'start' ? selectedEndLocation : selectedStartLocation
+  locationRef.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
 
   // Reset distance and auto-calculated distance when location is cleared
@@ -220,10 +222,10 @@ const selectStartLocation = async (location: LocationResult | null) => {
     isManualOverride.value = false
   }
 
-  useTrackEvent('taxi_start_location_selected')
+  useTrackEvent(`taxi_${type}_location_selected`)
 
   // Auto-select Cross Harbour Tunnel if needed
-  if (location && selectedEndLocation.value) {
+  if (location && otherLocationRef.value) {
     autoSelectCrossHarbourTunnel()
   }
 
@@ -233,36 +235,15 @@ const selectStartLocation = async (location: LocationResult | null) => {
   emitLocations()
 
   // Auto-focus end location input if start location is set but end is not
-  if (location && !selectedEndLocation.value) {
+  if (type === 'start' && location && !selectedEndLocation.value) {
     nextTick(() => {
       endLocationSearchRef.value?.focus({ preventScroll: true })
     })
   }
 }
 
-const selectEndLocation = async (location: LocationResult | null) => {
-  selectedEndLocation.value = location
-  routeInfo.value = { distance: 0, time: 0, coordinates: [] }
-
-  // Reset distance and auto-calculated distance when location is cleared
-  if (!location) {
-    distance.value = 0
-    autoCalculatedDistance.value = 0
-    isManualOverride.value = false
-  }
-
-  useTrackEvent('taxi_end_location_selected')
-
-  // Auto-select Cross Harbour Tunnel if needed
-  if (location && selectedStartLocation.value) {
-    autoSelectCrossHarbourTunnel()
-  }
-
-  if (canCalculateDistance.value) {
-    await handleCalculateDistance()
-  }
-  emitLocations()
-}
+const selectStartLocation = (location: LocationResult | null) => selectLocation('start', location)
+const selectEndLocation = (location: LocationResult | null) => selectLocation('end', location)
 
 const emitLocations = () => {
   emit('update:locations', {
