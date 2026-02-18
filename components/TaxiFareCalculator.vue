@@ -512,40 +512,39 @@ const handleRefresh = async () => {
 }
 
 // Watch for initial location props from parent (URL restoration)
-watch(() => props.initialStartLocation, (newLocation, oldLocation) => {
-  if (newLocation) {
-    // Check if coordinates actually changed
-    const coordsChanged = !oldLocation ||
-      oldLocation.x !== newLocation.x ||
-      oldLocation.y !== newLocation.y
+watch(() => [props.initialStartLocation, props.initialEndLocation] as const, ([newStart, newEnd], oldValue) => {
+  const [oldStart, oldEnd] = oldValue ?? [undefined, undefined]
+  let locationsChanged = false
+  let coordsChanged = false
 
-    selectedStartLocation.value = newLocation
-    startLocationSearch.value = newLocation.displayAddress
+  if (newStart) {
+    const startCoordsChanged = !oldStart ||
+      oldStart.x !== newStart.x ||
+      oldStart.y !== newStart.y
+    if (startCoordsChanged) coordsChanged = true
 
-    // Only trigger distance calculation if coordinates changed
-    if (coordsChanged && selectedEndLocation.value) {
-      autoSelectCrossHarbourTunnel()
-      handleCalculateDistance()
-    }
-    emitLocations()
+    selectedStartLocation.value = newStart
+    startLocationSearch.value = newStart.displayAddress
+    locationsChanged = true
   }
-}, { immediate: true })
 
-watch(() => props.initialEndLocation, (newLocation, oldLocation) => {
-  if (newLocation) {
-    // Check if coordinates actually changed
-    const coordsChanged = !oldLocation ||
-      oldLocation.x !== newLocation.x ||
-      oldLocation.y !== newLocation.y
+  if (newEnd) {
+    const endCoordsChanged = !oldEnd ||
+      oldEnd.x !== newEnd.x ||
+      oldEnd.y !== newEnd.y
+    if (endCoordsChanged) coordsChanged = true
 
-    selectedEndLocation.value = newLocation
-    endLocationSearch.value = newLocation.displayAddress
+    selectedEndLocation.value = newEnd
+    endLocationSearch.value = newEnd.displayAddress
+    locationsChanged = true
+  }
 
-    // Only trigger distance calculation if coordinates changed
-    if (coordsChanged && selectedStartLocation.value) {
-      autoSelectCrossHarbourTunnel()
-      handleCalculateDistance()
-    }
+  if (coordsChanged && selectedStartLocation.value && selectedEndLocation.value) {
+    autoSelectCrossHarbourTunnel()
+    handleCalculateDistance()
+  }
+
+  if (locationsChanged) {
     emitLocations()
   }
 }, { immediate: true })
