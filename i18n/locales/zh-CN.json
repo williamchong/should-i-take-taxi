@@ -129,6 +129,7 @@
     "luggage": "行李",
     "pieces": "件",
     "estimatedFare": "预估车费",
+    "calculatingFare": "计算车费中...",
     "flagFall": "起步费",
     "distanceFare": "距离收费",
     "tunnelTotal": "隧道费总额",
@@ -154,6 +155,7 @@
     "currentLocation": "当前位置",
     "useCurrentLocation": "使用当前位置",
     "swapLocations": "交换起点与目的地",
+    "refreshCalculation": "重新计算并清除空白地点",
     "manuallyAdjusted": "已调整",
     "autoCalculated": "自动",
     "manualAdjust": "手动调整",
@@ -170,9 +172,12 @@
     "advancedOptions": "高级选项",
     "tunnelsLuggage": "隧道、行李、折扣",
     "clearSearch": "清除搜索",
+    "clearRecentLocations": "清除最近使用地点",
     "recentLocations": "最近使用地点",
     "suggestedTaxiType": "根据您的路线，我们建议使用{type}",
     "useSuggested": "使用建议",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "customLocation": "自定位置",
+    "markerDragHint": "拖拽标记以调整位置，或在输入框聚焦时点击地图设定位置"
   }
 }

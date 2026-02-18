@@ -129,6 +129,7 @@
     "luggage": "行李",
     "pieces": "件",
     "estimatedFare": "預估車資",
+    "calculatingFare": "計算車資中...",
     "flagFall": "起跳費",
     "distanceFare": "距離收費",
     "tunnelTotal": "隧道費總額",
@@ -154,6 +155,7 @@
     "currentLocation": "當前位置",
     "useCurrentLocation": "使用當前位置",
     "swapLocations": "交換起點與目的地",
+    "refreshCalculation": "重新計算並清除空白地點",
     "manuallyAdjusted": "已調整",
     "autoCalculated": "自動",
     "manualAdjust": "手動調整",
@@ -170,9 +172,12 @@
     "advancedOptions": "進階選項",
     "tunnelsLuggage": "隧道、行李、折扣",
     "clearSearch": "清除搜尋",
+    "clearRecentLocations": "清除最近使用地點",
     "recentLocations": "最近使用地點",
     "suggestedTaxiType": "根據您的路線，我們建議使用{type}",
     "useSuggested": "使用建議",
-    "viewDetails": "檢視詳情"
+    "viewDetails": "檢視詳情",
+    "customLocation": "自訂位置",
+    "markerDragHint": "拖曳標記以調整位置，或在輸入框聚焦時點擊地圖設定位置"
   }
 }
