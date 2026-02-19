@@ -121,8 +121,8 @@ const endIcon = shallowRef()
 if (import.meta.client) {
   import('leaflet').then((L) => {
     startIcon.value = L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconUrl: '/images/markers/marker-icon-2x-green.png',
+      shadowUrl: '/images/markers/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -130,8 +130,8 @@ if (import.meta.client) {
     })
 
     endIcon.value = L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconUrl: '/images/markers/marker-icon-2x-red.png',
+      shadowUrl: '/images/markers/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
