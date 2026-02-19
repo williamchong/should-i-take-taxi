@@ -85,14 +85,15 @@ export function useLocationSearch() {
     }
   }
 
-  const calculateDrivingDistance = async (start: LocationResult, end: LocationResult): Promise<RouteInfo> => {
+  const calculateDrivingDistance = async (start: LocationResult, end: LocationResult, signal?: AbortSignal): Promise<RouteInfo> => {
     const key = coordKey(start.x, start.y, end.x, end.y)
     const cached = getCache<RouteInfo>('route_', key)
     if (cached) return cached
 
     try {
       const data = await $fetch(
-        `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=full&geometries=geojson`
+        `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=full&geometries=geojson`,
+        { signal }
       ) as { code: string; routes: { distance: number; duration: number; geometry: { coordinates: [number, number][] } }[] }
 
       if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
@@ -112,7 +113,7 @@ export function useLocationSearch() {
     }
   }
 
-  const reverseGeocode = async (latitude: number, longitude: number): Promise<LocationResult | null> => {
+  const reverseGeocode = async (latitude: number, longitude: number, signal?: AbortSignal): Promise<LocationResult | null> => {
     const key = `${coordKey(latitude, longitude)}_${locale.value}`
     const cached = getCache<LocationResult | null>('geocode_', key)
     if (cached !== undefined) return cached
@@ -127,7 +128,8 @@ export function useLocationSearch() {
         },
         headers: {
           'User-Agent': 'ShouldITakeTaxi/1.0'
-        }
+        },
+        signal,
       }) as any
 
       if (data && data.display_name) {
@@ -159,6 +161,7 @@ export function useLocationSearch() {
       setCache('geocode_', key, null)
       return null
     } catch (error) {
+      if (signal?.aborted) throw error
       console.error('Error in reverse geocoding:', error)
       return null
     }

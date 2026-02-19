@@ -192,6 +192,11 @@ const isManualOverride = ref(false)
 // Template refs
 const endLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | null>(null)
 
+// Abort controllers to cancel stale async operations (distance calc, geocoding per slot)
+let distanceAbort: AbortController | null = null
+let startGeocodeAbort: AbortController | null = null
+let endGeocodeAbort: AbortController | null = null
+
 const createFallbackLocation = (latitude: number, longitude: number): LocationResult => {
   const coordsLabel = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
   return createLocationFromCoordinates(latitude, longitude, `${t('taxiCalculator.customLocation')} (${coordsLabel})`)
@@ -211,6 +216,10 @@ const autoSelectCrossHarbourTunnel = () => {
 }
 
 const selectLocation = async (type: 'start' | 'end', location: LocationResult | null) => {
+  // Abort any in-flight geocoding for this slot
+  if (type === 'start') { startGeocodeAbort?.abort(); startGeocodeAbort = null }
+  else { endGeocodeAbort?.abort(); endGeocodeAbort = null }
+
   const locationRef = type === 'start' ? selectedStartLocation : selectedEndLocation
   const otherLocationRef = type === 'start' ? selectedEndLocation : selectedStartLocation
   locationRef.value = location
@@ -309,8 +318,12 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: 'start
   }
 
   // Do reverse geocoding in background to get proper address
+  const controller = new AbortController()
+  if (type === 'start') { startGeocodeAbort?.abort(); startGeocodeAbort = controller }
+  else { endGeocodeAbort?.abort(); endGeocodeAbort = controller }
+
   try {
-    const location = await reverseGeocode(latitude, longitude)
+    const location = await reverseGeocode(latitude, longitude, controller.signal)
 
     // Update with geocoded address if successful
     if (location) {
@@ -332,6 +345,7 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: 'start
       useTrackEvent(`taxi_marker_drag_geocode_failed_${type}`)
     }
   } catch (error) {
+    if (controller.signal.aborted) return
     console.error(`Error in reverse geocoding for ${type} marker:`, error)
     useTrackEvent(`taxi_marker_drag_error_${type}`)
     // Keep the coordinates-based location on error
@@ -343,12 +357,16 @@ const handleCalculateDistance = async () => {
   if (!selectedStartLocation.value || !selectedEndLocation.value) {
     return
   }
+  distanceAbort?.abort()
+  const controller = distanceAbort = new AbortController()
   isCalculatingDistance.value = true
   try {
     const result = await calculateDrivingDistance(
       selectedStartLocation.value,
-      selectedEndLocation.value
+      selectedEndLocation.value,
+      controller.signal
     )
+
     routeInfo.value = result
 
     // Update auto-calculated distance
@@ -363,9 +381,12 @@ const handleCalculateDistance = async () => {
     suggestTaxiType()
     useTrackEvent('taxi_distance_auto_calculated')
   } catch (error) {
+    if (controller.signal.aborted) return
     console.error('Error handling distance calculation:', error)
   } finally {
-    isCalculatingDistance.value = false
+    if (!controller.signal.aborted) {
+      isCalculatingDistance.value = false
+    }
   }
 }
 
@@ -376,6 +397,8 @@ const getCurrentLocation = async () => {
     return
   }
 
+  startGeocodeAbort?.abort()
+  const controller = startGeocodeAbort = new AbortController()
   isGettingLocation.value = true
   useTrackEvent('taxi_get_current_location_attempt')
 
@@ -387,6 +410,8 @@ const getCurrentLocation = async () => {
         maximumAge: GEOLOCATION_CONSTANTS.MAXIMUM_AGE
       })
     })
+
+    if (controller.signal.aborted) return // User selected another start location
 
     const { latitude, longitude } = position.coords
 
@@ -405,11 +430,12 @@ const getCurrentLocation = async () => {
 
     // 嘗試反向地理編碼獲取地址
     try {
-      const geoLocation = await reverseGeocode(latitude, longitude)
+      const geoLocation = await reverseGeocode(latitude, longitude, controller.signal)
       if (geoLocation) {
         location = geoLocation
       }
     } catch (error) {
+      if (controller.signal.aborted) return
       console.error("Error getting address from coordinates:", error)
       // 繼續使用基本位置信息
     }
@@ -419,11 +445,14 @@ const getCurrentLocation = async () => {
     await selectStartLocation(location)
     useTrackEvent('taxi_get_current_location_success')
   } catch (error) {
+    if (controller.signal.aborted) return
     console.error("Error getting current location:", error)
     alert(t('taxiCalculator.geolocationError'))
     useTrackEvent('taxi_get_current_location_error')
   } finally {
-    isGettingLocation.value = false
+    if (!controller.signal.aborted) {
+      isGettingLocation.value = false
+    }
   }
 }
 
@@ -432,6 +461,10 @@ const swapLocations = async () => {
   if (!selectedStartLocation.value || !selectedEndLocation.value) {
     return
   }
+
+  // Abort any in-flight geocoding for both slots
+  startGeocodeAbort?.abort(); startGeocodeAbort = null
+  endGeocodeAbort?.abort(); endGeocodeAbort = null
 
   // 交換選定的位置對象
   const tempLocation = selectedStartLocation.value
@@ -602,14 +635,17 @@ const handleMapClick = async (latitude: number, longitude: number) => {
     useTrackEvent('taxi_map_click_set_start')
 
     // Do reverse geocoding in background
+    startGeocodeAbort?.abort()
+    const startController = startGeocodeAbort = new AbortController()
     try {
-      const location = await reverseGeocode(latitude, longitude)
+      const location = await reverseGeocode(latitude, longitude, startController.signal)
       if (location) {
         selectedStartLocation.value = location
         startLocationSearch.value = location.displayAddress
         emitLocations()
       }
     } catch (error) {
+      if (startController.signal.aborted) return
       console.error('Error reverse geocoding map click:', error)
     }
 
@@ -639,14 +675,17 @@ const handleMapClick = async (latitude: number, longitude: number) => {
     }
 
     // Do reverse geocoding in background
+    endGeocodeAbort?.abort()
+    const endController = endGeocodeAbort = new AbortController()
     try {
-      const location = await reverseGeocode(latitude, longitude)
+      const location = await reverseGeocode(latitude, longitude, endController.signal)
       if (location) {
         selectedEndLocation.value = location
         endLocationSearch.value = location.displayAddress
         emitLocations()
       }
     } catch (error) {
+      if (endController.signal.aborted) return
       console.error('Error reverse geocoding map click:', error)
     }
   }
