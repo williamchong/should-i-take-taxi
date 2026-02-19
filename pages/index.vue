@@ -172,6 +172,7 @@ import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
+import { useIntersectionObserver } from '@vueuse/core'
 import { useLocationSearch } from '@/composables/useLocationSearch'
 import { findLocationByCoordinates } from '@/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
@@ -195,7 +196,6 @@ const fareDisplayRef = ref<HTMLElement | null>(null)
 const taxiFareCalculatorRef = ref<InstanceType<typeof TaxiFareCalculator> | null>(null)
 const locationsRestoredFromUrl = ref(false)
 const isLoadingFromUrl = ref(false)
-const observer = ref<IntersectionObserver | null>(null)
 const focusedInput = ref<'start' | 'end' | null>(null)
 
 const selectedLocations = ref<{
@@ -520,34 +520,16 @@ function scrollToFare() {
   }
 }
 
-// Setup IntersectionObserver for sticky fare and parse URL params
+useIntersectionObserver(
+  fareDisplayRef,
+  ([{ isIntersecting }]) => {
+    isFareVisible.value = isIntersecting
+  },
+  { threshold: 0, rootMargin: '-60px 0px 0px 0px' }
+)
+
 onMounted(async () => {
-  // Parse URL params first (before GPS auto-request in child component)
   await parseQueryParams()
-
-  if (typeof window === 'undefined' || !fareDisplayRef.value) return
-
-  observer.value = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        // Show sticky header when fare display is out of view
-        isFareVisible.value = entry.isIntersecting
-      })
-    },
-    {
-      threshold: 0,
-      rootMargin: '-60px 0px 0px 0px' // Account for potential header height
-    }
-  )
-
-  observer.value.observe(fareDisplayRef.value)
-})
-
-// Cleanup on unmount
-onBeforeUnmount(() => {
-  if (observer.value) {
-    observer.value.disconnect()
-  }
 })
 </script>
 

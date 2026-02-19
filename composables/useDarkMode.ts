@@ -1,4 +1,4 @@
-import { useStorage } from '@vueuse/core'
+import { usePreferredDark, useStorage } from '@vueuse/core'
 
 export type ThemeMode = 'system' | 'light' | 'dark'
 
@@ -8,18 +8,16 @@ export const useDarkMode = () => {
   // User's explicit preference (synced with localStorage via VueUse)
   const themePreference = useStorage<ThemeMode>(STORAGE_KEY, 'system')
 
+  // Reactive system dark mode preference (auto-tracks matchMedia changes)
+  const prefersDark = usePreferredDark()
+
   // Actual theme currently applied
   const isDark = useState<boolean>('is-dark-mode', () => false)
 
   const getEffectiveTheme = (): boolean => {
     if (themePreference.value === 'dark') return true
     if (themePreference.value === 'light') return false
-
-    // System mode
-    if (typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches
-    }
-    return false
+    return prefersDark.value
   }
 
   const applyTheme = () => {
@@ -35,24 +33,15 @@ export const useDarkMode = () => {
     }
   }
 
-  const handleSystemThemeChange = () => {
+  watch(prefersDark, () => {
     if (themePreference.value === 'system') {
       applyTheme()
     }
-  }
+  })
 
   const initializeTheme = () => {
     if (typeof window === 'undefined') return
-
     applyTheme()
-
-    // Listen for system changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', handleSystemThemeChange)
-
-    return () => {
-      mediaQuery.removeEventListener('change', handleSystemThemeChange)
-    }
   }
 
   const setThemePreference = (mode: ThemeMode) => {

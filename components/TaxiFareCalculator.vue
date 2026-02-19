@@ -136,6 +136,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useSupported, watchImmediate } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import { useLocationDetection } from '../composables/useLocationDetection'
@@ -172,7 +173,7 @@ const tunnelFeeType = ref<'oneWay' | 'return'>('return')
 const isDiscountFare = ref(false)
 const luggageCount = ref(0)
 const showAdvancedOptions = ref(false)
-const isGeolocationSupported = ref(false)
+const isGeolocationSupported = useSupported(() => !!navigator.geolocation)
 
 // 地點搜尋相關
 const startLocationSearch = ref('')
@@ -492,8 +493,7 @@ const handleRefresh = async () => {
   }
 }
 
-// Watch for initial location props from parent (URL restoration)
-watch(() => [props.initialStartLocation, props.initialEndLocation] as const, ([newStart, newEnd], oldValue) => {
+watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as const, ([newStart, newEnd], oldValue) => {
   const [oldStart, oldEnd] = oldValue ?? [undefined, undefined]
   let locationsChanged = false
   let coordsChanged = false
@@ -528,21 +528,17 @@ watch(() => [props.initialStartLocation, props.initialEndLocation] as const, ([n
   if (locationsChanged) {
     emitLocations()
   }
-}, { immediate: true })
+})
 
 // 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置
 onMounted(() => {
-  // Note: isCalculating computed will be available after this, so we use direct values for now
   emit('update:fare', {
     totalFare: totalFare.value,
     breakdown: fareBreakdown.value,
     isCalculating: false
   })
-  // 檢查瀏覽器是否支援地理定位API
-  isGeolocationSupported.value = Boolean(navigator.geolocation)
   useTrackEvent('taxi_calculator_opened')
 
-  // 自動檢測並請求 GPS 定位（如果設備支援且未從 URL 恢復位置）
   if (isGeolocationSupported.value && !selectedStartLocation.value && !props.skipGpsAutoRequest) {
     getCurrentLocation()
   }

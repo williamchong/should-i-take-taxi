@@ -76,6 +76,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import { useRecentLocations } from '../composables/useRecentLocations'
 import type { LocationResult } from '~/types/location'
@@ -115,10 +116,6 @@ watch(() => props.modelValue, (newValue) => {
   searchText.value = newValue
 })
 
-const setTimeout = (callback: () => void, delay: number) => {
-  return window.setTimeout(callback, delay)
-}
-
 const handleFocus = () => {
   isFocused.value = true
   hasSelectedDuringFocus.value = false
@@ -156,22 +153,20 @@ const handleClearRecent = () => {
   recentLocations.value = []
 }
 
-let searchTimeout: number | null = null
+const debouncedSearch = useDebounceFn(async () => {
+  isSearching.value = true
+  try {
+    const results = await searchLocation(searchText.value)
+    searchResults.value = results.slice(0, UI_CONSTANTS.MAX_SEARCH_RESULTS)
+  } finally {
+    isSearching.value = false
+  }
+}, UI_CONSTANTS.SEARCH_DEBOUNCE_MS)
+
 const debounceSearch = () => {
   isFocused.value = true
   emit('update:modelValue', searchText.value)
-  // Don't clear selection immediately when typing - only clear when a new location is selected
-
-  if (searchTimeout) clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(async () => {
-    isSearching.value = true
-    try {
-      const results = await searchLocation(searchText.value)
-      searchResults.value = results.slice(0, UI_CONSTANTS.MAX_SEARCH_RESULTS)
-    } finally {
-      isSearching.value = false
-    }
-  }, UI_CONSTANTS.SEARCH_DEBOUNCE_MS) as unknown as number
+  debouncedSearch()
 }
 
 const handleSelect = async (location: LocationResult) => {
@@ -195,10 +190,6 @@ const handleSelect = async (location: LocationResult) => {
     emit('update:modelValue', '')
   }
 }
-
-onBeforeUnmount(() => {
-  if (searchTimeout) clearTimeout(searchTimeout)
-})
 
 // Expose focus method so parent can focus this input
 defineExpose({
