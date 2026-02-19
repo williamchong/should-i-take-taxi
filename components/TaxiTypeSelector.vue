@@ -69,26 +69,26 @@
 <script setup lang="ts">
 import type { TaxiType } from '~/types/constants'
 
+const modelValue = defineModel<TaxiType>({ required: true })
+
 const props = defineProps<{
-  modelValue: TaxiType
   suggestedTaxiType?: TaxiType | null
   showSuggestion?: boolean
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: TaxiType]
   'accept-suggestion': []
   'dismiss-suggestion': []
 }>()
 
 const handleChange = (value: TaxiType) => {
-  emit('update:modelValue', value)
+  modelValue.value = value
   useTrackEvent('taxi_type_selected')
 }
 
 const handleAcceptSuggestion = () => {
   if (props.suggestedTaxiType) {
-    emit('update:modelValue', props.suggestedTaxiType)
+    modelValue.value = props.suggestedTaxiType
     emit('accept-suggestion')
     useTrackEvent('taxi_type_suggestion_accepted', { suggested: props.suggestedTaxiType })
   }

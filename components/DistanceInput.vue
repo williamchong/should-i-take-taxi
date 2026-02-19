@@ -104,15 +104,11 @@ import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { UI_CONSTANTS } from '~/types/constants'
 
-const props = defineProps<{
-  modelValue: number
-  autoCalculatedDistance: number
-  isManualOverride: boolean
-}>()
+const distance = defineModel<number>({ required: true })
+const isManualOverride = defineModel<boolean>('isManualOverride', { required: true })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: number]
-  'update:isManualOverride': [value: boolean]
+const props = defineProps<{
+  autoCalculatedDistance: number
 }>()
 
 const { t } = useI18n()
@@ -122,17 +118,17 @@ const manualDistance = ref(0)
 const distanceInput = ref<HTMLInputElement | null>(null)
 
 const displayDistance = computed(() => {
-  if (props.isManualOverride) {
-    return props.modelValue.toFixed(1)
+  if (isManualOverride.value) {
+    return distance.value.toFixed(1)
   }
   if (props.autoCalculatedDistance > 0) {
     return props.autoCalculatedDistance.toFixed(1)
   }
-  return props.modelValue.toFixed(1)
+  return distance.value.toFixed(1)
 })
 
 const enableDistanceEdit = () => {
-  manualDistance.value = props.modelValue
+  manualDistance.value = distance.value
   isEditingDistance.value = true
   useTrackEvent('taxi_distance_manual_edit_opened')
 
@@ -180,8 +176,8 @@ const saveManualDistance = () => {
     return
   }
 
-  emit('update:modelValue', manualDistance.value)
-  emit('update:isManualOverride', true)
+  distance.value = manualDistance.value
+  isManualOverride.value = true
   isEditingDistance.value = false
   useTrackEvent('taxi_distance_manually_set', {
     distance: manualDistance.value,
@@ -196,9 +192,9 @@ const cancelDistanceEdit = () => {
 
 const resetToAutoCalculated = () => {
   if (props.autoCalculatedDistance > 0) {
-    emit('update:modelValue', props.autoCalculatedDistance)
+    distance.value = props.autoCalculatedDistance
     manualDistance.value = props.autoCalculatedDistance
-    emit('update:isManualOverride', false)
+    isManualOverride.value = false
     isEditingDistance.value = false
     useTrackEvent('taxi_distance_reset_to_auto')
   }

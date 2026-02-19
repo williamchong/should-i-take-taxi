@@ -140,26 +140,15 @@ import { useI18n } from 'vue-i18n'
 import { TUNNEL_FEES } from '~/types/constants'
 import type { TunnelId } from '~/types/constants'
 
-const props = defineProps<{
-  selectedTunnels: TunnelId[]
-  tunnelFeeType: 'oneWay' | 'return'
-  isDiscountFare: boolean
-  luggageCount: number
-  showAdvancedOptions?: boolean
-}>()
-
-const emit = defineEmits<{
-  'update:selectedTunnels': [value: TunnelId[]]
-  'update:tunnelFeeType': [value: 'oneWay' | 'return']
-  'update:isDiscountFare': [value: boolean]
-  'update:luggageCount': [value: number]
-  'update:showAdvancedOptions': [value: boolean]
-}>()
+const selectedTunnels = defineModel<TunnelId[]>('selectedTunnels', { required: true })
+const tunnelFeeType = defineModel<'oneWay' | 'return'>('tunnelFeeType', { required: true })
+const isDiscountFare = defineModel<boolean>('isDiscountFare', { required: true })
+const luggageCount = defineModel<number>('luggageCount', { required: true })
+const showAdvancedOptions = defineModel<boolean>('showAdvancedOptions', { default: false })
 
 const { t } = useI18n()
 
 const showOtherTunnels = ref(false)
-const showAdvancedOptions = ref(props.showAdvancedOptions ?? false)
 let hasTrackedLuggageInput = false
 
 const tunnelOptions = computed(() => [
@@ -177,40 +166,36 @@ const otherTunnelOptions = computed(() =>
 )
 
 const hasSelectedCrossHarbourTunnel = computed(() =>
-  props.selectedTunnels.includes('crossHarbour')
+  selectedTunnels.value.includes('crossHarbour')
 )
 
 const toggleAdvancedOptions = () => {
   showAdvancedOptions.value = !showAdvancedOptions.value
-  emit('update:showAdvancedOptions', showAdvancedOptions.value)
   useTrackEvent('taxi_advanced_options_toggled', { expanded: showAdvancedOptions.value })
 }
 
 const handleTunnelChange = (tunnelId: TunnelId, event: Event) => {
   const target = event.target as HTMLInputElement
-  const newSelectedTunnels = target.checked
-    ? [...props.selectedTunnels, tunnelId]
-    : props.selectedTunnels.filter(id => id !== tunnelId)
-
-  emit('update:selectedTunnels', newSelectedTunnels)
+  selectedTunnels.value = target.checked
+    ? [...selectedTunnels.value, tunnelId]
+    : selectedTunnels.value.filter(id => id !== tunnelId)
   useTrackEvent('taxi_tunnel_selected')
 }
 
 const handleTunnelFeeTypeChange = (value: 'oneWay' | 'return') => {
-  emit('update:tunnelFeeType', value)
+  tunnelFeeType.value = value
   useTrackEvent('taxi_tunnel_fee_type_changed', { type: value })
 }
 
 const handleDiscountFareChange = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:isDiscountFare', target.checked)
+  isDiscountFare.value = target.checked
   useTrackEvent('taxi_discount_fare_toggled', { enabled: target.checked })
 }
 
 const handleLuggageInput = (event: Event) => {
   const target = event.target as HTMLInputElement
-  const value = Number(target.value)
-  emit('update:luggageCount', value)
+  luggageCount.value = Number(target.value)
   if (!hasTrackedLuggageInput) {
     useTrackEvent('taxi_luggage_input')
     hasTrackedLuggageInput = true
@@ -220,11 +205,4 @@ const handleLuggageInput = (event: Event) => {
 const handleLuggageChange = () => {
   useTrackEvent('taxi_luggage_change')
 }
-
-// Watch for prop changes to sync internal state
-watch(() => props.showAdvancedOptions, (newValue) => {
-  if (newValue !== undefined) {
-    showAdvancedOptions.value = newValue
-  }
-})
 </script>

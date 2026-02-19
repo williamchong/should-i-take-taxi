@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div ref="wrapperRef" class="relative">
     <input
       :id="id"
       ref="inputRef"
@@ -9,7 +9,7 @@
       :placeholder="$t('taxiCalculator.searchPlace')"
       @input="debounceSearch"
       @focus="handleFocus"
-      @blur="handleBlur"
+      @blur="closeFocusedDropdown"
     >
     <!-- Clear button -->
     <div v-if="searchText && !isSearching" class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -17,6 +17,7 @@
         type="button"
         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none transition-colors"
         :aria-label="$t('taxiCalculator.clearSearch')"
+        @mousedown.prevent
         @click="handleClear"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,7 +37,7 @@
       <ul>
         <!-- Recent locations (shown when no search text) -->
         <template v-if="!searchText && recentLocations.length > 0">
-          <li class="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center justify-between">
+          <li class="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center justify-between" @mousedown.prevent>
             <span>{{ $t('taxiCalculator.recentLocations') }}</span>
             <button
               type="button"
@@ -54,6 +55,7 @@
             v-for="(result, index) in recentLocations"
             :key="`${id}-recent-${index}`"
             class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-900 dark:text-gray-100"
+            @mousedown.prevent
             @click="handleSelect(result)"
           >
             {{ result.displayAddress }}
@@ -65,6 +67,7 @@
           v-for="(result, index) in searchResults"
           :key="`${id}-${index}`"
           class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-900 dark:text-gray-100"
+          @mousedown.prevent
           @click="handleSelect(result)"
         >
           {{ result.displayAddress }}
@@ -76,7 +79,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
+import { onClickOutside, useDebounceFn } from '@vueuse/core'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import { useRecentLocations } from '../composables/useRecentLocations'
 import type { LocationResult } from '~/types/location'
@@ -98,8 +101,8 @@ const isSearching = ref(false)
 const isFocused = ref(false)
 const recentLocations = ref<LocationResult[]>([])
 const lastCommittedValue = ref(props.modelValue)
-const hasSelectedDuringFocus = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
+const wrapperRef = ref<HTMLElement | null>(null)
 
 // Load recent locations on mount
 onMounted(() => {
@@ -116,29 +119,27 @@ watch(() => props.modelValue, (newValue) => {
   searchText.value = newValue
 })
 
-const handleFocus = () => {
-  isFocused.value = true
-  hasSelectedDuringFocus.value = false
-  emit('focus')
+const closeFocusedDropdown = () => {
+  if (!isFocused.value) return
+  isFocused.value = false
+  emit('blur')
+  if (searchText.value !== lastCommittedValue.value) {
+    searchText.value = lastCommittedValue.value
+    emit('update:modelValue', lastCommittedValue.value)
+    searchResults.value = []
+  }
 }
 
-const handleBlur = () => {
-  setTimeout(() => {
-    isFocused.value = false
-    emit('blur')
-    // If user typed but didn't select anything, revert to last committed value
-    if (!hasSelectedDuringFocus.value && searchText.value !== lastCommittedValue.value) {
-      searchText.value = lastCommittedValue.value
-      emit('update:modelValue', lastCommittedValue.value)
-      searchResults.value = []
-    }
-  }, 200)
+onClickOutside(wrapperRef, closeFocusedDropdown)
+
+const handleFocus = () => {
+  isFocused.value = true
+  emit('focus')
 }
 
 const handleClear = () => {
   searchText.value = ''
   lastCommittedValue.value = ''
-  hasSelectedDuringFocus.value = true // Prevent revert on blur
   emit('update:modelValue', '')
   emit('select', null)
   searchResults.value = []
@@ -170,7 +171,6 @@ const debounceSearch = () => {
 }
 
 const handleSelect = async (location: LocationResult) => {
-  hasSelectedDuringFocus.value = true
   searchText.value = location.displayAddress
   lastCommittedValue.value = location.displayAddress
   emit('update:modelValue', location.displayAddress)
