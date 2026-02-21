@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { useSupported, watchImmediate } from '@vueuse/core'
+import { watchImmediate } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useLocationSearch } from '../composables/useLocationSearch'
 import { useLocationDetection } from '../composables/useLocationDetection'
@@ -173,7 +173,7 @@ const tunnelFeeType = ref<'oneWay' | 'return'>('return')
 const isDiscountFare = ref(false)
 const luggageCount = ref(0)
 const showAdvancedOptions = ref(false)
-const isGeolocationSupported = useSupported(() => typeof navigator !== 'undefined' && !!navigator.geolocation)
+const isGeolocationSupported = ref(false)
 
 // 地點搜尋相關
 const startLocationSearch = ref('')
@@ -565,6 +565,8 @@ watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as c
 
 // 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置
 onMounted(() => {
+  isGeolocationSupported.value = typeof navigator !== 'undefined' && !!navigator.geolocation
+
   emit('update:fare', {
     totalFare: totalFare.value,
     breakdown: fareBreakdown.value,
