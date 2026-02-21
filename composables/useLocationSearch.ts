@@ -8,6 +8,26 @@ interface RouteInfo {
   coordinates: [number, number][]
 }
 
+interface TransitPlan {
+  duration_seconds: number
+  duration_seconds_min?: number
+  duration_seconds_max?: number
+  fares_min?: number
+  fares_max?: number
+  currency?: string
+  legs: unknown[]
+}
+
+interface TransitResponse {
+  plans: TransitPlan[]
+}
+
+function mapLocaleForTransit(locale: string): string {
+  if (locale === 'en-hk') return 'en'
+  if (locale === 'zh-cn') return 'zh'
+  return 'zh-Hant' // zh-hk, zh-tw
+}
+
 const CACHE_KEY_PREFIX = 'location_search_'
 
 function coordKey(...nums: number[]): string {
@@ -185,11 +205,46 @@ export function useLocationSearch() {
     }
   }
 
+  const calculateTransitRoute = async (
+    start: LocationResult,
+    end: LocationResult,
+    localeOverride?: string,
+    signal?: AbortSignal
+  ): Promise<TransitResponse | null> => {
+    try {
+      const mappedLocale = mapLocaleForTransit(localeOverride || locale.value)
+      const key = `${coordKey(start.y, start.x, end.y, end.x)}_${mappedLocale}`
+      const cached = getCache<TransitResponse>('transit_', key)
+      if (cached) return cached
+
+      const data = await $fetch<TransitResponse>(
+        'https://engine.justusewheels.com/v1/plan', {
+          query: {
+            origin: `${start.y},${start.x}`,
+            destination: `${end.y},${end.x}`,
+            locale: mappedLocale,
+            max_results: 5,
+          },
+          signal,
+        }
+      )
+
+      if (data?.plans) {
+        setCache('transit_', key, data)
+        return data
+      }
+      return null
+    } catch {
+      return null
+    }
+  }
+
   return {
     searchLocation,
     transformCoordinates,
     calculateDrivingDistance,
     getCachedRoute,
+    calculateTransitRoute,
     getLocalizedAddress,
     reverseGeocode
   }

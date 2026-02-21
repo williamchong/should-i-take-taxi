@@ -183,5 +183,15 @@
     "viewDetails": "查看详情",
     "customLocation": "自定位置",
     "markerDragHint": "拖拽标记以调整位置，或在输入框聚焦时点击地图设定位置"
+  },
+  "transitComparison": {
+    "title": "出租车 vs 公共交通",
+    "taxi": "出租车",
+    "publicTransit": "公共交通",
+    "min": "分钟",
+    "timeSaved": "坐出租车省约 {minutes} 分钟",
+    "costPerMinute": "每分钟约 HK$ {cost}",
+    "noTimeSaved": "公共交通可能与出租车差不多或更快",
+    "poweredBy": "交通数据由 {link} 提供"
   }
 }

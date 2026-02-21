@@ -183,5 +183,15 @@
     "viewDetails": "View Details",
     "customLocation": "Custom Location",
     "markerDragHint": "Drag markers to adjust locations or click on the map to set location when an input is focused"
+  },
+  "transitComparison": {
+    "title": "Taxi vs Public Transit",
+    "taxi": "Taxi",
+    "publicTransit": "Public Transit",
+    "min": "min",
+    "timeSaved": "Taking a taxi saves ~{minutes} min",
+    "costPerMinute": "~HK$ {cost} per minute saved",
+    "noTimeSaved": "Public transit may be comparable or faster for this route",
+    "poweredBy": "Transit data by {link}"
   }
 }

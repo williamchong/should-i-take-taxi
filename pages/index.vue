@@ -96,6 +96,7 @@
         @update:locations="updateLocations"
         @update:fare="updateFare"
         @update:focused-input="updateFocusedInput"
+        @update:transit-info="updateTransitInfo"
       />
 
       <!-- 4. Fare Display (prominent, when calculated) -->
@@ -145,6 +146,69 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Transit Comparison -->
+      <div v-if="transitData" class="mb-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('transitComparison.title') }}</h3>
+
+        <!-- Loading skeleton -->
+        <div v-if="transitData.isCalculating" class="animate-pulse space-y-3">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+          </div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+        </div>
+
+        <!-- Comparison content -->
+        <template v-else>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <!-- Taxi column -->
+            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ $t('transitComparison.taxi') }}</div>
+              <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ Math.round(transitData.drivingTimeSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
+              <div v-if="fareData" class="text-sm text-gray-600 dark:text-gray-400 mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
+            </div>
+            <!-- Public Transit column -->
+            <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ $t('transitComparison.publicTransit') }}</div>
+              <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ Math.round(transitData.transitDurationSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <template v-if="transitData.transitFareMin === transitData.transitFareMax">
+                  HK$ {{ transitData.transitFareMin.toFixed(2) }}
+                </template>
+                <template v-else>
+                  HK$ {{ transitData.transitFareMin.toFixed(2) }} – {{ transitData.transitFareMax.toFixed(2) }}
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            <template v-if="transitMinutesSaved > 0">
+              <p class="font-medium text-gray-900 dark:text-gray-100">
+                {{ $t('transitComparison.timeSaved', { minutes: transitMinutesSaved }) }}
+              </p>
+              <p v-if="transitCostPerMinute" class="mt-1">
+                {{ $t('transitComparison.costPerMinute', { cost: transitCostPerMinute }) }}
+              </p>
+            </template>
+            <p v-else class="font-medium text-gray-900 dark:text-gray-100">
+              {{ $t('transitComparison.noTimeSaved') }}
+            </p>
+          </div>
+
+          <!-- Attribution -->
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-3">
+            <i18n-t keypath="transitComparison.poweredBy" tag="span">
+              <template #link>
+                <a href="https://justusewheels.com" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-600 dark:hover:text-gray-300">Wheels</a>
+              </template>
+            </i18n-t>
+          </p>
+        </template>
       </div>
 
       <!-- 5. Introduction (collapsible) -->
@@ -225,9 +289,29 @@ const fareData = ref<{
   isCalculating: boolean;
 } | null>(null)
 
+const transitData = ref<{
+  transitDurationSeconds: number;
+  transitFareMin: number;
+  transitFareMax: number;
+  drivingTimeSeconds: number;
+  isCalculating: boolean;
+} | null>(null)
+
 const hasSelectedLocations = computed(() =>
   selectedLocations.value.start !== null || selectedLocations.value.end !== null
 )
+
+const transitMinutesSaved = computed(() => {
+  if (!transitData.value || transitData.value.isCalculating) return 0
+  return Math.round((transitData.value.transitDurationSeconds - transitData.value.drivingTimeSeconds) / 60)
+})
+
+const transitCostPerMinute = computed(() => {
+  if (!fareData.value || !transitData.value || transitMinutesSaved.value <= 0) return null
+  const taxiFareDiff = fareData.value.totalFare - transitData.value.transitFareMin
+  if (taxiFareDiff <= 0) return null
+  return (taxiFareDiff / transitMinutesSaved.value).toFixed(1)
+})
 
 function updateLocations(locations: { start: LocationResult | null; end: LocationResult | null, coordinates: [number, number][] }) {
   selectedLocations.value = locations
@@ -235,6 +319,10 @@ function updateLocations(locations: { start: LocationResult | null; end: Locatio
 
 function updateFare(data: any) {
   fareData.value = data
+}
+
+function updateTransitInfo(data: any) {
+  transitData.value = data
 }
 
 // Handle marker dragged event from MapDisplay

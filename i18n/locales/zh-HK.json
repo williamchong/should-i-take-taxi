@@ -183,5 +183,15 @@
     "viewDetails": "查看詳情",
     "customLocation": "自訂位置",
     "markerDragHint": "拖標記可以調整位置，或者撳輸入框之後再撳地圖嚟設定位置"
+  },
+  "transitComparison": {
+    "title": "的士 vs 公共交通",
+    "taxi": "的士",
+    "publicTransit": "公共交通",
+    "min": "分鐘",
+    "timeSaved": "搭的士慳大約 {minutes} 分鐘",
+    "costPerMinute": "每分鐘大約 HK$ {cost}",
+    "noTimeSaved": "公共交通可能同的士差唔多甚至仲快",
+    "poweredBy": "交通數據由 {link} 提供"
   }
 }

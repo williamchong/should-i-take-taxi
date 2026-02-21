@@ -163,10 +163,10 @@ const props = defineProps<{
   skipGpsAutoRequest?: boolean
 }>()
 
-const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput'])
+const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput', 'update:transitInfo'])
 
 const { t } = useI18n()
-const { calculateDrivingDistance, getCachedRoute, reverseGeocode } = useLocationSearch()
+const { calculateDrivingDistance, getCachedRoute, calculateTransitRoute, reverseGeocode } = useLocationSearch()
 const { shouldAutoSelectCrossHarbour, suggestTaxiType: detectTaxiType } = useLocationDetection()
 
 const taxiType = ref<TaxiType>('urban')
@@ -201,6 +201,7 @@ const endLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | n
 let distanceAbort: AbortController | null = null
 let startGeocodeAbort: AbortController | null = null
 let endGeocodeAbort: AbortController | null = null
+let transitAbort: AbortController | null = null
 
 const createFallbackLocation = (latitude: number, longitude: number): LocationResult => {
   const coordsLabel = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
@@ -229,6 +230,11 @@ const selectLocation = async (type: 'start' | 'end', location: LocationResult | 
   const otherLocationRef = type === 'start' ? selectedEndLocation : selectedStartLocation
   locationRef.value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
+
+  // Clear transit info and abort any in-flight transit request
+  transitAbort?.abort()
+  transitAbort = null
+  emit('update:transitInfo', null)
 
   // Reset distance and auto-calculated distance when location is cleared
   if (!location) {
@@ -366,6 +372,45 @@ const applyRouteDistance = (result: { distance: number; time: number }) => {
   suggestTaxiType()
 }
 
+// Fire-and-forget transit comparison (never blocks fare calculation)
+const handleCalculateTransit = async () => {
+  if (!selectedStartLocation.value || !selectedEndLocation.value) return
+
+  transitAbort?.abort()
+  const controller = transitAbort = new AbortController()
+
+  emit('update:transitInfo', { isCalculating: true })
+
+  try {
+    const result = await calculateTransitRoute(
+      selectedStartLocation.value,
+      selectedEndLocation.value,
+      undefined,
+      controller.signal
+    )
+
+    if (controller.signal.aborted) return
+
+    if (result?.plans?.length) {
+      const fastest = result.plans[0]
+      emit('update:transitInfo', {
+        transitDurationSeconds: fastest.duration_seconds,
+        transitFareMin: (fastest.fares_min ?? 0) / 100,
+        transitFareMax: (fastest.fares_max ?? 0) / 100,
+        drivingTimeSeconds: routeInfo.value.time,
+        isCalculating: false,
+      })
+      useTrackEvent('transit_comparison_loaded')
+    } else {
+      emit('update:transitInfo', null)
+    }
+  } catch {
+    if (controller.signal.aborted) return
+    emit('update:transitInfo', null)
+    useTrackEvent('transit_comparison_error')
+  }
+}
+
 // 重構計算距離函數
 const handleCalculateDistance = async () => {
   if (!selectedStartLocation.value || !selectedEndLocation.value) {
@@ -396,6 +441,9 @@ const handleCalculateDistance = async () => {
     applyRouteDistance(result)
     emitLocations()
     if (!cached) useTrackEvent('taxi_distance_auto_calculated')
+
+    // Fire-and-forget transit comparison (non-blocking)
+    handleCalculateTransit()
   } catch (error) {
     if (controller.signal.aborted) return
     if (cached) {
@@ -484,9 +532,11 @@ const swapLocations = async () => {
     return
   }
 
-  // Abort any in-flight geocoding for both slots
+  // Abort any in-flight geocoding and transit requests
   startGeocodeAbort?.abort(); startGeocodeAbort = null
   endGeocodeAbort?.abort(); endGeocodeAbort = null
+  transitAbort?.abort(); transitAbort = null
+  emit('update:transitInfo', null)
 
   // 交換選定的位置對象
   const tempLocation = selectedStartLocation.value
@@ -531,8 +581,10 @@ const handleRefresh = async () => {
     // 重置手動覆蓋
     isManualOverride.value = false
 
-    // 清除舊的路線資訊
+    // 清除舊的路線及交通資訊
     routeInfo.value = { distance: 0, time: 0, coordinates: [] }
+    transitAbort?.abort(); transitAbort = null
+    emit('update:transitInfo', null)
 
     // 重新清除並檢測過海隧道
     selectedTunnels.value = selectedTunnels.value.filter(t => t !== 'crossHarbour')
