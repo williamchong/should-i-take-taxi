@@ -173,7 +173,7 @@ const tunnelFeeType = ref<'oneWay' | 'return'>('return')
 const isDiscountFare = ref(false)
 const luggageCount = ref(0)
 const showAdvancedOptions = ref(false)
-const isGeolocationSupported = useSupported(() => !!navigator.geolocation)
+const isGeolocationSupported = useSupported(() => typeof navigator !== 'undefined' && !!navigator.geolocation)
 
 // 地點搜尋相關
 const startLocationSearch = ref('')
