@@ -442,6 +442,7 @@ const getCurrentLocation = async () => {
 
     // 更新位置
     startLocationSearch.value = location.displayAddress
+    startGeocodeAbort = null
     await selectStartLocation(location)
     useTrackEvent('taxi_get_current_location_success')
   } catch (error) {

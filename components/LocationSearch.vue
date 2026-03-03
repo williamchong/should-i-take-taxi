@@ -9,7 +9,6 @@
       :placeholder="$t('taxiCalculator.searchPlace')"
       @input="debounceSearch"
       @focus="handleFocus"
-      @blur="closeFocusedDropdown"
     >
     <!-- Clear button -->
     <div v-if="searchText && !isSearching" class="absolute inset-y-0 right-0 pr-3 flex items-center">
