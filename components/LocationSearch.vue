@@ -121,6 +121,7 @@ watch(() => props.modelValue, (newValue) => {
 const closeFocusedDropdown = () => {
   if (!isFocused.value) return
   isFocused.value = false
+  inputRef.value?.blur()
   emit('blur')
   if (searchText.value !== lastCommittedValue.value) {
     searchText.value = lastCommittedValue.value
@@ -174,6 +175,9 @@ const handleSelect = async (location: LocationResult) => {
   lastCommittedValue.value = location.displayAddress
   emit('update:modelValue', location.displayAddress)
   searchResults.value = []
+
+  // Unfocus the input after selection (closes dropdown, dismisses mobile keyboard)
+  closeFocusedDropdown()
 
   try {
     const transformedLocation = await transformCoordinates(location)
