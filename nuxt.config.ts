@@ -56,7 +56,7 @@ export default defineNuxtConfig({
 
   site: {
     url: siteUrl,
-    name: 'Hong Kong Taxi Fare Calculator with GPS Auto-Distance',
+    name: 'Hong Kong Taxi Fare Calculator',
   },
 
   sitemap: {

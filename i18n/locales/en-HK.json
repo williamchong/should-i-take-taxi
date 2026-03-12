@@ -1,6 +1,6 @@
 {
-  "title": "Hong Kong Taxi Fare Calculator with GPS Auto-Distance",
-  "description": "Calculate taxi fares instantly with automatic location detection and distance calculation. Just select your start and destination - no need to guess or enter distance manually.",
+  "title": "How Much Is a Taxi? Hong Kong Taxi Fare Calculator",
+  "description": "Find out exactly how much your taxi ride will cost before you get in. Just pick your start and destination — we handle the distance, tunnels, and fare calculation automatically.",
   "loading": "Loading...",
   "theme": {
     "mode": {
@@ -16,27 +16,27 @@
     "currentMode": "Current theme: {mode}"
   },
   "schema": {
-    "releaseNotes": "Automatic GPS location detection and distance calculation for instant accurate Hong Kong taxi fares - no manual input needed.",
+    "releaseNotes": "Know exactly what your taxi ride will cost before you get in. Automatic GPS location, distance calculation, tunnel fees, and fare breakdown — no guesswork needed.",
     "authorName": "William Chong",
     "authorUrl": "https://blog.williamchong.cloud",
     "potentialActionResult": "Hong Kong Taxi Fare Calculation",
     "serviceType": "Transportation Calculator",
     "areaServedName": "Hong Kong",
     "areaServedAlternateName": "Hong Kong SAR",
-    "keywords": "Hong Kong taxi fare calculator, GPS auto-distance, automatic distance calculation, taxi fare estimation, automatic location detection, Hong Kong transportation, urban taxi, new territories taxi, lantau taxi, cross harbour tunnel",
+    "keywords": "Hong Kong taxi fare calculator, GPS auto-distance, automatic distance calculation, taxi fare estimation, automatic location detection, Hong Kong transportation, urban taxi, new territories taxi, lantau taxi, cross harbour tunnel, how much is a taxi in Hong Kong, taxi fare from airport, cross harbour tunnel taxi fare, Hong Kong taxi cost",
     "breadcrumbHome": "Home",
     "offerCatalogName": "Taxi Fare Calculation Services"
   },
   "seo": {
     "dynamicTitle": {
-      "fromOnly": "Taxi from {from} | Hong Kong Taxi Fare Calculator with GPS Auto-Distance",
-      "fromTo": "Taxi from {from} to {to} | Hong Kong Taxi Fare Calculator with GPS Auto-Distance"
+      "fromOnly": "Taxi from {from} — How Much? | HK Taxi Fare Calculator",
+      "fromTo": "{from} to {to} Taxi Fare | HK Taxi Fare Calculator"
     }
   },
   "intro": {
     "showIntroduction": "Learn More About This Calculator",
     "title": "Calculator Introduction",
-    "description": "This calculator helps you calculate accurate taxi fares for all three types of Hong Kong taxis. It includes automatic route calculation, tunnel fees, luggage charges, and other surcharges to give you the most accurate fare estimate possible.",
+    "description": "Know exactly what your taxi ride will cost before you get in. This calculator covers all three Hong Kong taxi types with automatic route calculation, tunnel fees, luggage charges, and surcharges for the most accurate fare estimate possible.",
     "divider": "Introduction",
     "usage": {
       "title": "How to Use This Calculator?",
@@ -69,7 +69,7 @@
       ]
     },
     "concept": {
-      "title": "Why Use This Taxi Fare Calculator?",
+      "title": "Why Check Your Fare Before You Ride?",
       "description": "Getting an accurate taxi fare estimate in Hong Kong can be complex due to different taxi types, tunnel fees, and various surcharges. This calculator takes all factors into account to give you the most accurate fare estimate possible.",
       "benefits": [
         "Accurate Fare Estimation: Get precise fare calculations based on official Transport Department rates",
@@ -77,7 +77,7 @@
         "Complete Cost Transparency: See detailed breakdowns of all charges including tunnels and surcharges",
         "Multi-Taxi Support: Compare fares across Urban, New Territories, and Lantau taxi services"
       ],
-      "conclusion": "Use this calculator to get accurate taxi fare estimates and make informed transportation decisions in Hong Kong."
+      "conclusion": "Check your fare before you ride — no surprises when the meter stops."
     },
     "openSource": {
       "title": "Open Source",
@@ -89,7 +89,7 @@
       "questions": [
         {
           "question": "How is this different from other taxi fare calculators?",
-          "answer": "Unlike traditional calculators that require manual distance entry, our calculator automatically detects your location using GPS and calculates the exact driving distance for you. Just select your start and destination, and get instant accurate fares without any guesswork."
+          "answer": "Most taxi fare calculators make you guess the distance yourself. This one detects your location with GPS and calculates the exact driving distance automatically. Just pick your start and destination — you get an accurate fare instantly, no guesswork needed."
         },
         {
           "question": "How accurate is the Hong Kong taxi fare calculator?",
@@ -166,7 +166,7 @@
     "distanceTooSmall": "Distance must be greater than 0.1 km",
     "distanceTooLarge": "Distance cannot exceed 200 km. For longer distances, please calculate in segments.",
     "distanceDifferenceWarning": "Your entered distance ({manual} km) differs from the suggested route ({auto} km) by more than {percent}%.\n\nAre you sure you want to use this distance?",
-    "discountFare": "85% Discount Fare",
+    "discountFare": "85% Fare (meter fare only)",
     "meterFare": "Meter Fare",
     "discountedFare": "After 85% Discount",
     "advancedOptions": "Advanced Options",

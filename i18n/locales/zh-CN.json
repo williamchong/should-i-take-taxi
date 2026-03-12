@@ -1,6 +1,6 @@
 {
-  "title": "香港出租车车费计算器 GPS 自动测距",
-  "description": "自动定位及计算距离的智能出租车车费计算器。只需选择起点与目的地，无需估算或手动输入距离，即刻获得准确车费。",
+  "title": "香港出租车要多少钱？即时车费计算器",
+  "description": "打车前先查车费。选择起点与目的地，自动定位、自动计算距离，即刻获得准确车费估算。",
   "loading": "载入中...",
   "theme": {
     "mode": {
@@ -23,14 +23,14 @@
     "serviceType": "交通计算器",
     "areaServedName": "香港",
     "areaServedAlternateName": "香港特别行政区",
-    "keywords": "香港出租车车费计算器, GPS自动测距, 自动计算距离, 出租车车费估算, 香港交通, 市区出租车, 新界出租车, 大屿山出租车, 自动定位, 海底隧道",
+    "keywords": "香港出租车车费计算器, GPS自动测距, 自动计算距离, 出租车车费估算, 香港交通, 市区出租车, 新界出租车, 大屿山出租车, 自动定位, 海底隧道, 香港出租车多少钱, 机场出租车费用, 过海出租车, 打车费用",
     "breadcrumbHome": "首页",
     "offerCatalogName": "出租车车费计算服务"
   },
   "seo": {
     "dynamicTitle": {
-      "fromOnly": "由 {from} 出发出租车 | 香港出租车车费计算器 GPS 自动测距",
-      "fromTo": "由 {from} 到 {to} 出租车 | 香港出租车车费计算器 GPS 自动测距"
+      "fromOnly": "{from} 打车多少钱？| 香港出租车车费计算器",
+      "fromTo": "{from} 到 {to} 出租车车费 | 香港出租车车费计算器"
     }
   },
   "intro": {
@@ -166,7 +166,7 @@
     "distanceTooSmall": "距离必须大于 0.1 公里",
     "distanceTooLarge": "距离不能超过 200 公里。如需计算更长距离，请分段计算。",
     "distanceDifferenceWarning": "您输入的距离 ({manual} km) 与建议路线 ({auto} km) 相差超过 {percent}%。\n\n确定要使用此距离？",
-    "discountFare": "85折优惠",
+    "discountFare": "85折优惠（仅限计费器车费）",
     "meterFare": "计费器车费",
     "discountedFare": "85折后",
     "advancedOptions": "高级选项",

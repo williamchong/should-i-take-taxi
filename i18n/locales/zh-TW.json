@@ -1,6 +1,6 @@
 {
-  "title": "香港計程車車資計算器 GPS 自動測距",
-  "description": "自動定位及計算距離的智慧計程車車資計算器。只需選擇起點與目的地，無需估算或手動輸入距離，即刻獲得準確車資。",
+  "title": "香港計程車要多少錢？即時車資計算器",
+  "description": "搭計程車前先查車資。選擇起點與目的地，自動定位、自動計算距離，即刻獲得準確車資估算。",
   "loading": "載入中...",
   "theme": {
     "mode": {
@@ -23,14 +23,14 @@
     "serviceType": "交通計算器",
     "areaServedName": "香港",
     "areaServedAlternateName": "香港特別行政區",
-    "keywords": "香港計程車車資計算器, GPS自動測距, 自動計算距離, 計程車車資估算, 香港交通, 市區計程車, 新界計程車, 大嶼山計程車, 自動定位, 海底隧道",
+    "keywords": "香港計程車車資計算器, GPS自動測距, 自動計算距離, 計程車車資估算, 香港交通, 市區計程車, 新界計程車, 大嶼山計程車, 自動定位, 海底隧道, 香港計程車多少錢, 機場計程車費用, 過海計程車",
     "breadcrumbHome": "首頁",
     "offerCatalogName": "計程車車資計算服務"
   },
   "seo": {
     "dynamicTitle": {
-      "fromOnly": "由 {from} 出發計程車 | 香港計程車車資計算器 GPS 自動測距",
-      "fromTo": "由 {from} 到 {to} 計程車 | 香港計程車車資計算器 GPS 自動測距"
+      "fromOnly": "{from} 搭計程車多少錢？| 香港計程車車資計算器",
+      "fromTo": "{from} 到 {to} 計程車車資 | 香港計程車車資計算器"
     }
   },
   "intro": {
@@ -166,7 +166,7 @@
     "distanceTooSmall": "距離必須大於 0.1 公里",
     "distanceTooLarge": "距離不能超過 200 公里。如需計算更長距離，請分段計算。",
     "distanceDifferenceWarning": "您輸入的距離 ({manual} km) 與建議路線 ({auto} km) 相差超過 {percent}%。\n\n確定要使用此距離？",
-    "discountFare": "85 折優惠",
+    "discountFare": "85 折優惠（僅限計費器車資）",
     "meterFare": "計費器車資",
     "discountedFare": "85 折後",
     "advancedOptions": "進階選項",
