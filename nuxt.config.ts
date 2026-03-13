@@ -14,7 +14,8 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     'nuxt-gtag',
     '@nuxtjs/leaflet',
-    '@sentry/nuxt/module'
+    '@sentry/nuxt/module',
+    '@vite-pwa/nuxt',
   ],
 
   i18n: {
@@ -67,6 +68,7 @@ export default defineNuxtConfig({
     head: {
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
 
         { rel: 'preconnect', href: 'https://www.map.gov.hk', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: 'https://www.geodetic.gov.hk', crossorigin: 'anonymous' },
@@ -88,5 +90,28 @@ export default defineNuxtConfig({
 
   sourcemap: {
     client: 'hidden'
-  }
+  },
+
+  pwa: {
+    manifest: {
+      name: 'Should I Take Taxi?',
+      short_name: 'Taxi Fare',
+      description: 'Hong Kong taxi fare calculator with real-time route planning and fare estimation.',
+      theme_color: '#ffffff',
+      background_color: '#ffffff',
+      display: 'standalone',
+      icons: [
+        { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+        { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+        { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      ],
+    },
+    workbox: {
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
+    },
+    client: {
+      installPrompt: true,
+    },
+  },
 })

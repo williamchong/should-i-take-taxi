@@ -529,6 +529,9 @@ useIntersectionObserver(
 )
 
 onMounted(async () => {
+  window.addEventListener('appinstalled', () => {
+    useTrackEvent('pwa_app_installed')
+  })
   await parseQueryParams()
 })
 </script>

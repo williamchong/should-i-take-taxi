@@ -1,5 +1,6 @@
 <template>
   <div>
+    <NuxtPwaManifest />
     <slot />
   </div>
 </template>
