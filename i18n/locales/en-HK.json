@@ -148,7 +148,6 @@
     "startLocation": "Start Location",
     "endLocation": "End Location",
     "searchPlace": "Search place...",
-    "calculatedDistance": "Calculated Distance",
     "estimatedTime": "Estimated Time",
     "geolocationNotSupported": "Your browser does not support geolocation",
     "geolocationError": "Unable to get your location. Please check location permission",

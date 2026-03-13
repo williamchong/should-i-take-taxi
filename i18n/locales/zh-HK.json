@@ -148,7 +148,6 @@
     "startLocation": "起點",
     "endLocation": "終點",
     "searchPlace": "搜尋地點...",
-    "calculatedDistance": "預算距離",
     "estimatedTime": "預算時間",
     "geolocationNotSupported": "你的裝置唔支援地理定位功能",
     "geolocationError": "無法獲取你的位置，請檢查位置服務權限",

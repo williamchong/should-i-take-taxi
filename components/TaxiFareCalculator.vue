@@ -93,13 +93,18 @@
             </div>
           </div>
 
-          <div v-if="routeInfo.distance > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <div />
-            <div class="text-sm text-gray-700 dark:text-gray-300">
-              <p>{{ $t('taxiCalculator.calculatedDistance') }}: <span class="font-bold">{{ (routeInfo.distance /
-                  1000).toFixed(1) }}km</span></p>
-              <p>{{ $t('taxiCalculator.estimatedTime') }}: <span class="font-bold">{{ Math.round(routeInfo.time / 60) }}
-                  min</span></p>
+          <!-- Inline fare + time summary -->
+          <div v-if="totalFare > 0 || isCalculating" class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700/50">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('taxiCalculator.estimatedFare') }}</span>
+              <span v-if="isCalculating" class="text-lg font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                <span class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
+                {{ $t('taxiCalculator.calculatingFare') }}
+              </span>
+              <span v-else class="text-2xl font-bold text-blue-600 dark:text-blue-400">HK$ {{ totalFare.toFixed(2) }}</span>
+            </div>
+            <div v-if="!isCalculating && routeInfo.time > 0" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {{ $t('taxiCalculator.estimatedTime') }}: ~{{ Math.round(routeInfo.time / 60) }} min
             </div>
           </div>
         </div>
