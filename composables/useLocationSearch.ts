@@ -85,10 +85,26 @@ export function useLocationSearch() {
     }
   }
 
+  /** Ensure a cached entry has a coordinates array (precomputed entries omit it) */
+  const withCoordinates = (route: RouteInfo): RouteInfo =>
+    route.coordinates?.length ? route : { ...route, coordinates: [] }
+
+  /**
+   * Return cached route info (distance/time) synchronously if available.
+   * Used for instant fare display on precomputed SEO routes.
+   */
+  const getCachedRoute = (start: LocationResult, end: LocationResult): RouteInfo | null => {
+    const key = coordKey(start.x, start.y, end.x, end.y)
+    const cached = getCache<RouteInfo>('route_', key)
+    return cached?.distance ? withCoordinates(cached) : null
+  }
+
   const calculateDrivingDistance = async (start: LocationResult, end: LocationResult, signal?: AbortSignal): Promise<RouteInfo> => {
     const key = coordKey(start.x, start.y, end.x, end.y)
     const cached = getCache<RouteInfo>('route_', key)
-    if (cached) return cached
+
+    // If cache has full data (including polyline), return immediately
+    if (cached?.coordinates?.length) return cached
 
     try {
       const data = await $fetch(
@@ -108,6 +124,8 @@ export function useLocationSearch() {
       }
       throw new Error('No route found or invalid response from OSRM API')
     } catch (error) {
+      // If OSRM fails but we have partial cache (distance/time), return it
+      if (cached) return withCoordinates(cached)
       console.error('Error calculating distance:', error)
       throw error
     }
@@ -171,6 +189,7 @@ export function useLocationSearch() {
     searchLocation,
     transformCoordinates,
     calculateDrivingDistance,
+    getCachedRoute,
     getLocalizedAddress,
     reverseGeocode
   }

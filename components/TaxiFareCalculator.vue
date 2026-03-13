@@ -161,7 +161,7 @@ const props = defineProps<{
 const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput'])
 
 const { t } = useI18n()
-const { calculateDrivingDistance, reverseGeocode } = useLocationSearch()
+const { calculateDrivingDistance, getCachedRoute, reverseGeocode } = useLocationSearch()
 const { shouldAutoSelectCrossHarbour, suggestTaxiType: detectTaxiType } = useLocationDetection()
 
 const taxiType = ref<TaxiType>('urban')
@@ -352,6 +352,15 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: 'start
   }
 }
 
+// Apply distance/fare state from route result
+const applyRouteDistance = (result: { distance: number; time: number }) => {
+  autoCalculatedDistance.value = parseFloat((result.distance / 1000).toFixed(1))
+  if (!isManualOverride.value) {
+    distance.value = autoCalculatedDistance.value
+  }
+  suggestTaxiType()
+}
+
 // 重構計算距離函數
 const handleCalculateDistance = async () => {
   if (!selectedStartLocation.value || !selectedEndLocation.value) {
@@ -359,7 +368,18 @@ const handleCalculateDistance = async () => {
   }
   distanceAbort?.abort()
   const controller = distanceAbort = new AbortController()
-  isCalculatingDistance.value = true
+
+  // Phase 1: Try precomputed cache for instant fare (no polyline)
+  const cached = getCachedRoute(selectedStartLocation.value, selectedEndLocation.value)
+  if (cached) {
+    routeInfo.value = cached
+    applyRouteDistance(cached)
+    useTrackEvent('taxi_distance_cache_hit')
+  } else {
+    isCalculatingDistance.value = true
+  }
+
+  // Phase 2: Fetch full route from OSRM (for polyline, or if no cache)
   try {
     const result = await calculateDrivingDistance(
       selectedStartLocation.value,
@@ -368,21 +388,17 @@ const handleCalculateDistance = async () => {
     )
 
     routeInfo.value = result
-
-    // Update auto-calculated distance
-    autoCalculatedDistance.value = parseFloat((result.distance / 1000).toFixed(1))
-
-    // If user hasn't manually overridden, use auto-calculated
-    if (!isManualOverride.value) {
-      distance.value = autoCalculatedDistance.value
-    }
-
+    applyRouteDistance(result)
     emitLocations()
-    suggestTaxiType()
-    useTrackEvent('taxi_distance_auto_calculated')
+    if (!cached) useTrackEvent('taxi_distance_auto_calculated')
   } catch (error) {
     if (controller.signal.aborted) return
-    console.error('Error handling distance calculation:', error)
+    if (cached) {
+      // Cache hit but OSRM failed — emit with cached data (no polyline)
+      emitLocations()
+    } else {
+      console.error('Error handling distance calculation:', error)
+    }
   } finally {
     if (!controller.signal.aborted) {
       isCalculatingDistance.value = false
