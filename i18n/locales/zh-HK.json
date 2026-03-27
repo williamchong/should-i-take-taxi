@@ -31,6 +31,11 @@
     "dynamicTitle": {
       "fromOnly": "{from} 搭的士幾錢？| 香港的士車費計算器",
       "fromTo": "{from} 去 {to} 的士幾錢？| 香港的士車費計算器"
+    },
+    "dynamicDescription": {
+      "fromOnly": "計算由 {from} 出發嘅的士車費。涵蓋市區紅的、新界綠的同大嶼山藍的，包括隧道費、行李費同自動路線計算。",
+      "fromTo": "{from} 去 {to} 的士車費約 HK${fare}。涵蓋所有香港的士類型，包括隧道費、行李費同自動路線計算。",
+      "fromToNoFare": "計算 {from} 去 {to} 嘅的士車費。涵蓋市區紅的、新界綠的同大嶼山藍的，包括隧道費、行李費同路線計算。"
     }
   },
   "intro": {

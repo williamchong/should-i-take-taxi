@@ -176,6 +176,8 @@ import { useIntersectionObserver } from '@vueuse/core'
 import { useLocationSearch } from '@/composables/useLocationSearch'
 import { findLocationByCoordinates } from '@/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
+import { calculateTotalFare } from '~/utils/fareCalculation'
+import precomputedCache from '~/data/precomputed-cache.json'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -389,21 +391,48 @@ watch(
   }
 )
 
-// Dynamic page title
+// Precompute fare map once at module load (avoids recalculating on every reactive evaluation)
+const precomputedFares: Record<string, number> = {}
+for (const [key, route] of Object.entries(precomputedCache.routes)) {
+  precomputedFares[key] = calculateTotalFare({
+    distance: (route as { distance: number }).distance,
+    taxiType: 'urban',
+    selectedTunnels: [],
+    tunnelFeeType: 'oneWay',
+    isDiscountFare: false,
+    luggageCount: 0,
+  }).totalFare
+}
+
 const dynamicTitle = computed(() => {
   const start = selectedLocations.value.start
   const end = selectedLocations.value.end
 
   if (start && end) {
-    const fromName = start.displayAddress
-    const toName = end.displayAddress
-    return t('seo.dynamicTitle.fromTo', { from: fromName, to: toName })
+    return t('seo.dynamicTitle.fromTo', { from: start.displayAddress, to: end.displayAddress })
   } else if (start) {
-    const fromName = start.displayAddress
-    return t('seo.dynamicTitle.fromOnly', { from: fromName })
+    return t('seo.dynamicTitle.fromOnly', { from: start.displayAddress })
   }
 
-  return t('title') // fallback to static title
+  return t('title')
+})
+
+const dynamicDescription = computed(() => {
+  const start = selectedLocations.value.start
+  const end = selectedLocations.value.end
+
+  if (start && end) {
+    const key = `${start.x.toFixed(6)},${start.y.toFixed(6)},${end.x.toFixed(6)},${end.y.toFixed(6)}`
+    const fare = precomputedFares[key]
+    if (fare) {
+      return t('seo.dynamicDescription.fromTo', { from: start.displayAddress, to: end.displayAddress, fare: fare.toFixed(0) })
+    }
+    return t('seo.dynamicDescription.fromToNoFare', { from: start.displayAddress, to: end.displayAddress })
+  } else if (start) {
+    return t('seo.dynamicDescription.fromOnly', { from: start.displayAddress })
+  }
+
+  return t('description')
 })
 
 // Canonical URL
@@ -429,7 +458,9 @@ const canonicalUrl = computed(() => {
 // Page-level SEO (overrides layout)
 useSeoMeta({
   title: dynamicTitle,
-  ogTitle: dynamicTitle
+  ogTitle: dynamicTitle,
+  description: dynamicDescription,
+  ogDescription: dynamicDescription,
 })
 
 // API preloading when from/to coordinates are in URL

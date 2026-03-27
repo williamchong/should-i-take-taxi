@@ -31,6 +31,11 @@
     "dynamicTitle": {
       "fromOnly": "Taxi from {from} — How Much? | HK Taxi Fare Calculator",
       "fromTo": "{from} to {to} Taxi Fare | HK Taxi Fare Calculator"
+    },
+    "dynamicDescription": {
+      "fromOnly": "Calculate taxi fare from {from} in Hong Kong. Covers Urban Red, NT Green & Lantau Blue taxis with tunnel fees, luggage charges & real-time route calculation.",
+      "fromTo": "Estimated taxi fare from {from} to {to}: ~HK${fare}. Covers all HK taxi types with tunnel fees, luggage charges & automatic route calculation.",
+      "fromToNoFare": "Calculate taxi fare from {from} to {to} in Hong Kong. Covers Urban Red, NT Green & Lantau Blue taxis with tunnel fees, luggage charges & route calculation."
     }
   },
   "intro": {
