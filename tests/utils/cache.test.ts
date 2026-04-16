@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getCache, setCache } from '~/utils/cache'
+import { clearCache, getCache, setCache } from '~/utils/cache'
 
 describe('cache', () => {
   beforeEach(() => {
@@ -79,6 +79,27 @@ describe('cache', () => {
     expect(getCache(prefix, 'short')).toBeUndefined()
 
     vi.restoreAllMocks()
+  })
+
+  it('clearCache removes the entry from memory, localStorage, and the LRU index', () => {
+    const prefix = 'test_clear_'
+    setCache(prefix, 'a', 'A')
+    setCache(prefix, 'b', 'B')
+
+    clearCache(prefix, 'a')
+
+    expect(getCache(prefix, 'a')).toBeUndefined()
+    expect(localStorage.getItem(`${prefix}a`)).toBeNull()
+    const idx = JSON.parse(localStorage.getItem(`${prefix}__idx`) || '[]')
+    expect(idx).not.toContain('a')
+    expect(idx).toContain('b')
+
+    // Other entries are untouched
+    expect(getCache(prefix, 'b')).toBe('B')
+  })
+
+  it('clearCache is a no-op for missing keys', () => {
+    expect(() => clearCache('test_noop_', 'never-set')).not.toThrow()
   })
 
   it('serves from memory cache on subsequent gets', () => {

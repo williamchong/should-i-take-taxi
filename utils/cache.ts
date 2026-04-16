@@ -9,6 +9,18 @@ function isExpired(entry: CacheEntry<unknown>, now: number): boolean {
   return now - entry.t > (entry.e ?? CACHE_TTL)
 }
 
+function readIndex(prefix: string): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(`${prefix}__idx`) || '[]')
+  } catch {
+    return []
+  }
+}
+
+function writeIndex(prefix: string, keys: string[]): void {
+  localStorage.setItem(`${prefix}__idx`, JSON.stringify(keys))
+}
+
 export function getCache<T>(prefix: string, key: string): T | undefined {
   const fullKey = `${prefix}${key}`
   const now = Date.now()
@@ -39,6 +51,24 @@ export function getCache<T>(prefix: string, key: string): T | undefined {
   }
 }
 
+export function clearCache(prefix: string, key: string): void {
+  const fullKey = `${prefix}${key}`
+  memoryCache.delete(fullKey)
+
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(fullKey)
+
+    const keys = readIndex(prefix)
+    const i = keys.indexOf(key)
+    if (i === -1) return
+    keys.splice(i, 1)
+    writeIndex(prefix, keys)
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export function setCache<T>(prefix: string, key: string, value: T, ttl?: number): void {
   const fullKey = `${prefix}${key}`
   const entry: CacheEntry<T> = { d: value, t: Date.now() }
@@ -55,13 +85,7 @@ export function setCache<T>(prefix: string, key: string, value: T, ttl?: number)
 }
 
 function prunePrefix(prefix: string, newKey: string): void {
-  const indexKey = `${prefix}__idx`
-  let keys: string[]
-  try {
-    keys = JSON.parse(localStorage.getItem(indexKey) || '[]')
-  } catch {
-    keys = []
-  }
+  const keys = readIndex(prefix)
 
   const i = keys.indexOf(newKey)
   if (i !== -1) keys.splice(i, 1)
@@ -73,5 +97,5 @@ function prunePrefix(prefix: string, newKey: string): void {
     memoryCache.delete(`${prefix}${oldest}`)
   }
 
-  localStorage.setItem(indexKey, JSON.stringify(keys))
+  writeIndex(prefix, keys)
 }

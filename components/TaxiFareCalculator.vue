@@ -176,7 +176,7 @@ const props = defineProps<{
 const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput', 'update:transitInfo'])
 
 const { t } = useI18n()
-const { calculateDrivingDistance, getCachedRoute, calculateTransitRoute, reverseGeocode } = useLocationSearch()
+const { calculateDrivingDistance, getCachedRoute, clearRouteCache, calculateTransitRoute, clearTransitCache, reverseGeocode } = useLocationSearch()
 const { shouldAutoSelectCrossHarbour, suggestTaxiType: detectTaxiType } = useLocationDetection()
 
 const taxiType = ref<TaxiType>('urban')
@@ -638,6 +638,10 @@ const handleRefresh = async () => {
     routeInfo.value = { distance: 0, time: 0, coordinates: [] }
     transitAbort?.abort(); transitAbort = null
     emit('update:transitInfo', null)
+
+    // 清除快取以強制重新獲取最新路線及交通資料
+    clearRouteCache(selectedStartLocation.value, selectedEndLocation.value)
+    clearTransitCache(selectedStartLocation.value, selectedEndLocation.value)
 
     // 重新清除並檢測過海隧道
     selectedTunnels.value = selectedTunnels.value.filter(t => t !== 'crossHarbour')

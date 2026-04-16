@@ -1,7 +1,7 @@
 import { useI18n } from 'vue-i18n'
 import type { LocationResult } from '~/types/location'
 import type { TransitLeg } from '~/utils/transitValue'
-import { getCache, setCache } from '~/utils/cache'
+import { clearCache, getCache, setCache } from '~/utils/cache'
 
 interface RouteInfo {
   distance: number
@@ -121,6 +121,15 @@ export function useLocationSearch() {
     const key = coordKey(start.x, start.y, end.x, end.y)
     const cached = getCache<RouteInfo>('route_', key)
     return cached?.distance ? withCoordinates(cached) : null
+  }
+
+  const clearRouteCache = (start: LocationResult, end: LocationResult): void => {
+    clearCache('route_', coordKey(start.x, start.y, end.x, end.y))
+  }
+
+  const clearTransitCache = (start: LocationResult, end: LocationResult, localeOverride?: string): void => {
+    const mappedLocale = mapLocaleForTransit(localeOverride || locale.value)
+    clearCache('transit_', `${coordKey(start.y, start.x, end.y, end.x)}_${mappedLocale}`)
   }
 
   const calculateDrivingDistance = async (start: LocationResult, end: LocationResult, signal?: AbortSignal): Promise<RouteInfo> => {
@@ -248,7 +257,9 @@ export function useLocationSearch() {
     transformCoordinates,
     calculateDrivingDistance,
     getCachedRoute,
+    clearRouteCache,
     calculateTransitRoute,
+    clearTransitCache,
     getLocalizedAddress,
     reverseGeocode
   }
