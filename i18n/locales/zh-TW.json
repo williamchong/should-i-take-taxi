@@ -192,6 +192,8 @@
     "timeSaved": "搭計程車省約 {minutes} 分鐘",
     "costPerMinute": "每分鐘約 HK$ {cost}",
     "noTimeSaved": "公共交通可能與計程車差不多或更快",
+    "walkingTime": "步行 ~{min} 分鐘",
+    "waitingTime": "等候 ~{min} 分鐘",
     "poweredBy": "交通資料由 {link} 提供"
   }
 }

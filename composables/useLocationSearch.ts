@@ -1,5 +1,6 @@
 import { useI18n } from 'vue-i18n'
 import type { LocationResult } from '~/types/location'
+import type { TransitLeg } from '~/utils/transitValue'
 import { getCache, setCache } from '~/utils/cache'
 
 interface RouteInfo {
@@ -15,7 +16,7 @@ interface TransitPlan {
   fares_min?: number
   fares_max?: number
   currency?: string
-  legs: unknown[]
+  legs: TransitLeg[]
 }
 
 interface TransitResponse {

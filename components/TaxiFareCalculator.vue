@@ -156,6 +156,7 @@ import {
 } from '~/types/constants'
 import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
+import { summarizeTransitLegs } from '~/utils/transitValue'
 
 const props = defineProps<{
   initialStartLocation?: LocationResult | null
@@ -379,7 +380,15 @@ const handleCalculateTransit = async () => {
   transitAbort?.abort()
   const controller = transitAbort = new AbortController()
 
-  emit('update:transitInfo', { isCalculating: true })
+  emit('update:transitInfo', {
+    transitDurationSeconds: 0,
+    transitFareMin: 0,
+    transitFareMax: 0,
+    transitWalkSeconds: 0,
+    transitWaitSeconds: 0,
+    drivingTimeSeconds: routeInfo.value.time,
+    isCalculating: true,
+  })
 
   try {
     const result = await calculateTransitRoute(
@@ -393,10 +402,13 @@ const handleCalculateTransit = async () => {
 
     if (result?.plans?.length) {
       const fastest = result.plans[0]
+      const { walkSeconds, waitSeconds } = summarizeTransitLegs(fastest.legs ?? [])
       emit('update:transitInfo', {
         transitDurationSeconds: fastest.duration_seconds,
         transitFareMin: (fastest.fares_min ?? 0) / 100,
         transitFareMax: (fastest.fares_max ?? 0) / 100,
+        transitWalkSeconds: walkSeconds,
+        transitWaitSeconds: waitSeconds,
         drivingTimeSeconds: routeInfo.value.time,
         isCalculating: false,
       })

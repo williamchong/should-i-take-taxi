@@ -182,6 +182,11 @@
                   HK$ {{ transitData.transitFareMin.toFixed(2) }} – {{ transitData.transitFareMax.toFixed(2) }}
                 </template>
               </div>
+              <div v-if="transitWalkMinutes > 0 || transitWaitMinutes > 0" class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-tight">
+                <span v-if="transitWalkMinutes > 0">{{ $t('transitComparison.walkingTime', { min: transitWalkMinutes }) }}</span>
+                <span v-if="transitWalkMinutes > 0 && transitWaitMinutes > 0"> · </span>
+                <span v-if="transitWaitMinutes > 0">{{ $t('transitComparison.waitingTime', { min: transitWaitMinutes }) }}</span>
+              </div>
             </div>
           </div>
 
@@ -293,6 +298,8 @@ const transitData = ref<{
   transitDurationSeconds: number;
   transitFareMin: number;
   transitFareMax: number;
+  transitWalkSeconds: number;
+  transitWaitSeconds: number;
   drivingTimeSeconds: number;
   isCalculating: boolean;
 } | null>(null)
@@ -304,6 +311,16 @@ const hasSelectedLocations = computed(() =>
 const transitMinutesSaved = computed(() => {
   if (!transitData.value || transitData.value.isCalculating) return 0
   return Math.round((transitData.value.transitDurationSeconds - transitData.value.drivingTimeSeconds) / 60)
+})
+
+const transitWalkMinutes = computed(() => {
+  if (!transitData.value || transitData.value.isCalculating) return 0
+  return Math.round(transitData.value.transitWalkSeconds / 60)
+})
+
+const transitWaitMinutes = computed(() => {
+  if (!transitData.value || transitData.value.isCalculating) return 0
+  return Math.round(transitData.value.transitWaitSeconds / 60)
 })
 
 const transitCostPerMinute = computed(() => {

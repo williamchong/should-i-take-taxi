@@ -192,6 +192,8 @@
     "timeSaved": "搭的士慳大約 {minutes} 分鐘",
     "costPerMinute": "每分鐘大約 HK$ {cost}",
     "noTimeSaved": "公共交通可能同的士差唔多甚至仲快",
+    "walkingTime": "步行 ~{min} 分鐘",
+    "waitingTime": "等候 ~{min} 分鐘",
     "poweredBy": "交通數據由 {link} 提供"
   }
 }
