@@ -165,15 +165,15 @@
         <template v-else>
           <div class="grid grid-cols-2 gap-4 mb-4">
             <!-- Taxi column -->
-            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+            <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.taxiBg">
               <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ $t('transitComparison.taxi') }}</div>
-              <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ Math.round(transitData.drivingTimeSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
+              <div class="text-2xl font-bold" :class="tierClasses.taxiText">{{ Math.round(transitData.drivingTimeSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
               <div v-if="fareData" class="text-sm text-gray-600 dark:text-gray-400 mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
             </div>
             <!-- Public Transit column -->
-            <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+            <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.transitBg">
               <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ $t('transitComparison.publicTransit') }}</div>
-              <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ Math.round(transitData.transitDurationSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
+              <div class="text-2xl font-bold" :class="tierClasses.transitText">{{ Math.round(transitData.transitDurationSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
               <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 <template v-if="transitData.transitFareMin === transitData.transitFareMax">
                   HK$ {{ transitData.transitFareMin.toFixed(2) }}
@@ -196,8 +196,8 @@
               <p class="font-medium text-gray-900 dark:text-gray-100">
                 {{ $t('transitComparison.timeSaved', { minutes: transitMinutesSaved }) }}
               </p>
-              <p v-if="transitCostPerMinute" class="mt-1">
-                {{ $t('transitComparison.costPerMinute', { cost: transitCostPerMinute }) }}
+              <p v-if="transitCostPerHour" class="mt-1">
+                {{ $t('transitComparison.costPerHour', { cost: transitCostPerHour }) }}
               </p>
             </template>
             <p v-else class="font-medium text-gray-900 dark:text-gray-100">
@@ -246,6 +246,7 @@ import { useLocationSearch } from '@/composables/useLocationSearch'
 import { findLocationByCoordinates } from '@/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
+import { getTaxiValueTier, getTierClasses } from '~/utils/transitValue'
 import precomputedCache from '~/data/precomputed-cache.json'
 
 const { t, locale } = useI18n()
@@ -323,12 +324,24 @@ const transitWaitMinutes = computed(() => {
   return Math.round(transitData.value.transitWaitSeconds / 60)
 })
 
-const transitCostPerMinute = computed(() => {
+const transitCostPerHour = computed(() => {
   if (!fareData.value || !transitData.value || transitMinutesSaved.value <= 0) return null
   const taxiFareDiff = fareData.value.totalFare - transitData.value.transitFareMin
   if (taxiFareDiff <= 0) return null
-  return (taxiFareDiff / transitMinutesSaved.value).toFixed(1)
+  return Math.round((taxiFareDiff / transitMinutesSaved.value) * 60)
 })
+
+const taxiValueTier = computed(() => {
+  if (!fareData.value || !transitData.value || transitData.value.isCalculating) return null
+  return getTaxiValueTier({
+    taxiFare: fareData.value.totalFare,
+    taxiTimeSeconds: transitData.value.drivingTimeSeconds,
+    transitFareMin: transitData.value.transitFareMin,
+    transitTimeSeconds: transitData.value.transitDurationSeconds,
+  })
+})
+
+const tierClasses = computed(() => getTierClasses(taxiValueTier.value))
 
 function updateLocations(locations: { start: LocationResult | null; end: LocationResult | null, coordinates: [number, number][] }) {
   selectedLocations.value = locations

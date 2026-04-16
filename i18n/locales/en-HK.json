@@ -190,7 +190,7 @@
     "publicTransit": "Public Transit",
     "min": "min",
     "timeSaved": "Taking a taxi saves ~{minutes} min",
-    "costPerMinute": "~HK$ {cost} per minute saved",
+    "costPerHour": "HK$ {cost} per hour saved",
     "noTimeSaved": "Public transit may be comparable or faster for this route",
     "walkingTime": "~{min} min walking",
     "waitingTime": "~{min} min waiting",
