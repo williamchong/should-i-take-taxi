@@ -651,7 +651,7 @@ useHead(() => {
       )
 
       // Preload specific OSRM routing request
-      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${fromCoords.lng},${fromCoords.lat};${toCoords.lng},${toCoords.lat}?overview=full&geometries=geojson`
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${fromCoords.lng},${fromCoords.lat};${toCoords.lng},${toCoords.lat}?overview=simplified&geometries=geojson`
       links.push({
         rel: 'preload',
         as: 'fetch',

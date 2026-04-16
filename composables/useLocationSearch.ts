@@ -141,7 +141,7 @@ export function useLocationSearch() {
 
     try {
       const data = await $fetch(
-        `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=full&geometries=geojson`,
+        `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=simplified&geometries=geojson`,
         { signal }
       ) as { code: string; routes: { distance: number; duration: number; geometry: { coordinates: [number, number][] } }[] }
 
