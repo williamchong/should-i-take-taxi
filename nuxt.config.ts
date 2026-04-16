@@ -92,6 +92,15 @@ export default defineNuxtConfig({
     client: 'hidden'
   },
 
+  // Tree-shake Sentry's tracing and debug code from the client bundle.
+  // https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/
+  vite: {
+    define: {
+      __SENTRY_DEBUG__: false,
+      __SENTRY_TRACING__: false,
+    },
+  },
+
   pwa: {
     manifest: {
       name: 'Should I Take Taxi?',
