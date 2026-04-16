@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { watchImmediate } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useLocationSearch } from '../composables/useLocationSearch'
@@ -429,7 +429,7 @@ const handleCalculateDistance = async () => {
     isCalculatingDistance.value = true
   }
 
-  // Phase 2: Fetch full route from OSRM (for polyline, or if no cache)
+  let osrmSucceeded = false
   try {
     const result = await calculateDrivingDistance(
       selectedStartLocation.value,
@@ -439,23 +439,22 @@ const handleCalculateDistance = async () => {
 
     routeInfo.value = result
     applyRouteDistance(result)
-    emitLocations()
     if (!cached) useTrackEvent('taxi_distance_auto_calculated')
-
-    // Fire-and-forget transit comparison (non-blocking)
-    handleCalculateTransit()
+    osrmSucceeded = true
   } catch (error) {
     if (controller.signal.aborted) return
-    if (cached) {
-      // Cache hit but OSRM failed — emit with cached data (no polyline)
-      emitLocations()
-    } else {
-      console.error('Error handling distance calculation:', error)
-    }
+    if (!cached) console.error('Error handling distance calculation:', error)
   } finally {
     if (!controller.signal.aborted) {
       isCalculatingDistance.value = false
     }
+  }
+
+  if (controller.signal.aborted) return
+
+  if (osrmSucceeded || cached) {
+    emitLocations()
+    handleCalculateTransit()
   }
 }
 
@@ -635,6 +634,13 @@ watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as c
   if (locationsChanged) {
     emitLocations()
   }
+})
+
+onUnmounted(() => {
+  distanceAbort?.abort()
+  startGeocodeAbort?.abort()
+  endGeocodeAbort?.abort()
+  transitAbort?.abort()
 })
 
 // 在組件掛載時追蹤計程車計算器打開事件，並嘗試獲取用戶位置
