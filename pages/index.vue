@@ -239,7 +239,6 @@ import LogoEn from '@/assets/images/nobody_got_time.jpg'
 import LogoEnWebp from '@/assets/images/nobody_got_time.webp'
 import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
-import MapDisplay from '@/components/MapDisplay.vue'
 import type { LocationResult } from '@/types/location'
 import { useIntersectionObserver } from '@vueuse/core'
 import { useLocationSearch } from '@/composables/useLocationSearch'
@@ -248,6 +247,8 @@ import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
 import { getTaxiValueTier, getTierClasses } from '~/utils/transitValue'
 import precomputedCache from '~/data/precomputed-cache.json'
+
+const MapDisplay = defineAsyncComponent(() => import('@/components/MapDisplay.vue'))
 
 const { t, locale } = useI18n()
 const route = useRoute()
