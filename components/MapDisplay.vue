@@ -16,6 +16,7 @@
         :min-zoom="MAP_CONSTANTS.MIN_ZOOM"
         :max-zoom="MAP_CONSTANTS.MAX_ZOOM"
         @ready="onMapReady"
+        @mousedown="handleMapMouseDown"
         @click="handleMapClick"
       >
         <LTileLayer
@@ -103,7 +104,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'marker-dragged': [{ type: 'start' | 'end', latitude: number, longitude: number }]
-  'map-clicked': [{ latitude: number, longitude: number }]
+  'map-clicked': [{ latitude: number, longitude: number, target: 'start' | 'end' }]
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -196,15 +197,24 @@ const onMapReady = () => {
   }
 }
 
-// Handle map click to set location
-const handleMapClick = (event: any) => {
-  // Only emit if an input is focused and its corresponding marker doesn't exist
-  const canSetStart = props.focusedInput === 'start' && !props.startLocation
-  const canSetEnd = props.focusedInput === 'end' && !props.endLocation
+// Snapshot focusedInput on mousedown — by the time click fires, the input's
+// blur has already reset focusedInput to null.
+let focusedInputAtMouseDown: 'start' | 'end' | null = null
 
-  if (canSetStart || canSetEnd) {
+const handleMapMouseDown = () => {
+  focusedInputAtMouseDown = props.focusedInput ?? null
+}
+
+// Handle map click to set location — only emit if an input was focused at
+// mousedown and its corresponding marker doesn't already exist.
+const handleMapClick = (event: any) => {
+  const target = focusedInputAtMouseDown
+  if (
+    (target === 'start' && !props.startLocation) ||
+    (target === 'end' && !props.endLocation)
+  ) {
     const { lat, lng } = event.latlng
-    emit('map-clicked', { latitude: lat, longitude: lng })
+    emit('map-clicked', { latitude: lat, longitude: lng, target })
   }
 }
 

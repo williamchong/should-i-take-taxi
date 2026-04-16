@@ -364,10 +364,10 @@ function handleMarkerDragged(event: { type: 'start' | 'end', latitude: number, l
 }
 
 // Handle map click event from MapDisplay
-function handleMapClick(event: { latitude: number, longitude: number }) {
+function handleMapClick(event: { latitude: number, longitude: number, target: 'start' | 'end' }) {
   // Call the exposed method on TaxiFareCalculator
   if (taxiFareCalculatorRef.value) {
-    taxiFareCalculatorRef.value.handleMapClick(event.latitude, event.longitude)
+    taxiFareCalculatorRef.value.handleMapClick(event.latitude, event.longitude, event.target)
   }
 }
 

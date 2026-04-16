@@ -758,10 +758,12 @@ watch(focusedInput, (newValue) => {
   emit('update:focusedInput', newValue)
 })
 
-// Handle map click to set location
-const handleMapClick = async (latitude: number, longitude: number) => {
+// Handle map click to set location.
+// `target` is the input that was focused when the map mousedown fired —
+// the input's blur fires before click, so we can't rely on focusedInput here.
+const handleMapClick = async (latitude: number, longitude: number, target: 'start' | 'end') => {
   // Only set location if the corresponding marker doesn't exist
-  if (focusedInput.value === 'start' && !selectedStartLocation.value) {
+  if (target === 'start' && !selectedStartLocation.value) {
     const tempLocation = createFallbackLocation(latitude, longitude)
     selectedStartLocation.value = tempLocation
     startLocationSearch.value = tempLocation.displayAddress
@@ -791,7 +793,7 @@ const handleMapClick = async (latitude: number, longitude: number) => {
         endLocationSearchRef.value?.focus({ preventScroll: true })
       })
     }
-  } else if (focusedInput.value === 'end' && !selectedEndLocation.value) {
+  } else if (target === 'end' && !selectedEndLocation.value) {
     const tempLocation = createFallbackLocation(latitude, longitude)
     selectedEndLocation.value = tempLocation
     endLocationSearch.value = tempLocation.displayAddress
