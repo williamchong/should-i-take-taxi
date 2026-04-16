@@ -235,7 +235,7 @@ export function useLocationSearch() {
         origin: `${start.y},${start.x}`,
         destination: `${end.y},${end.x}`,
         locale: mappedLocale,
-        max_results: '5',
+        max_results: '1',
       })}`
       const data = await $fetch<TransitResponse>(
         `https://proxy.scalar.com/?scalar_url=${encodeURIComponent(targetUrl)}`,
