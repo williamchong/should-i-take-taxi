@@ -1,9 +1,13 @@
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
 const CACHE_MAX_ENTRIES = 50
 
-interface CacheEntry<T> { d: T; t: number }
+interface CacheEntry<T> { d: T; t: number; e?: number }
 
 const memoryCache = new Map<string, CacheEntry<unknown>>()
+
+function isExpired(entry: CacheEntry<unknown>, now: number): boolean {
+  return now - entry.t > (entry.e ?? CACHE_TTL)
+}
 
 export function getCache<T>(prefix: string, key: string): T | undefined {
   const fullKey = `${prefix}${key}`
@@ -11,7 +15,7 @@ export function getCache<T>(prefix: string, key: string): T | undefined {
 
   const mem = memoryCache.get(fullKey)
   if (mem) {
-    if (now - mem.t > CACHE_TTL) {
+    if (isExpired(mem, now)) {
       memoryCache.delete(fullKey)
       try { localStorage.removeItem(fullKey) } catch { /* ignore */ }
       return undefined
@@ -24,7 +28,7 @@ export function getCache<T>(prefix: string, key: string): T | undefined {
     const stored = localStorage.getItem(fullKey)
     if (!stored) return undefined
     const entry = JSON.parse(stored) as CacheEntry<T>
-    if (now - entry.t > CACHE_TTL) {
+    if (isExpired(entry, now)) {
       localStorage.removeItem(fullKey)
       return undefined
     }
@@ -35,9 +39,10 @@ export function getCache<T>(prefix: string, key: string): T | undefined {
   }
 }
 
-export function setCache<T>(prefix: string, key: string, value: T): void {
+export function setCache<T>(prefix: string, key: string, value: T, ttl?: number): void {
   const fullKey = `${prefix}${key}`
   const entry: CacheEntry<T> = { d: value, t: Date.now() }
+  if (ttl !== undefined) entry.e = ttl
   memoryCache.set(fullKey, entry as CacheEntry<unknown>)
 
   if (typeof window === 'undefined') return

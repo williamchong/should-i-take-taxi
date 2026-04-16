@@ -31,6 +31,9 @@ function mapLocaleForTransit(locale: string): string {
 
 const CACHE_KEY_PREFIX = 'location_search_'
 
+// Transit plans embed real-time departures/waits, so override the global cache TTL.
+const TRANSIT_CACHE_TTL_MS = 2 * 60 * 1000
+
 function coordKey(...nums: number[]): string {
   return nums.map(n => n.toFixed(6)).join(',')
 }
@@ -231,7 +234,7 @@ export function useLocationSearch() {
       )
 
       if (data?.plans) {
-        setCache('transit_', key, data)
+        setCache('transit_', key, data, TRANSIT_CACHE_TTL_MS)
         return data
       }
       return null

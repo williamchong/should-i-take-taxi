@@ -63,6 +63,24 @@ describe('cache', () => {
     expect(parsed.d).toBe(42)
   })
 
+  it('honors a per-entry ttl override', () => {
+    const prefix = 'test_ttl_'
+    const now = Date.now()
+
+    vi.spyOn(Date, 'now').mockReturnValue(now)
+    setCache(prefix, 'short', 'value', 60 * 1000) // 1 minute
+
+    // Still fresh after 30s
+    vi.spyOn(Date, 'now').mockReturnValue(now + 30 * 1000)
+    expect(getCache(prefix, 'short')).toBe('value')
+
+    // Expired after 2 minutes (well under the 7-day default)
+    vi.spyOn(Date, 'now').mockReturnValue(now + 2 * 60 * 1000)
+    expect(getCache(prefix, 'short')).toBeUndefined()
+
+    vi.restoreAllMocks()
+  })
+
   it('serves from memory cache on subsequent gets', () => {
     const prefix = 'test_mem_'
     setCache(prefix, 'memkey', 'memvalue')
