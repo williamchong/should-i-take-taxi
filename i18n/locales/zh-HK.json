@@ -190,6 +190,7 @@
     "publicTransit": "公共交通",
     "min": "分鐘",
     "timeSaved": "搭的士慳大約 {minutes} 分鐘",
+    "timeSavedShort": "比公共交通慳 {minutes} 分鐘",
     "costPerHour": "每節省 1 小時 HK$ {cost}",
     "noTimeSaved": "公共交通可能同的士差唔多甚至仲快",
     "walkingTime": "步行 ~{min} 分鐘",

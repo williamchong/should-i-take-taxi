@@ -93,18 +93,27 @@
             </div>
           </div>
 
-          <!-- Inline fare + time summary -->
-          <div v-if="totalFare > 0 || isCalculating" class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700/50">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('taxiCalculator.estimatedFare') }}</span>
+          <div v-if="totalFare > 0 || isCalculating" class="mt-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700/50">
+            <a
+              href="#taxi-fare-detail"
+              class="flex items-center justify-between group"
+              :title="$t('taxiCalculator.viewDetails')"
+              @click="useTrackEvent('inline_summary_taxi_fare_clicked')"
+            >
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:underline">{{ $t('taxiCalculator.estimatedFare') }}</span>
               <span v-if="isCalculating" class="text-lg font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
                 <span class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
                 {{ $t('taxiCalculator.calculatingFare') }}
               </span>
-              <span v-else class="text-2xl font-bold text-blue-600 dark:text-blue-400">HK$ {{ totalFare.toFixed(2) }}</span>
-            </div>
-            <div v-if="!isCalculating && routeInfo.time > 0" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {{ $t('taxiCalculator.estimatedTime') }}: ~{{ Math.round(routeInfo.time / 60) }} min
+              <span v-else class="text-2xl font-bold text-blue-600 dark:text-blue-400 group-hover:underline">HK$ {{ totalFare.toFixed(2) }}</span>
+            </a>
+            <div v-if="!isCalculating && routeInfo.time > 0" class="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+              ~{{ Math.round(routeInfo.time / 60) }} {{ $t('transitComparison.min') }}<template v-if="transitMinutesSaved > 0"> · <a
+                href="#transit-detail"
+                :class="transitSavingsLinkClass"
+                :title="$t('taxiCalculator.viewDetails')"
+                @click="useTrackEvent('inline_summary_transit_clicked', { tier: taxiValueTier })"
+              >{{ $t('transitComparison.timeSavedShort', { minutes: transitMinutesSaved }) }}</a></template>
             </div>
           </div>
         </div>
@@ -156,7 +165,7 @@ import {
 } from '~/types/constants'
 import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
-import { summarizeTransitLegs } from '~/utils/transitValue'
+import { getTaxiValueTier, getTierClasses, summarizeTransitLegs } from '~/utils/transitValue'
 
 const props = defineProps<{
   initialStartLocation?: LocationResult | null
@@ -189,6 +198,15 @@ const selectedEndLocation = ref<LocationResult | null>(null)
 const isCalculatingDistance = ref(false)
 const isGettingLocation = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
+const transitInfo = ref<{
+  transitDurationSeconds: number
+  transitFareMin: number
+  transitFareMax: number
+  transitWalkSeconds: number
+  transitWaitSeconds: number
+  drivingTimeSeconds: number
+  isCalculating: boolean
+} | null>(null)
 const focusedInput = ref<'start' | 'end' | null>(null)
 
 // 距離編輯相關
@@ -235,6 +253,7 @@ const selectLocation = async (type: 'start' | 'end', location: LocationResult | 
   // Clear transit info and abort any in-flight transit request
   transitAbort?.abort()
   transitAbort = null
+  transitInfo.value = null
   emit('update:transitInfo', null)
 
   // Reset distance and auto-calculated distance when location is cleared
@@ -278,6 +297,23 @@ const emitLocations = () => {
 const canCalculateDistance = computed(() => {
   return selectedStartLocation.value && selectedEndLocation.value
 })
+
+const transitMinutesSaved = computed(() => {
+  if (!transitInfo.value || transitInfo.value.isCalculating) return 0
+  return Math.round((transitInfo.value.transitDurationSeconds - transitInfo.value.drivingTimeSeconds) / 60)
+})
+
+const taxiValueTier = computed(() => {
+  if (!transitInfo.value || transitInfo.value.isCalculating || totalFare.value <= 0) return null
+  return getTaxiValueTier({
+    taxiFare: totalFare.value,
+    taxiTimeSeconds: routeInfo.value.time,
+    transitFareMin: transitInfo.value.transitFareMin,
+    transitTimeSeconds: transitInfo.value.transitDurationSeconds,
+  })
+})
+
+const transitSavingsLinkClass = computed(() => `${getTierClasses(taxiValueTier.value).savingsText} hover:underline`)
 
 // Suggest taxi type based on route
 const suggestTaxiType = () => {
@@ -380,7 +416,7 @@ const handleCalculateTransit = async () => {
   transitAbort?.abort()
   const controller = transitAbort = new AbortController()
 
-  emit('update:transitInfo', {
+  const loadingPayload = {
     transitDurationSeconds: 0,
     transitFareMin: 0,
     transitFareMax: 0,
@@ -388,7 +424,9 @@ const handleCalculateTransit = async () => {
     transitWaitSeconds: 0,
     drivingTimeSeconds: routeInfo.value.time,
     isCalculating: true,
-  })
+  }
+  transitInfo.value = loadingPayload
+  emit('update:transitInfo', loadingPayload)
 
   try {
     const result = await calculateTransitRoute(
@@ -403,7 +441,7 @@ const handleCalculateTransit = async () => {
     if (result?.plans?.length) {
       const fastest = result.plans[0]
       const { walkSeconds, waitSeconds } = summarizeTransitLegs(fastest.legs ?? [])
-      emit('update:transitInfo', {
+      const payload = {
         transitDurationSeconds: fastest.duration_seconds,
         transitFareMin: (fastest.fares_min ?? 0) / 100,
         transitFareMax: (fastest.fares_max ?? 0) / 100,
@@ -411,13 +449,17 @@ const handleCalculateTransit = async () => {
         transitWaitSeconds: waitSeconds,
         drivingTimeSeconds: routeInfo.value.time,
         isCalculating: false,
-      })
+      }
+      transitInfo.value = payload
+      emit('update:transitInfo', payload)
       useTrackEvent('transit_comparison_loaded')
     } else {
+      transitInfo.value = null
       emit('update:transitInfo', null)
     }
   } catch {
     if (controller.signal.aborted) return
+    transitInfo.value = null
     emit('update:transitInfo', null)
     useTrackEvent('transit_comparison_error')
   }
