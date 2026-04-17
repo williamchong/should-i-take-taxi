@@ -3,10 +3,15 @@ import { getCache, setCache } from '~/utils/cache'
 /**
  * Seeds the route and geocode caches with precomputed data for popular
  * sitemap routes, so SEO landing pages render fares instantly without
- * waiting for OSRM / Nominatim API responses.
+ * waiting for OSRM / Nominatim API responses. The seeded entries are
+ * also read by pages/index.vue's dynamicDescription computed to embed
+ * the fare in the SEO meta tag on /?from=X&to=Y URLs.
  *
- * Uses a version sentinel so seeding only runs once per data revision.
- * Dynamic import keeps the JSON out of the main bundle.
+ * Dynamic import puts the ~19KB JSON in its own chunk, loaded once on
+ * first visit. Subsequent visits skip via the version sentinel, so the
+ * chunk is never fetched again until the data revision changes. Nuxt
+ * awaits this async plugin before mounting, so the cache is populated
+ * before dynamicDescription first evaluates.
  */
 
 const SEED_VERSION = '1' // bump when precompute-routes is re-run

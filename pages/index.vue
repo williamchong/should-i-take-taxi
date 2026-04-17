@@ -246,14 +246,13 @@ import { findLocationByCoordinates } from '@/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
 import { getTaxiValueTier, getTierClasses } from '~/utils/transitValue'
-import precomputedCache from '~/data/precomputed-cache.json'
 
 const MapDisplay = defineAsyncComponent(() => import('@/components/MapDisplay.vue'))
 
 const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { reverseGeocode } = useLocationSearch()
+const { reverseGeocode, getCachedRoute } = useLocationSearch()
 const { gtag } = useGtag()
 const { url: siteUrl } = useSiteConfig()
 
@@ -510,19 +509,6 @@ watch(
   }
 )
 
-// Precompute fare map once at module load (avoids recalculating on every reactive evaluation)
-const precomputedFares: Record<string, number> = {}
-for (const [key, route] of Object.entries(precomputedCache.routes)) {
-  precomputedFares[key] = calculateTotalFare({
-    distance: (route as { distance: number }).distance,
-    taxiType: 'urban',
-    selectedTunnels: [],
-    tunnelFeeType: 'oneWay',
-    isDiscountFare: false,
-    luggageCount: 0,
-  }).totalFare
-}
-
 const dynamicTitle = computed(() => {
   const start = selectedLocations.value.start
   const end = selectedLocations.value.end
@@ -541,9 +527,16 @@ const dynamicDescription = computed(() => {
   const end = selectedLocations.value.end
 
   if (start && end) {
-    const key = `${start.x.toFixed(6)},${start.y.toFixed(6)},${end.x.toFixed(6)},${end.y.toFixed(6)}`
-    const fare = precomputedFares[key]
-    if (fare) {
+    const cachedRoute = getCachedRoute(start, end)
+    if (cachedRoute) {
+      const fare = calculateTotalFare({
+        distance: cachedRoute.distance,
+        taxiType: 'urban',
+        selectedTunnels: [],
+        tunnelFeeType: 'oneWay',
+        isDiscountFare: false,
+        luggageCount: 0,
+      }).totalFare
       return t('seo.dynamicDescription.fromTo', { from: start.displayAddress, to: end.displayAddress, fare: fare.toFixed(0) })
     }
     return t('seo.dynamicDescription.fromToNoFare', { from: start.displayAddress, to: end.displayAddress })
