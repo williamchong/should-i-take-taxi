@@ -240,7 +240,7 @@ import LogoEnWebp from '@/assets/images/nobody_got_time.webp'
 import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import type { LocationResult } from '@/types/location'
-import { useIntersectionObserver } from '@vueuse/core'
+import { useEventListener, useIntersectionObserver } from '@vueuse/core'
 import { useLocationSearch } from '@/composables/useLocationSearch'
 import { findLocationByCoordinates } from '@/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
@@ -674,9 +674,8 @@ useIntersectionObserver(
 )
 
 onMounted(async () => {
-  window.addEventListener('appinstalled', () => {
-    useTrackEvent('pwa_app_installed')
-  })
+  useEventListener(window, 'appinstalled', () => useTrackEvent('pwa_app_installed'))
+  useEventListener(window, 'beforeinstallprompt', () => useTrackEvent('pwa_install_prompt_available'))
   await parseQueryParams()
 })
 </script>

@@ -83,7 +83,7 @@ const emit = defineEmits<{
 
 const handleChange = (value: TaxiType) => {
   modelValue.value = value
-  useTrackEvent('taxi_type_selected')
+  useTrackEvent(`taxi_type_selected_${value}`)
 }
 
 const handleAcceptSuggestion = () => {

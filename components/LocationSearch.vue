@@ -56,7 +56,7 @@
             :key="`${id}-recent-${index}`"
             class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-900 dark:text-gray-100"
             @mousedown.prevent
-            @click="handleSelect(result)"
+            @click="handleSelect(result, 'recent')"
           >
             {{ result.displayAddress }}
           </li>
@@ -68,7 +68,7 @@
           :key="`${id}-${index}`"
           class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-900 dark:text-gray-100"
           @mousedown.prevent
-          @click="handleSelect(result)"
+          @click="handleSelect(result, 'search')"
         >
           {{ result.displayAddress }}
         </li>
@@ -171,7 +171,7 @@ const debounceSearch = () => {
   debouncedSearch()
 }
 
-const handleSelect = async (location: LocationResult) => {
+const handleSelect = async (location: LocationResult, source: 'search' | 'recent') => {
   searchText.value = location.displayAddress
   lastCommittedValue.value = location.displayAddress
   emit('update:modelValue', location.displayAddress)
@@ -182,7 +182,7 @@ const handleSelect = async (location: LocationResult) => {
 
   try {
     const transformedLocation = await transformCoordinates(location)
-    emit('select', transformedLocation)
+    emit('select', transformedLocation, source)
 
     // Save to recent locations
     addRecentLocation(location)

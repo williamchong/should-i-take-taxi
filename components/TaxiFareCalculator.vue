@@ -240,7 +240,7 @@ const autoSelectCrossHarbourTunnel = () => {
   }
 }
 
-const selectLocation = async (type: 'start' | 'end', location: LocationResult | null) => {
+const selectLocation = async (type: 'start' | 'end', location: LocationResult | null, source?: 'search' | 'recent') => {
   // Abort any in-flight geocoding for this slot
   if (type === 'start') { startGeocodeAbort?.abort(); startGeocodeAbort = null }
   else { endGeocodeAbort?.abort(); endGeocodeAbort = null }
@@ -263,7 +263,7 @@ const selectLocation = async (type: 'start' | 'end', location: LocationResult | 
     isManualOverride.value = false
   }
 
-  useTrackEvent(`taxi_${type}_location_selected`)
+  useTrackEvent(source ? `taxi_${type}_location_selected_${source}` : `taxi_${type}_location_selected`)
 
   // Auto-select Cross Harbour Tunnel if needed
   if (location && otherLocationRef.value) {
@@ -283,8 +283,8 @@ const selectLocation = async (type: 'start' | 'end', location: LocationResult | 
   }
 }
 
-const selectStartLocation = (location: LocationResult | null) => selectLocation('start', location)
-const selectEndLocation = (location: LocationResult | null) => selectLocation('end', location)
+const selectStartLocation = (location: LocationResult | null, source?: 'search' | 'recent') => selectLocation('start', location, source)
+const selectEndLocation = (location: LocationResult | null, source?: 'search' | 'recent') => selectLocation('end', location, source)
 
 const emitLocations = () => {
   emit('update:locations', {
@@ -378,12 +378,11 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: 'start
       if (type === 'start') {
         selectedStartLocation.value = location
         startLocationSearch.value = location.displayAddress
-        useTrackEvent('taxi_start_location_dragged')
       } else {
         selectedEndLocation.value = location
         endLocationSearch.value = location.displayAddress
-        useTrackEvent('taxi_end_location_dragged')
       }
+      useTrackEvent(`taxi_marker_drag_geocoded_${type}`)
 
       // Emit updated location to parent
       emitLocations()
@@ -452,7 +451,7 @@ const handleCalculateTransit = async () => {
       }
       transitInfo.value = payload
       emit('update:transitInfo', payload)
-      useTrackEvent('transit_comparison_loaded')
+      useTrackEvent(`transit_comparison_loaded_${taxiValueTier.value ?? 'unknown'}`)
     } else {
       transitInfo.value = null
       emit('update:transitInfo', null)

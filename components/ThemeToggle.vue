@@ -58,7 +58,5 @@ const tooltipText = computed(() => {
 
 const handleToggle = () => {
   cycleTheme()
-  const { gtag } = useGtag()
-  gtag('event', 'theme_toggle_clicked', { to: themePreference.value })
 }
 </script>

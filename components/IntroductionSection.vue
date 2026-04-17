@@ -84,14 +84,16 @@ import {
   MapIcon,
   ClockIcon,
   CurrencyDollarIcon,
-  PencilSquareIcon
+  PencilSquareIcon,
+  ArrowsRightLeftIcon
 } from '@heroicons/vue/24/outline'
 
 const featureIcons = [
   CalculatorIcon,
   MapIcon,
   ClockIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  ArrowsRightLeftIcon
 ]
 
 

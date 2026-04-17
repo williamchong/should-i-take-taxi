@@ -47,10 +47,7 @@ export const useDarkMode = () => {
   const setThemePreference = (mode: ThemeMode) => {
     themePreference.value = mode
     applyTheme()
-
-    // Track theme change event
-    const { gtag } = useGtag()
-    gtag('event', 'theme_preference_changed', { mode })
+    useTrackEvent(`theme_preference_changed_${mode}`)
   }
 
   // Cycle: system → light → dark → system

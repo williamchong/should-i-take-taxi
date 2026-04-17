@@ -70,6 +70,10 @@
         {
           "title": "Complete Cost Breakdown",
           "description": "See detailed breakdown of all charges including tunnels, luggage, and surcharges"
+        },
+        {
+          "title": "Taxi vs Public Transit Comparison",
+          "description": "Compare taxi time and cost side-by-side with public transit to see if the taxi is worth the extra spend"
         }
       ]
     },

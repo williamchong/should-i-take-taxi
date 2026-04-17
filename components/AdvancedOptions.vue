@@ -179,7 +179,7 @@ const handleTunnelChange = (tunnelId: TunnelId, event: Event) => {
   selectedTunnels.value = target.checked
     ? [...selectedTunnels.value, tunnelId]
     : selectedTunnels.value.filter(id => id !== tunnelId)
-  useTrackEvent('taxi_tunnel_selected')
+  useTrackEvent(`taxi_tunnel_${target.checked ? 'added' : 'removed'}_${tunnelId}`)
 }
 
 const handleTunnelFeeTypeChange = (value: 'oneWay' | 'return') => {
