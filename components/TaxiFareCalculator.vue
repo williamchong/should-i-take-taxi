@@ -152,7 +152,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { watchImmediate } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
-import { useLocationSearch } from '../composables/useLocationSearch'
+import { coordKey, useLocationSearch } from '../composables/useLocationSearch'
 import { useLocationDetection } from '../composables/useLocationDetection'
 import LocationSearch from './LocationSearch.vue'
 import TaxiTypeSelector from './TaxiTypeSelector.vue'
@@ -664,8 +664,7 @@ watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as c
 
   if (newStart) {
     const startCoordsChanged = !oldStart ||
-      oldStart.x !== newStart.x ||
-      oldStart.y !== newStart.y
+      coordKey(oldStart.x, oldStart.y) !== coordKey(newStart.x, newStart.y)
     if (startCoordsChanged) coordsChanged = true
 
     selectedStartLocation.value = newStart
@@ -675,8 +674,7 @@ watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as c
 
   if (newEnd) {
     const endCoordsChanged = !oldEnd ||
-      oldEnd.x !== newEnd.x ||
-      oldEnd.y !== newEnd.y
+      coordKey(oldEnd.x, oldEnd.y) !== coordKey(newEnd.x, newEnd.y)
     if (endCoordsChanged) coordsChanged = true
 
     selectedEndLocation.value = newEnd
