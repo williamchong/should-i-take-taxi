@@ -230,15 +230,13 @@ export function useLocationSearch() {
       const cached = getCache<TransitResponse>('transit_', key)
       if (cached) return cached
 
-      // TODO: Drop the Scalar CORS proxy once justusewheels.com sends CORS headers
-      const targetUrl = `https://engine.justusewheels.com/v1/plan?${new URLSearchParams({
-        origin: `${start.y},${start.x}`,
-        destination: `${end.y},${end.x}`,
-        locale: mappedLocale,
-        max_results: '1',
-      })}`
       const data = await $fetch<TransitResponse>(
-        `https://proxy.scalar.com/?scalar_url=${encodeURIComponent(targetUrl)}`,
+        `https://engine.justusewheels.com/v1/plan?${new URLSearchParams({
+          origin: `${start.y},${start.x}`,
+          destination: `${end.y},${end.x}`,
+          locale: mappedLocale,
+          max_results: '1',
+        })}`,
         { signal }
       )
 
