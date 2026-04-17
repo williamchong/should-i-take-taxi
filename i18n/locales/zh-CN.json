@@ -88,7 +88,8 @@
       "title": "开放源代码",
       "description": "这个项目是开放源代码的，在 GitHub 上面可以找到。",
       "contribute": "如果您发现任何问题或有改善建议，欢迎提出：",
-      "repository": "GitHub 仓库"
+      "repository": "GitHub 仓库",
+      "blog": "作者博客"
     },
     "faq": {
       "questions": [

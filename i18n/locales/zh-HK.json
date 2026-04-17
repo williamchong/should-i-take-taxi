@@ -88,7 +88,8 @@
       "title": "開放原始碼",
       "description": "呢個專案係開放原始碼嘅，喺 GitHub 上面搵到。",
       "contribute": "如果你發現任何問題或者有改善建議，歡迎提出：",
-      "repository": "GitHub 儲存庫"
+      "repository": "GitHub 儲存庫",
+      "blog": "作者網誌"
     },
     "faq": {
       "questions": [

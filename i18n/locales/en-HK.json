@@ -88,7 +88,8 @@
       "title": "Open Source",
       "description": "This project is open source and available on GitHub.",
       "contribute": "If you find any issues or have suggestions for improvements, please contribute at:",
-      "repository": "GitHub Repository"
+      "repository": "GitHub Repository",
+      "blog": "Author's Blog"
     },
     "faq": {
       "questions": [
