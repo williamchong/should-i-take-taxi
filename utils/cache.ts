@@ -1,6 +1,14 @@
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
 const CACHE_MAX_ENTRIES = 50
 
+export const CACHE_PREFIXES = {
+  LOCATION_SEARCH: 'location_search_',
+  TRANSFORM: 'transform_',
+  ROUTE: 'route_',
+  GEOCODE: 'geocode_',
+  TRANSIT: 'transit_',
+} as const
+
 interface CacheEntry<T> { d: T; t: number; e?: number }
 
 const memoryCache = new Map<string, CacheEntry<unknown>>()
@@ -67,6 +75,46 @@ export function clearCache(prefix: string, key: string): void {
   } catch {
     // Ignore storage errors
   }
+}
+
+export function sweepExpired(prefix: string): number {
+  if (typeof window === 'undefined') return 0
+  const now = Date.now()
+
+  let keys: string[]
+  try {
+    keys = readIndex(prefix)
+  } catch {
+    return 0
+  }
+
+  const survivors: string[] = []
+  let removed = 0
+
+  for (const key of keys) {
+    const fullKey = `${prefix}${key}`
+    let keep = false
+    try {
+      const stored = localStorage.getItem(fullKey)
+      if (stored) {
+        const entry = JSON.parse(stored) as CacheEntry<unknown>
+        keep = !isExpired(entry, now)
+      }
+    } catch { /* malformed entry — drop */ }
+
+    if (keep) {
+      survivors.push(key)
+    } else {
+      try { localStorage.removeItem(fullKey) } catch { /* ignore */ }
+      memoryCache.delete(fullKey)
+      removed++
+    }
+  }
+
+  if (removed > 0) {
+    try { writeIndex(prefix, survivors) } catch { /* ignore */ }
+  }
+  return removed
 }
 
 export function setCache<T>(prefix: string, key: string, value: T, ttl?: number): void {

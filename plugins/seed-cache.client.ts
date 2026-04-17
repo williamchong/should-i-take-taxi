@@ -1,4 +1,4 @@
-import { getCache, setCache } from '~/utils/cache'
+import { CACHE_PREFIXES, getCache, setCache } from '~/utils/cache'
 
 /**
  * Seeds the route and geocode caches with precomputed data for popular
@@ -28,15 +28,15 @@ export default defineNuxtPlugin(async () => {
 
   const routes = precomputedCache.routes as Record<string, unknown>
   for (const [key, value] of Object.entries(routes)) {
-    if (getCache('route_', key) === undefined) {
-      setCache('route_', key, value)
+    if (getCache(CACHE_PREFIXES.ROUTE, key) === undefined) {
+      setCache(CACHE_PREFIXES.ROUTE, key, value)
     }
   }
 
   const geocodes = precomputedCache.geocodes as Record<string, unknown>
   for (const [key, value] of Object.entries(geocodes)) {
-    if (getCache('geocode_', key) === undefined) {
-      setCache('geocode_', key, value)
+    if (getCache(CACHE_PREFIXES.GEOCODE, key) === undefined) {
+      setCache(CACHE_PREFIXES.GEOCODE, key, value)
     }
   }
 

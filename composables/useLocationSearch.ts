@@ -1,7 +1,7 @@
 import { useI18n } from 'vue-i18n'
 import type { LocationResult } from '~/types/location'
 import type { TransitLeg } from '~/utils/transitValue'
-import { clearCache, getCache, setCache } from '~/utils/cache'
+import { CACHE_PREFIXES, clearCache, getCache, setCache } from '~/utils/cache'
 
 interface RouteInfo {
   distance: number
@@ -28,8 +28,6 @@ function mapLocaleForTransit(locale: string): string {
   if (locale === 'zh-cn') return 'zh'
   return 'zh-Hant' // zh-hk, zh-tw
 }
-
-const CACHE_KEY_PREFIX = 'location_search_'
 
 // Transit plans embed real-time departures/waits, so override the global cache TTL.
 const TRANSIT_CACHE_TTL_MS = 2 * 60 * 1000
@@ -60,7 +58,7 @@ export function useLocationSearch() {
     const isAscii = /^[\x00-\x7F]+$/.test(query)
     if (isAscii && query.trim().length < 2) return []
 
-    const cached = getCache<LocationResult[]>(CACHE_KEY_PREFIX, searchCacheKey(query))
+    const cached = getCache<LocationResult[]>(CACHE_PREFIXES.LOCATION_SEARCH, searchCacheKey(query))
     if (cached) return cached
 
     try {
@@ -73,7 +71,7 @@ export function useLocationSearch() {
         displayAddress: getLocalizedAddress(location)
       }))
 
-      setCache(CACHE_KEY_PREFIX, searchCacheKey(query), processedResults)
+      setCache(CACHE_PREFIXES.LOCATION_SEARCH, searchCacheKey(query), processedResults)
 
       return processedResults
     } catch (error) {
@@ -84,7 +82,7 @@ export function useLocationSearch() {
 
   const transformCoordinates = async (location: LocationResult): Promise<LocationResult> => {
     const key = coordKey(location.x, location.y)
-    const cached = getCache<{ wgsLat: number; wgsLong: number }>('transform_', key)
+    const cached = getCache<{ wgsLat: number; wgsLong: number }>(CACHE_PREFIXES.TRANSFORM, key)
     if (cached) {
       return { ...location, x: cached.wgsLong, y: cached.wgsLat }
     }
@@ -95,7 +93,7 @@ export function useLocationSearch() {
       ) as { wgsLat: number; wgsLong: number }
 
       if (data.wgsLat && data.wgsLong) {
-        setCache('transform_', key, data)
+        setCache(CACHE_PREFIXES.TRANSFORM, key, data)
         return {
           ...location,
           x: data.wgsLong,
@@ -119,22 +117,22 @@ export function useLocationSearch() {
    */
   const getCachedRoute = (start: LocationResult, end: LocationResult): RouteInfo | null => {
     const key = coordKey(start.x, start.y, end.x, end.y)
-    const cached = getCache<RouteInfo>('route_', key)
+    const cached = getCache<RouteInfo>(CACHE_PREFIXES.ROUTE, key)
     return cached?.distance ? withCoordinates(cached) : null
   }
 
   const clearRouteCache = (start: LocationResult, end: LocationResult): void => {
-    clearCache('route_', coordKey(start.x, start.y, end.x, end.y))
+    clearCache(CACHE_PREFIXES.ROUTE, coordKey(start.x, start.y, end.x, end.y))
   }
 
   const clearTransitCache = (start: LocationResult, end: LocationResult, localeOverride?: string): void => {
     const mappedLocale = mapLocaleForTransit(localeOverride || locale.value)
-    clearCache('transit_', `${coordKey(start.y, start.x, end.y, end.x)}_${mappedLocale}`)
+    clearCache(CACHE_PREFIXES.TRANSIT, `${coordKey(start.y, start.x, end.y, end.x)}_${mappedLocale}`)
   }
 
   const calculateDrivingDistance = async (start: LocationResult, end: LocationResult, signal?: AbortSignal): Promise<RouteInfo> => {
     const key = coordKey(start.x, start.y, end.x, end.y)
-    const cached = getCache<RouteInfo>('route_', key)
+    const cached = getCache<RouteInfo>(CACHE_PREFIXES.ROUTE, key)
 
     // If cache has full data (including polyline), return immediately
     if (cached?.coordinates?.length) return cached
@@ -152,7 +150,7 @@ export function useLocationSearch() {
           time: route.duration,
           coordinates: route.geometry.coordinates
         }
-        setCache('route_', key, result)
+        setCache(CACHE_PREFIXES.ROUTE, key, result)
         return result
       }
       throw new Error('No route found or invalid response from OSRM API')
@@ -166,7 +164,7 @@ export function useLocationSearch() {
 
   const reverseGeocode = async (latitude: number, longitude: number, signal?: AbortSignal): Promise<LocationResult | null> => {
     const key = `${coordKey(latitude, longitude)}_${locale.value}`
-    const cached = getCache<LocationResult | null>('geocode_', key)
+    const cached = getCache<LocationResult | null>(CACHE_PREFIXES.GEOCODE, key)
     if (cached !== undefined) return cached
 
     try {
@@ -206,10 +204,10 @@ export function useLocationSearch() {
           displayAddress: [name, fullAddress].filter(Boolean).join(', ') || data.display_name
         }
 
-        setCache('geocode_', key, location)
+        setCache(CACHE_PREFIXES.GEOCODE, key, location)
         return location
       }
-      setCache('geocode_', key, null)
+      setCache(CACHE_PREFIXES.GEOCODE, key, null)
       return null
     } catch (error) {
       if (signal?.aborted) throw error
@@ -227,7 +225,7 @@ export function useLocationSearch() {
     try {
       const mappedLocale = mapLocaleForTransit(localeOverride || locale.value)
       const key = `${coordKey(start.y, start.x, end.y, end.x)}_${mappedLocale}`
-      const cached = getCache<TransitResponse>('transit_', key)
+      const cached = getCache<TransitResponse>(CACHE_PREFIXES.TRANSIT, key)
       if (cached) return cached
 
       const data = await $fetch<TransitResponse>(
@@ -241,7 +239,7 @@ export function useLocationSearch() {
       )
 
       if (data?.plans) {
-        setCache('transit_', key, data, TRANSIT_CACHE_TTL_MS)
+        setCache(CACHE_PREFIXES.TRANSIT, key, data, TRANSIT_CACHE_TTL_MS)
         return data
       }
       return null

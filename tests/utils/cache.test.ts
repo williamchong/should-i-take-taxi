@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { clearCache, getCache, setCache } from '~/utils/cache'
+import { clearCache, getCache, setCache, sweepExpired } from '~/utils/cache'
 
 describe('cache', () => {
   beforeEach(() => {
@@ -100,6 +100,44 @@ describe('cache', () => {
 
   it('clearCache is a no-op for missing keys', () => {
     expect(() => clearCache('test_noop_', 'never-set')).not.toThrow()
+  })
+
+  it('sweepExpired removes expired entries, prunes the index, and leaves fresh ones intact', () => {
+    const prefix = 'test_sweep_'
+    const now = Date.now()
+
+    vi.spyOn(Date, 'now').mockReturnValue(now)
+    setCache(prefix, 'stale', 'old', 60 * 1000) // 1 minute TTL
+    setCache(prefix, 'fresh', 'new') // default 7-day TTL
+
+    // Advance past the short TTL but well under 7 days
+    vi.spyOn(Date, 'now').mockReturnValue(now + 2 * 60 * 1000)
+
+    const removed = sweepExpired(prefix)
+    expect(removed).toBe(1)
+
+    expect(localStorage.getItem(`${prefix}stale`)).toBeNull()
+    expect(localStorage.getItem(`${prefix}fresh`)).toBeTruthy()
+
+    const idx = JSON.parse(localStorage.getItem(`${prefix}__idx`) || '[]')
+    expect(idx).toEqual(['fresh'])
+
+    vi.restoreAllMocks()
+  })
+
+  it('sweepExpired drops index entries whose localStorage record is missing', () => {
+    const prefix = 'test_sweep_orphan_'
+    setCache(prefix, 'a', 'A')
+    setCache(prefix, 'b', 'B')
+
+    // Simulate an orphan index entry (e.g., storage wiped by another tab)
+    localStorage.removeItem(`${prefix}a`)
+
+    const removed = sweepExpired(prefix)
+    expect(removed).toBe(1)
+
+    const idx = JSON.parse(localStorage.getItem(`${prefix}__idx`) || '[]')
+    expect(idx).toEqual(['b'])
   })
 
   it('serves from memory cache on subsequent gets', () => {
