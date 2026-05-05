@@ -120,6 +120,7 @@ export default defineNuxtConfig({
   },
 
   pwa: {
+    registerType: 'autoUpdate',
     manifest: {
       name: 'Should I Take Taxi?',
       short_name: 'Taxi Fare',
@@ -136,9 +137,11 @@ export default defineNuxtConfig({
     workbox: {
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
+      cleanupOutdatedCaches: true,
     },
     client: {
       installPrompt: true,
+      periodicSyncForUpdates: 3600,
     },
   },
 })
