@@ -5,6 +5,8 @@ export type ThemeMode = 'system' | 'light' | 'dark'
 const STORAGE_KEY = 'taxi-calc-theme-preference'
 
 export const useDarkMode = () => {
+  const { track, registerSuperProperties } = useAnalytics()
+
   // User's explicit preference (synced with localStorage via VueUse)
   const themePreference = useStorage<ThemeMode>(STORAGE_KEY, 'system')
 
@@ -47,7 +49,8 @@ export const useDarkMode = () => {
   const setThemePreference = (mode: ThemeMode) => {
     themePreference.value = mode
     applyTheme()
-    useTrackEvent(`theme_preference_changed_${mode}`)
+    registerSuperProperties({ theme_mode: mode })
+    track('theme_preference_changed', { mode }, { ga4Event: `theme_preference_changed_${mode}` })
   }
 
   // Cycle: system → light → dark → system

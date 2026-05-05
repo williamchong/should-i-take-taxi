@@ -98,7 +98,7 @@
               href="#taxi-fare-detail"
               class="flex items-center justify-between group"
               :title="$t('taxiCalculator.viewDetails')"
-              @click="useTrackEvent('inline_summary_taxi_fare_clicked')"
+              @click="track('inline_summary_taxi_fare_clicked', { total_fare_hkd: totalFare, taxi_type: taxiType })"
             >
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:underline">{{ $t('taxiCalculator.estimatedFare') }}</span>
               <span v-if="isCalculating" class="text-lg font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
@@ -112,7 +112,7 @@
                 href="#transit-detail"
                 :class="transitSavingsLinkClass"
                 :title="$t('taxiCalculator.viewDetails')"
-                @click="useTrackEvent('inline_summary_transit_clicked', { tier: taxiValueTier })"
+                @click="track('inline_summary_transit_clicked', { tier: taxiValueTier, minutes_saved: transitMinutesSaved })"
               >{{ $t('transitComparison.timeSavedShort', { minutes: transitMinutesSaved }) }}</a></template>
             </div>
           </div>
@@ -158,7 +158,7 @@ import LocationSearch from './LocationSearch.vue'
 import TaxiTypeSelector from './TaxiTypeSelector.vue'
 import DistanceInput from './DistanceInput.vue'
 import AdvancedOptions from './AdvancedOptions.vue'
-import type { LocationResult } from '~/types/location'
+import type { LocationResult, LocationSlot } from '~/types/location'
 import type { TaxiType, TunnelId } from '~/types/constants'
 import {
   GEOLOCATION_CONSTANTS,
@@ -166,6 +166,7 @@ import {
 import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
 import { getTaxiValueTier, getTierClasses, summarizeTransitLegs } from '~/utils/transitValue'
+import { distanceBucket } from '~/utils/analytics'
 
 const props = defineProps<{
   initialStartLocation?: LocationResult | null
@@ -178,6 +179,7 @@ const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInpu
 const { t } = useI18n()
 const { calculateDrivingDistance, getCachedRoute, clearRouteCache, calculateTransitRoute, clearTransitCache, reverseGeocode } = useLocationSearch()
 const { shouldAutoSelectCrossHarbour, suggestTaxiType: detectTaxiType } = useLocationDetection()
+const { track } = useAnalytics()
 
 const taxiType = ref<TaxiType>('urban')
 const suggestedTaxiType = ref<TaxiType | null>(null)
@@ -235,12 +237,12 @@ const autoSelectCrossHarbourTunnel = () => {
     if (!selectedTunnels.value.includes('crossHarbour')) {
       selectedTunnels.value.push('crossHarbour')
       showAdvancedOptions.value = true // Auto-expand to show the auto-selected tunnel
-      useTrackEvent('taxi_cross_harbour_tunnel_auto_selected')
+      track('taxi_cross_harbour_tunnel_auto_selected')
     }
   }
 }
 
-const selectLocation = async (type: 'start' | 'end', location: LocationResult | null, source?: 'search' | 'recent') => {
+const selectLocation = async (type: LocationSlot, location: LocationResult | null, source?: 'search' | 'recent') => {
   // Abort any in-flight geocoding for this slot
   if (type === 'start') { startGeocodeAbort?.abort(); startGeocodeAbort = null }
   else { endGeocodeAbort?.abort(); endGeocodeAbort = null }
@@ -263,7 +265,15 @@ const selectLocation = async (type: 'start' | 'end', location: LocationResult | 
     isManualOverride.value = false
   }
 
-  useTrackEvent(source ? `taxi_${type}_location_selected_${source}` : `taxi_${type}_location_selected`)
+  track('taxi_location_selected', {
+    slot: type,
+    source: source ?? 'programmatic',
+    has_other_location: Boolean(otherLocationRef.value),
+  }, {
+    ga4Event: source
+      ? `taxi_${type}_location_selected_${source}`
+      : `taxi_${type}_location_selected`,
+  })
 
   // Auto-select Cross Harbour Tunnel if needed
   if (location && otherLocationRef.value) {
@@ -322,7 +332,10 @@ const suggestTaxiType = () => {
   if (suggested && taxiType.value !== suggested) {
     suggestedTaxiType.value = suggested
     showSuggestion.value = true
-    useTrackEvent('taxi_type_suggestion_shown', { suggested })
+    track('taxi_type_suggestion_shown', {
+      suggested,
+      current_type: taxiType.value,
+    })
     return
   }
 
@@ -337,9 +350,8 @@ const dismissSuggestion = () => {
 }
 
 // Handle marker dragged events
-const handleMarkerDragged = async ({ type, latitude, longitude }: { type: 'start' | 'end', latitude: number, longitude: number }) => {
-  // Track analytics
-  useTrackEvent(`taxi_marker_dragged_${type}`)
+const handleMarkerDragged = async ({ type, latitude, longitude }: { type: LocationSlot, latitude: number, longitude: number }) => {
+  track('taxi_marker_dragged', { slot: type }, { ga4Event: `taxi_marker_dragged_${type}` })
 
   // Immediately update location with coordinates (non-blocking)
   const tempLocation = createFallbackLocation(latitude, longitude)
@@ -382,19 +394,19 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: 'start
         selectedEndLocation.value = location
         endLocationSearch.value = location.displayAddress
       }
-      useTrackEvent(`taxi_marker_drag_geocoded_${type}`)
+      track('taxi_marker_drag_geocoded', { slot: type }, { ga4Event: `taxi_marker_drag_geocoded_${type}` })
 
       // Emit updated location to parent
       emitLocations()
     } else {
       // Geocoding failed, keep the coordinates-based location
       console.warn('Reverse geocoding failed, using coordinates only')
-      useTrackEvent(`taxi_marker_drag_geocode_failed_${type}`)
+      track('taxi_marker_drag_geocode_failed', { slot: type }, { ga4Event: `taxi_marker_drag_geocode_failed_${type}` })
     }
   } catch (error) {
     if (controller.signal.aborted) return
     console.error(`Error in reverse geocoding for ${type} marker:`, error)
-    useTrackEvent(`taxi_marker_drag_error_${type}`)
+    track('taxi_marker_drag_error', { slot: type }, { ga4Event: `taxi_marker_drag_error_${type}` })
     // Keep the coordinates-based location on error
   }
 }
@@ -451,7 +463,21 @@ const handleCalculateTransit = async () => {
       }
       transitInfo.value = payload
       emit('update:transitInfo', payload)
-      useTrackEvent(`transit_comparison_loaded_${taxiValueTier.value ?? 'unknown'}`)
+      const tier = taxiValueTier.value ?? 'unknown'
+      const minutesSaved = Math.round((payload.transitDurationSeconds - payload.drivingTimeSeconds) / 60)
+      track('transit_comparison_loaded', {
+        tier,
+        minutes_saved: minutesSaved,
+        taxi_fare_hkd: totalFare.value,
+        transit_fare_min_hkd: payload.transitFareMin,
+        transit_fare_max_hkd: payload.transitFareMax,
+        taxi_time_seconds: payload.drivingTimeSeconds,
+        transit_time_seconds: payload.transitDurationSeconds,
+        transit_walk_seconds: payload.transitWalkSeconds,
+        transit_wait_seconds: payload.transitWaitSeconds,
+        distance_km: distance.value,
+        distance_bucket: distanceBucket(distance.value),
+      }, { ga4Event: `transit_comparison_loaded_${tier}` })
     } else {
       transitInfo.value = null
       emit('update:transitInfo', null)
@@ -460,7 +486,7 @@ const handleCalculateTransit = async () => {
     if (controller.signal.aborted) return
     transitInfo.value = null
     emit('update:transitInfo', null)
-    useTrackEvent('transit_comparison_error')
+    track('transit_comparison_error')
   }
 }
 
@@ -477,7 +503,10 @@ const handleCalculateDistance = async () => {
   if (cached) {
     routeInfo.value = cached
     applyRouteDistance(cached)
-    useTrackEvent('taxi_distance_cache_hit')
+    track('taxi_distance_cache_hit', {
+      distance_km: parseFloat((cached.distance / 1000).toFixed(1)),
+      distance_bucket: distanceBucket(cached.distance / 1000),
+    })
   } else {
     isCalculatingDistance.value = true
   }
@@ -492,7 +521,14 @@ const handleCalculateDistance = async () => {
 
     routeInfo.value = result
     applyRouteDistance(result)
-    if (!cached) useTrackEvent('taxi_distance_auto_calculated')
+    if (!cached) {
+      const km = parseFloat((result.distance / 1000).toFixed(1))
+      track('taxi_distance_auto_calculated', {
+        distance_km: km,
+        distance_bucket: distanceBucket(km),
+        time_seconds: result.time,
+      })
+    }
     osrmSucceeded = true
   } catch (error) {
     if (controller.signal.aborted) return
@@ -521,7 +557,7 @@ const getCurrentLocation = async () => {
   startGeocodeAbort?.abort()
   const controller = startGeocodeAbort = new AbortController()
   isGettingLocation.value = true
-  useTrackEvent('taxi_get_current_location_attempt')
+  track('taxi_get_current_location_attempt')
 
   try {
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -565,12 +601,14 @@ const getCurrentLocation = async () => {
     startLocationSearch.value = location.displayAddress
     startGeocodeAbort = null
     await selectStartLocation(location)
-    useTrackEvent('taxi_get_current_location_success')
+    track('taxi_get_current_location_success', {
+      reverse_geocoded: location.addressEN !== '' || location.addressZH !== '',
+    })
   } catch (error) {
     if (controller.signal.aborted) return
     console.error("Error getting current location:", error)
     alert(t('taxiCalculator.geolocationError'))
-    useTrackEvent('taxi_get_current_location_error')
+    track('taxi_get_current_location_error')
   } finally {
     if (!controller.signal.aborted) {
       isGettingLocation.value = false
@@ -615,7 +653,7 @@ const swapLocations = async () => {
   emitLocations()
 
   // 追蹤交換事件
-  useTrackEvent('taxi_locations_swapped')
+  track('taxi_locations_swapped', { distance_km: distance.value })
 }
 
 // 重新整理計算 - 作為全面重置的後備方案
@@ -652,7 +690,10 @@ const handleRefresh = async () => {
     // 重新建議的士類型
     suggestTaxiType()
 
-    useTrackEvent('taxi_refresh_calculation')
+    track('taxi_refresh_calculation', {
+      taxi_type: taxiType.value,
+      distance_km: distance.value,
+    })
   }
 }
 
@@ -707,7 +748,10 @@ onMounted(() => {
     breakdown: fareBreakdown.value,
     isCalculating: false
   })
-  useTrackEvent('taxi_calculator_opened')
+  track('taxi_calculator_opened', {
+    has_initial_locations: Boolean(props.initialStartLocation || props.initialEndLocation),
+    skip_gps: Boolean(props.skipGpsAutoRequest),
+  })
 
   if (isGeolocationSupported.value && !selectedStartLocation.value && !props.skipGpsAutoRequest) {
     getCurrentLocation()
@@ -744,10 +788,24 @@ const isCalculating = computed(() => {
   return isCalculatingDistance.value
 })
 
-watch([totalFare, isCalculating], ([newTotalFare]) => {
-  if (newTotalFare > 0) {
-    useTrackEvent('taxi_fare_calculated')
+watch(totalFare, (newTotalFare, prevTotalFare) => {
+  if (newTotalFare > 0 && newTotalFare !== prevTotalFare) {
+    track('taxi_fare_calculated', {
+      taxi_type: taxiType.value,
+      distance_km: distance.value,
+      distance_bucket: distanceBucket(distance.value),
+      total_fare_hkd: newTotalFare,
+      tunnel_count: selectedTunnels.value.length,
+      has_cross_harbour: selectedTunnels.value.includes('crossHarbour'),
+      tunnel_fee_type: tunnelFeeType.value,
+      is_discount_fare: isDiscountFare.value,
+      luggage_count: luggageCount.value,
+      is_manual_distance: isManualOverride.value,
+    })
   }
+})
+
+watch([totalFare, isCalculating], ([newTotalFare]) => {
   emit('update:fare', {
     totalFare: newTotalFare,
     breakdown: fareBreakdown.value,
@@ -762,7 +820,7 @@ watch(focusedInput, (newValue) => {
 // Handle map click to set location.
 // `target` is the input that was focused when the map mousedown fired —
 // the input's blur fires before click, so we can't rely on focusedInput here.
-const handleMapClick = async (latitude: number, longitude: number, target: 'start' | 'end') => {
+const handleMapClick = async (latitude: number, longitude: number, target: LocationSlot) => {
   // Only set location if the corresponding marker doesn't exist
   if (target === 'start' && !selectedStartLocation.value) {
     const tempLocation = createFallbackLocation(latitude, longitude)
@@ -770,8 +828,7 @@ const handleMapClick = async (latitude: number, longitude: number, target: 'star
     startLocationSearch.value = tempLocation.displayAddress
     emitLocations()
 
-    // Track analytics
-    useTrackEvent('taxi_map_click_set_start')
+    track('taxi_map_click_set_location', { slot: 'start' }, { ga4Event: 'taxi_map_click_set_start' })
 
     // Do reverse geocoding in background
     startGeocodeAbort?.abort()
@@ -800,8 +857,7 @@ const handleMapClick = async (latitude: number, longitude: number, target: 'star
     endLocationSearch.value = tempLocation.displayAddress
     emitLocations()
 
-    // Track analytics
-    useTrackEvent('taxi_map_click_set_end')
+    track('taxi_map_click_set_location', { slot: 'end' }, { ga4Event: 'taxi_map_click_set_end' })
 
     // Auto-select cross-harbour tunnel if applicable
     if (selectedStartLocation.value) {

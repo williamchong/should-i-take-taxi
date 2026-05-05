@@ -186,7 +186,21 @@ On component mount, `TaxiFareCalculator.vue` automatically attempts to:
 
 ### Analytics
 
-Uses `nuxt-gtag` module for Google Analytics (GA4). **Convention: encode variance in the event name, not custom dimensions** — GA4 custom dimensions require registration in the GA admin and are awkward to segment without it. For example, `taxi_type_selected_urban` / `taxi_type_selected_newTerritories` / `taxi_type_selected_lantau` rather than a single `taxi_type_selected` with a `{ type }` param; `taxi_tunnel_added_crossHarbour` / `taxi_tunnel_removed_crossHarbour` rather than `{ tunnel, selected }`; `transit_comparison_loaded_great` / `_good` / `_poor`; `taxi_start_location_selected_search` / `_recent`.
+Dispatches every event to **both Google Analytics 4** (via `nuxt-gtag`) **and PostHog** (via `@nuxt/scripts`'s registry helper) through a single `useAnalytics()` composable in `composables/useAnalytics.ts`:
+
+```ts
+const { track, registerSuperProperties } = useAnalytics()
+track('taxi_type_selected', { type: 'urban', previous_type: 'newTerritories' }, { ga4Event: 'taxi_type_selected_urban' })
+```
+
+- **GA4 (`ga4Event` or `eventName`)**: keeps the project's variance-in-event-name convention because GA4 custom dimensions require admin registration and are awkward to segment without it (`taxi_type_selected_urban`, `taxi_tunnel_added_crossHarbour`, `transit_comparison_loaded_great`, `taxi_start_location_selected_search`).
+- **PostHog (`eventName` + `properties`)**: receives the canonical event name with rich properties for free filtering/grouping. Use the `ga4Event` option whenever the GA4 name has a variance suffix.
+
+PostHog initialisation lives in `plugins/posthog.client.ts`. It registers a `before_send` hook that strips the `from`/`to` query parameters from `$current_url`, `$referrer`, etc. — the URL encodes user-chosen origin/destination coordinates and we never want those leaving the browser, even via auto-captured framework properties. Configuration (API key, host, autocapture off, history-change pageviews, session recording disabled) is in `nuxt.config.ts` under `scripts.registry.posthog`.
+
+**Privacy / PII**: never pass raw addresses, lat/lng, or user search queries as event properties. Distance is sent as both raw km and a coarse bucket (`distanceBucket()` in `TaxiFareCalculator.vue`); fares and tunnel selections are fine; locations are referenced only by slot (`'start'` / `'end'`) or boolean flags (`has_start`, `has_other_location`).
+
+**Super-properties** (PostHog only, registered in `pages/index.vue` on mount and on locale change): `locale`, `is_pwa_standalone`, plus `theme_mode` set from `useDarkMode.ts`.
 
 Custom events tracked include:
 - Location selections (with `source` baked into the name: `_search` / `_recent`) and swapping

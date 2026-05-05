@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     '@nuxtjs/leaflet',
     '@sentry/nuxt/module',
     '@vite-pwa/nuxt',
+    '@nuxt/scripts',
   ],
 
   i18n: {
@@ -53,6 +54,20 @@ export default defineNuxtConfig({
 
   gtag: {
     id: 'G-7JBFREKBB0'
+  },
+
+  scripts: {
+    registry: {
+      posthog: {
+        scriptOptions: { trigger: 'onNuxtReady' },
+        apiKey: 'phc_rPtJYrgSEf3tpmddVVRKXjQ6NwQ8xDPrpFGqCg7iMWnn',
+        apiHost: 'https://us.i.posthog.com',
+        autocapture: false,
+        capturePageview: true,
+        capturePageleave: true,
+        disableSessionRecording: true,
+      },
+    },
   },
 
   site: {

@@ -81,21 +81,35 @@ const emit = defineEmits<{
   'dismiss-suggestion': []
 }>()
 
+const { track } = useAnalytics()
+
 const handleChange = (value: TaxiType) => {
+  const previous = modelValue.value
   modelValue.value = value
-  useTrackEvent(`taxi_type_selected_${value}`)
+  track('taxi_type_selected', {
+    type: value,
+    previous_type: previous,
+    matches_suggestion: props.suggestedTaxiType === value,
+  }, { ga4Event: `taxi_type_selected_${value}` })
 }
 
 const handleAcceptSuggestion = () => {
   if (props.suggestedTaxiType) {
+    const previous = modelValue.value
     modelValue.value = props.suggestedTaxiType
     emit('accept-suggestion')
-    useTrackEvent('taxi_type_suggestion_accepted', { suggested: props.suggestedTaxiType })
+    track('taxi_type_suggestion_accepted', {
+      suggested: props.suggestedTaxiType,
+      previous_type: previous,
+    })
   }
 }
 
 const handleDismissSuggestion = () => {
   emit('dismiss-suggestion')
-  useTrackEvent('taxi_type_suggestion_dismissed', { suggested: props.suggestedTaxiType })
+  track('taxi_type_suggestion_dismissed', {
+    suggested: props.suggestedTaxiType,
+    current_type: modelValue.value,
+  })
 }
 </script>

@@ -112,6 +112,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const { track } = useAnalytics()
 
 const isEditingDistance = ref(false)
 const manualDistance = ref(0)
@@ -130,7 +131,10 @@ const displayDistance = computed(() => {
 const enableDistanceEdit = () => {
   manualDistance.value = distance.value
   isEditingDistance.value = true
-  useTrackEvent('taxi_distance_manual_edit_opened')
+  track('taxi_distance_manual_edit_opened', {
+    auto_calculated_km: props.autoCalculatedDistance,
+    current_km: distance.value,
+  })
 
   // Focus input after Vue updates the DOM
   nextTick(() => {
@@ -179,15 +183,21 @@ const saveManualDistance = () => {
   distance.value = manualDistance.value
   isManualOverride.value = true
   isEditingDistance.value = false
-  useTrackEvent('taxi_distance_manually_set', {
-    distance: manualDistance.value,
-    wasAutoCalculated: props.autoCalculatedDistance > 0
+  const auto = props.autoCalculatedDistance
+  const deviationPercent = auto > 0
+    ? Math.round((Math.abs(manualDistance.value - auto) / auto) * 100)
+    : null
+  track('taxi_distance_manually_set', {
+    distance_km: manualDistance.value,
+    auto_calculated_km: auto,
+    was_auto_calculated: auto > 0,
+    deviation_percent: deviationPercent,
   })
 }
 
 const cancelDistanceEdit = () => {
   isEditingDistance.value = false
-  useTrackEvent('taxi_distance_edit_cancelled')
+  track('taxi_distance_edit_cancelled')
 }
 
 const resetToAutoCalculated = () => {
@@ -196,7 +206,9 @@ const resetToAutoCalculated = () => {
     manualDistance.value = props.autoCalculatedDistance
     isManualOverride.value = false
     isEditingDistance.value = false
-    useTrackEvent('taxi_distance_reset_to_auto')
+    track('taxi_distance_reset_to_auto', {
+      auto_calculated_km: props.autoCalculatedDistance,
+    })
   }
 }
 </script>

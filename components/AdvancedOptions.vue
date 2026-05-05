@@ -147,6 +147,7 @@ const luggageCount = defineModel<number>('luggageCount', { required: true })
 const showAdvancedOptions = defineModel<boolean>('showAdvancedOptions', { default: false })
 
 const { t } = useI18n()
+const { track } = useAnalytics()
 
 const showOtherTunnels = ref(false)
 let hasTrackedLuggageInput = false
@@ -171,38 +172,51 @@ const hasSelectedCrossHarbourTunnel = computed(() =>
 
 const toggleAdvancedOptions = () => {
   showAdvancedOptions.value = !showAdvancedOptions.value
-  useTrackEvent('taxi_advanced_options_toggled', { expanded: showAdvancedOptions.value })
+  track('taxi_advanced_options_toggled', {
+    expanded: showAdvancedOptions.value,
+    tunnel_count: selectedTunnels.value.length,
+    luggage_count: luggageCount.value,
+    is_discount_fare: isDiscountFare.value,
+  })
 }
 
 const handleTunnelChange = (tunnelId: TunnelId, event: Event) => {
   const target = event.target as HTMLInputElement
+  const action = target.checked ? 'added' : 'removed'
   selectedTunnels.value = target.checked
     ? [...selectedTunnels.value, tunnelId]
     : selectedTunnels.value.filter(id => id !== tunnelId)
-  useTrackEvent(`taxi_tunnel_${target.checked ? 'added' : 'removed'}_${tunnelId}`)
+  track(`taxi_tunnel_${action}`, {
+    tunnel: tunnelId,
+    tunnel_count: selectedTunnels.value.length,
+    has_cross_harbour: selectedTunnels.value.includes('crossHarbour'),
+  }, { ga4Event: `taxi_tunnel_${action}_${tunnelId}` })
 }
 
 const handleTunnelFeeTypeChange = (value: 'oneWay' | 'return') => {
   tunnelFeeType.value = value
-  useTrackEvent('taxi_tunnel_fee_type_changed', { type: value })
+  track('taxi_tunnel_fee_type_changed', {
+    type: value,
+    has_cross_harbour: selectedTunnels.value.includes('crossHarbour'),
+  })
 }
 
 const handleDiscountFareChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   isDiscountFare.value = target.checked
-  useTrackEvent('taxi_discount_fare_toggled', { enabled: target.checked })
+  track('taxi_discount_fare_toggled', { enabled: target.checked })
 }
 
 const handleLuggageInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   luggageCount.value = Number(target.value)
   if (!hasTrackedLuggageInput) {
-    useTrackEvent('taxi_luggage_input')
+    track('taxi_luggage_input', { luggage_count: luggageCount.value })
     hasTrackedLuggageInput = true
   }
 }
 
 const handleLuggageChange = () => {
-  useTrackEvent('taxi_luggage_change')
+  track('taxi_luggage_change', { luggage_count: luggageCount.value })
 }
 </script>

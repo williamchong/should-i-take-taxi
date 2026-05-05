@@ -253,7 +253,7 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { reverseGeocode, getCachedRoute } = useLocationSearch()
-const { gtag } = useGtag()
+const { track, registerSuperProperties } = useAnalytics()
 const { url: siteUrl } = useSiteConfig()
 
 const showIntroduction = ref(false)
@@ -430,8 +430,8 @@ async function parseQueryParams() {
       }
       locationsRestoredFromUrl.value = true
 
-      // Analytics tracking
-      gtag('event', 'seo_url_restored_from_query', {
+      // Analytics tracking — booleans only; raw coordinates never leave the browser.
+      track('seo_url_restored_from_query', {
         has_start: !!startLocation,
         has_end: !!endLocation
       })
@@ -491,8 +491,8 @@ function updateUrlParams(locations: { start: LocationResult | null; end: Locatio
   if (route.fullPath !== newPath) {
     router.replace(newPath)
 
-    // Analytics tracking
-    gtag('event', 'seo_url_updated', {
+    // Analytics tracking — booleans only; raw coordinates never leave the browser.
+    track('seo_url_updated', {
       has_start: !!locations.start,
       has_end: !!locations.end
     })
@@ -674,9 +674,17 @@ useIntersectionObserver(
 )
 
 onMounted(async () => {
-  useEventListener(window, 'appinstalled', () => useTrackEvent('pwa_app_installed'))
-  useEventListener(window, 'beforeinstallprompt', () => useTrackEvent('pwa_install_prompt_available'))
+  registerSuperProperties({
+    locale: locale.value,
+    is_pwa_standalone: typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches,
+  })
+  useEventListener(window, 'appinstalled', () => track('pwa_app_installed'))
+  useEventListener(window, 'beforeinstallprompt', () => track('pwa_install_prompt_available'))
   await parseQueryParams()
+})
+
+watch(locale, (next) => {
+  registerSuperProperties({ locale: next })
 })
 </script>
 

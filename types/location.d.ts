@@ -10,3 +10,5 @@ export interface LocationResult {
   displayAddress: string
   [key: string]: unknown
 }
+
+export type LocationSlot = 'start' | 'end'
