@@ -10,19 +10,20 @@ interface TrackOptions {
 }
 
 export const useAnalytics = () => {
-  const { proxy } = useScriptPostHog()
+  const { proxy: posthogProxy } = useScriptPostHog()
+  const { proxy: gaProxy } = useScriptGoogleAnalytics()
 
   const track = (
     eventName: string,
     properties?: Properties,
     options?: TrackOptions,
   ) => {
-    useTrackEvent(options?.ga4Event ?? eventName, properties)
-    proxy.posthog.capture(eventName, properties)
+    gaProxy.gtag('event', options?.ga4Event ?? eventName, properties)
+    posthogProxy.posthog.capture(eventName, properties)
   }
 
   const registerSuperProperties = (properties: Properties) => {
-    proxy.posthog.register(properties)
+    posthogProxy.posthog.register(properties)
   }
 
   return { track, registerSuperProperties }

@@ -186,7 +186,7 @@ On component mount, `TaxiFareCalculator.vue` automatically attempts to:
 
 ### Analytics
 
-Dispatches every event to **both Google Analytics 4** (via `nuxt-gtag`) **and PostHog** (via `@nuxt/scripts`'s registry helper) through a single `useAnalytics()` composable in `composables/useAnalytics.ts`:
+Dispatches every event to **both Google Analytics 4** and **PostHog** (both via `@nuxt/scripts`'s registry helpers — `useScriptGoogleAnalytics` and `useScriptPostHog`) through a single `useAnalytics()` composable in `composables/useAnalytics.ts`:
 
 ```ts
 const { track, registerSuperProperties } = useAnalytics()
@@ -230,7 +230,7 @@ Key Nuxt modules configured in `nuxt.config.ts`:
 - `@nuxtjs/leaflet`: Leaflet maps
 - `@nuxtjs/sitemap`: SEO sitemap generation
 - `@sentry/nuxt`: Error tracking (tracing + debug code tree-shaken out of the client bundle via `__SENTRY_DEBUG__`/`__SENTRY_TRACING__` `vite.define` flags)
-- `nuxt-gtag`: Google Analytics
+- `@nuxt/scripts`: Third-party script loaders — provides `useScriptGoogleAnalytics` (GA4) and `useScriptPostHog`, both deferred via `trigger: 'onNuxtReady'`
 - `@vite-pwa/nuxt`: PWA manifest, service worker (Workbox), and install prompt
 - `@nuxt/eslint`: Linting
 

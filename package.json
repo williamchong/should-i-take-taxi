@@ -27,7 +27,6 @@
     "@vueuse/core": "^14.1.0",
     "eslint": "^9.20.0",
     "nuxt": "^3.20.2",
-    "nuxt-gtag": "^3.0.3",
     "posthog-js": "^1.372.8",
     "vue": "latest",
     "vue-router": "latest"

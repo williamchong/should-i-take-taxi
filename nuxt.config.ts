@@ -12,7 +12,6 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap',
     '@nuxtjs/tailwindcss',
     '@nuxt/eslint',
-    'nuxt-gtag',
     '@nuxtjs/leaflet',
     '@sentry/nuxt/module',
     '@vite-pwa/nuxt',
@@ -52,12 +51,13 @@ export default defineNuxtConfig({
     defaultLocale: 'en-hk',
   },
 
-  gtag: {
-    id: 'G-7JBFREKBB0'
-  },
-
   scripts: {
+    privacy: false,
     registry: {
+      googleAnalytics: {
+        scriptOptions: { trigger: 'onNuxtReady' },
+        id: 'G-7JBFREKBB0',
+      },
       posthog: {
         scriptOptions: { trigger: 'onNuxtReady' },
         apiKey: 'phc_rPtJYrgSEf3tpmddVVRKXjQ6NwQ8xDPrpFGqCg7iMWnn',
