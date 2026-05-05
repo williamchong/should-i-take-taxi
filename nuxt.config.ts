@@ -52,7 +52,8 @@ export default defineNuxtConfig({
   },
 
   scripts: {
-    privacy: false,
+    // SPA: no Nitro origin to proxy through, load trackers from CDN.
+    defaultScriptOptions: { bundle: false },
     registry: {
       googleAnalytics: {
         scriptOptions: { trigger: 'onNuxtReady' },
@@ -92,6 +93,8 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://a.basemaps.cartocdn.com' },
         { rel: 'preconnect', href: 'https://b.basemaps.cartocdn.com' },
         { rel: 'preconnect', href: 'https://c.basemaps.cartocdn.com' },
+        { rel: 'preconnect', href: 'https://www.googletagmanager.com', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://us.i.posthog.com', crossorigin: 'anonymous' },
       ]
     }
   },
