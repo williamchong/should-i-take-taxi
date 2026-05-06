@@ -52,15 +52,17 @@ export default defineNuxtConfig({
   },
 
   scripts: {
-    // SPA: no Nitro origin to proxy through, load trackers from CDN.
-    defaultScriptOptions: { bundle: false },
     registry: {
       googleAnalytics: {
-        scriptOptions: { trigger: 'onNuxtReady' },
+        trigger: 'onNuxtReady',
+        bundle: false,
+        proxy: false,
         id: 'G-7JBFREKBB0',
       },
       posthog: {
-        scriptOptions: { trigger: 'onNuxtReady' },
+        trigger: 'onNuxtReady',
+        bundle: false,
+        proxy: false,
         apiKey: 'phc_rPtJYrgSEf3tpmddVVRKXjQ6NwQ8xDPrpFGqCg7iMWnn',
         apiHost: 'https://us.i.posthog.com',
         autocapture: false,
