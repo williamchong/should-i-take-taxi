@@ -64,7 +64,7 @@ export default defineNuxtConfig({
         bundle: false,
         proxy: false,
         apiKey: 'phc_rPtJYrgSEf3tpmddVVRKXjQ6NwQ8xDPrpFGqCg7iMWnn',
-        apiHost: 'https://us.i.posthog.com',
+        apiHost: 'https://t.williamchong.cloud',
         autocapture: false,
         capturePageview: true,
         capturePageleave: true,
@@ -96,7 +96,7 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://b.basemaps.cartocdn.com' },
         { rel: 'preconnect', href: 'https://c.basemaps.cartocdn.com' },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com', crossorigin: 'anonymous' },
-        { rel: 'preconnect', href: 'https://us.i.posthog.com', crossorigin: 'anonymous' },
+        { rel: 'preconnect', href: 'https://t.williamchong.cloud', crossorigin: 'anonymous' },
       ]
     }
   },
