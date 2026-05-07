@@ -33,6 +33,7 @@
             <div class="flex space-x-2">
               <LocationSearch
                 id="startLocation"
+                ref="startLocationSearchRef"
                 v-model="startLocationSearch"
                 class="flex-grow"
                 @select="selectStartLocation"
@@ -174,7 +175,7 @@ const props = defineProps<{
   skipGpsAutoRequest?: boolean
 }>()
 
-const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput', 'update:transitInfo'])
+const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput', 'update:transitInfo', 'update:initialGpsPending'])
 
 const { t } = useI18n()
 const { calculateDrivingDistance, getCachedRoute, clearRouteCache, calculateTransitRoute, clearTransitCache, reverseGeocode } = useLocationSearch()
@@ -216,6 +217,7 @@ const autoCalculatedDistance = ref(0)
 const isManualOverride = ref(false)
 
 // Template refs
+const startLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | null>(null)
 const endLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | null>(null)
 
 // Abort controllers to cancel stale async operations (distance calc, geocoding per slot)
@@ -754,7 +756,16 @@ onMounted(() => {
   })
 
   if (isGeolocationSupported.value && !selectedStartLocation.value && !props.skipGpsAutoRequest) {
-    getCurrentLocation()
+    emit('update:initialGpsPending', true)
+    getCurrentLocation().finally(() => {
+      emit('update:initialGpsPending', false)
+      // Skip focus if a manual GPS retry is already in flight — when the user
+      // re-clicks GPS mid-prompt, the initial controller aborts but this
+      // .finally() still runs, and we'd otherwise yank focus mid-second-attempt.
+      if (!selectedStartLocation.value && !isGettingLocation.value) {
+        startLocationSearchRef.value?.focus({ preventScroll: true })
+      }
+    })
   }
 })
 

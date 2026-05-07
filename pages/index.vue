@@ -38,7 +38,7 @@
         <template v-if="!hasSelectedLocations">
           <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">{{ $t('title') }}</h1>
           <p class="text-center text-gray-600 dark:text-gray-400 text-lg mb-8">{{ $t('description') }}</p>
-          <div class="flex justify-center mb-8">
+          <div v-if="isInitialGpsPending" class="flex justify-center mb-8">
             <div class="relative">
               <picture>
                 <source :srcset="LogoEnWebp" type="image/webp">
@@ -68,7 +68,7 @@
           </div>
         </template>
         <MapDisplay
-          v-else
+          v-if="!isInitialGpsPending"
           :start-location="selectedLocations.start"
           :end-location="selectedLocations.end"
           :route-coordinates="selectedLocations.coordinates"
@@ -97,6 +97,7 @@
         @update:fare="updateFare"
         @update:focused-input="updateFocusedInput"
         @update:transit-info="updateTransitInfo"
+        @update:initial-gps-pending="isInitialGpsPending = $event"
       />
 
       <!-- 4. Fare Display (prominent, when calculated) -->
@@ -261,6 +262,8 @@ const isFareVisible = ref(false)
 const showStickyFare = computed(() => {
   return !isFareVisible.value && hasSelectedLocations.value && fareData.value !== null
 })
+
+const isInitialGpsPending = ref(false)
 
 // Show bounding boxes for debugging when debug=1 is in query string
 const showBoundingBoxes = computed(() => route.query.debug === '1')
