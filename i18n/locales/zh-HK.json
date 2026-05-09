@@ -73,7 +73,7 @@
         },
         {
           "title": "的士 vs 公共交通比較",
-          "description": "並排對比搭的士同公共交通嘅時間同車費，一眼睇清楚值唔值得搭的士"
+          "description": "並排比較搭的士同公共交通嘅時間同車費，一眼睇清楚值唔值得搭的士"
         }
       ]
     },
@@ -119,7 +119,7 @@
         },
         {
           "question": "的士車費計算器有中文版本嗎？",
-          "answer": "是的，計算器完全支援雙語，包括英文和繁體中文，包括本地化地址搜尋和車費明細顯示。"
+          "answer": "係呀，計算器支援多種語言，包括英文、繁體中文同簡體中文，連地址搜尋同車費明細都會本地化顯示。"
         }
       ]
     }
@@ -159,11 +159,11 @@
     "endLocation": "終點",
     "searchPlace": "搜尋地點...",
     "estimatedTime": "預算時間",
-    "geolocationNotSupported": "你的裝置唔支援地理定位功能",
-    "geolocationError": "無法獲取你的位置，請檢查位置服務權限",
+    "geolocationNotSupported": "你部裝置唔支援地理定位功能",
+    "geolocationError": "搵唔到你嘅位置，請檢查位置服務權限",
     "currentLocation": "當前位置",
     "useCurrentLocation": "使用當前位置",
-    "swapLocations": "交換起點和終點",
+    "swapLocations": "交換起點同終點",
     "refreshCalculation": "重新計算同清除空白地點",
     "manuallyAdjusted": "已調整",
     "autoCalculated": "自動",
