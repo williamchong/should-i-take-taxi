@@ -55,10 +55,8 @@ export const useDarkMode = () => {
 
   // Cycle: system → light → dark → system
   const cycleTheme = () => {
-    const modes: ThemeMode[] = ['system', 'light', 'dark']
-    const currentIndex = modes.indexOf(themePreference.value)
-    const nextIndex = (currentIndex + 1) % modes.length
-    setThemePreference(modes[nextIndex])
+    const nextMode: Record<ThemeMode, ThemeMode> = { system: 'light', light: 'dark', dark: 'system' }
+    setThemePreference(nextMode[themePreference.value])
   }
 
   return {

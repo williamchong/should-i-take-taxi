@@ -24,7 +24,7 @@ export default defineNuxtPlugin(async () => {
     // localStorage unavailable (SSR, private browsing) — seed memory only
   }
 
-  const { default: precomputedCache } = await import('~/data/precomputed-cache.json')
+  const { default: precomputedCache } = await import('~~/data/precomputed-cache.json')
 
   const routes = precomputedCache.routes as Record<string, unknown>
   for (const [key, value] of Object.entries(routes)) {

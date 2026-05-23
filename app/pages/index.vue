@@ -243,7 +243,7 @@ import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import type { LocationResult } from '@/types/location'
 import { useEventListener, useIntersectionObserver } from '@vueuse/core'
 import { useLocationSearch } from '@/composables/useLocationSearch'
-import { findLocationByCoordinates } from '@/config/sitemap-routes'
+import { findLocationByCoordinates } from '~~/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
 import { getTaxiValueTier, getTierClasses } from '~/utils/transitValue'
@@ -588,6 +588,7 @@ function parseCoordinates(coordStr: string | undefined): { lat: number; lng: num
   if (!coordStr || typeof coordStr !== 'string') return null
 
   const [latStr, lngStr] = coordStr.split(',')
+  if (latStr === undefined || lngStr === undefined) return null
   const lat = parseFloat(latStr)
   const lng = parseFloat(lngStr)
 
@@ -670,8 +671,8 @@ function scrollToFare() {
 
 useIntersectionObserver(
   fareDisplayRef,
-  ([{ isIntersecting }]) => {
-    isFareVisible.value = isIntersecting
+  ([entry]) => {
+    isFareVisible.value = entry?.isIntersecting ?? false
   },
   { threshold: 0, rootMargin: '-60px 0px 0px 0px' }
 )

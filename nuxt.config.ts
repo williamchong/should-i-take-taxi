@@ -47,7 +47,6 @@ export default defineNuxtConfig({
         file: 'zh-CN.json'
       }
     ],
-    lazy: true,
     defaultLocale: 'en-hk',
   },
 

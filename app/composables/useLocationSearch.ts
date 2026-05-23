@@ -143,8 +143,8 @@ export function useLocationSearch() {
         { signal }
       ) as { code: string; routes: { distance: number; duration: number; geometry: { coordinates: [number, number][] } }[] }
 
-      if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
-        const route = data.routes[0]
+      const route = data.routes?.[0]
+      if (data.code === 'Ok' && route) {
         const result: RouteInfo = {
           distance: route.distance,
           time: route.duration,

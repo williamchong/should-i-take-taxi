@@ -451,8 +451,8 @@ const handleCalculateTransit = async () => {
 
     if (controller.signal.aborted) return
 
-    if (result?.plans?.length) {
-      const fastest = result.plans[0]
+    const fastest = result?.plans?.[0]
+    if (fastest) {
       const { walkSeconds, waitSeconds } = summarizeTransitLegs(fastest.legs ?? [])
       const payload = {
         transitDurationSeconds: fastest.duration_seconds,

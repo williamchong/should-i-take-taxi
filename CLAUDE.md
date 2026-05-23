@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-"Should I Take Taxi?" is a Hong Kong-focused web application that provides accurate taxi fare calculations for all three Hong Kong taxi types (Urban Red, New Territories Green, Lantau Blue). Built with Nuxt 3, it features real-time route planning with GPS location detection, automatic distance calculation via OSRM routing, interactive map displays, and comprehensive fare breakdowns including all tunnel fees and surcharges.
+"Should I Take Taxi?" is a Hong Kong-focused web application that provides accurate taxi fare calculations for all three Hong Kong taxi types (Urban Red, New Territories Green, Lantau Blue). Built with Nuxt 4, it features real-time route planning with GPS location detection, automatic distance calculation via OSRM routing, interactive map displays, and comprehensive fare breakdowns including all tunnel fees and surcharges.
 
 ## Development Commands
 
@@ -26,16 +26,20 @@ npm run test:watch         # Run tests in watch mode
 
 ## Architecture & Key Patterns
 
-### Nuxt 3 Structure
+### Nuxt 4 Structure
 
-This is a standard Nuxt 3 application with:
-- **components/**: Vue 3 components using Composition API with `<script setup>`
-- **composables/**: Reusable composition functions (`useLocationSearch.ts`, `useLocationDetection.ts`, `useRecentLocations.ts`, `useDarkMode.ts`)
-- **pages/**: File-based routing (currently single page: `index.vue`)
-- **plugins/**: Client-only plugins — `seed-cache.client.ts` populates the route/geocode caches from `data/precomputed-cache.json` on first visit (SEO landing page acceleration); `sweep-cache.client.ts` removes expired localStorage entries on app mount via `requestIdleCallback`
-- **types/**: TypeScript type definitions and constants (`constants.ts` holds `TAXI_RATES`, `TUNNEL_FEES`, `TAXI_FARE_CONSTANTS`, etc.)
-- **i18n/locales/**: Multilingual support (English, Traditional Chinese HK/TW, Simplified Chinese CN)
-- **utils/**: Pure-function helpers — `fareCalculation.ts` (extracted fare math), `cache.ts` (TTL + LRU cache), `boundingBoxes.ts` (HK region detection), `location.ts` (coordinate utilities), `transitValue.ts` (taxi-vs-transit value tier classification)
+This is a standard Nuxt 4 application. Source code lives under **`app/`** (the Nuxt 4 `srcDir` default), so the `~` and `@` aliases resolve to `app/`, while `~~` and `@@` resolve to the project root. Directories that stay at the root (`config/`, `data/`, `i18n/`, `scripts/`, `server/`, `public/`) are imported from app code via `~~` (e.g. `~~/config/sitemap-routes`, `~~/data/precomputed-cache.json`).
+
+Under `app/`:
+- **app/components/**: Vue 3 components using Composition API with `<script setup>`
+- **app/composables/**: Reusable composition functions (`useLocationSearch.ts`, `useLocationDetection.ts`, `useRecentLocations.ts`, `useDarkMode.ts`)
+- **app/pages/**: File-based routing (currently single page: `index.vue`)
+- **app/plugins/**: Client-only plugins — `seed-cache.client.ts` populates the route/geocode caches from `~~/data/precomputed-cache.json` on first visit (SEO landing page acceleration); `sweep-cache.client.ts` removes expired localStorage entries on app mount via `requestIdleCallback`
+- **app/types/**: TypeScript type definitions and constants (`constants.ts` holds `TAXI_RATES`, `TUNNEL_FEES`, `TAXI_FARE_CONSTANTS`, etc.)
+- **app/utils/**: Pure-function helpers — `fareCalculation.ts` (extracted fare math), `cache.ts` (TTL + LRU cache), `boundingBoxes.ts` (HK region detection), `location.ts` (coordinate utilities), `transitValue.ts` (taxi-vs-transit value tier classification)
+
+At the project root:
+- **i18n/locales/**: Multilingual support (English, Traditional Chinese HK/TW, Simplified Chinese CN). The `i18n/` directory is resolved relative to the project root (not `app/`), per `@nuxtjs/i18n`'s default `restructureDir: 'i18n'`
 - **scripts/**: `precompute-routes.mjs` — offline script that calls OSRM/Nominatim to generate `data/precomputed-cache.json` for popular sitemap routes
 - **config/**: `sitemap-routes.ts` — known landmark coordinates used for sitemap generation and reverse matching on shared URLs
 - **server/**: Server-side code (minimal usage)
