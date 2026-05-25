@@ -134,9 +134,17 @@ Configured in `nuxt.config.ts` via `@vite-pwa/nuxt`:
 - **Workbox**: precaches `**/*.{js,css,html,ico,png,svg,json,woff2}`; `navigateFallback: '/'` for offline SPA routing.
 - **Install prompt**: `client.installPrompt: true` lets the module surface the install prompt. `pages/index.vue` listens for `appinstalled` and `beforeinstallprompt` to track the install funnel via analytics.
 
+### UI Library (Nuxt UI v4 + Tailwind CSS v4)
+
+The UI is built on **Nuxt UI v4** (`@nuxt/ui`), which bundles and requires **Tailwind CSS v4**. There is no `tailwind.config.ts`; theme tokens are imported CSS-first via `app/assets/css/main.css` (`@import "tailwindcss"; @import "@nuxt/ui";`) referenced from `nuxt.config.ts` `css`. Design tokens (`primary: blue`, `neutral: slate`) and the icon-alias remap live in `app/app.config.ts`. The root layout wraps everything in `<UApp :locale>` (see i18n below).
+
+- **Components**: form controls and panels use Nuxt UI components — `UButton`, `UInput`, `UCheckbox`, `URadioGroup`, `UCollapsible`, `UBadge`, `UAlert`, `UCard`, `UIcon`. Domain colours (red/green/blue = Urban/NT/Lantau taxi types) stay as **literal** Tailwind classes, not theme tokens.
+- **Semantic colour tokens**: prefer Nuxt UI's `bg-default`/`bg-muted`/`bg-elevated`, `text-highlighted`/`text-default`/`text-muted`/`text-dimmed`, `border-default`, and `text-primary` over hand-written `… dark:…` pairs — they encode light+dark in one class.
+- **Icons**: served on-demand by `@nuxt/icon` (auto-registered by Nuxt UI) from the local `@iconify-json/heroicons` + `@iconify-json/simple-icons` collections. Use `i-heroicons-*` / `i-simple-icons-*`. Because only Heroicons are installed, `app.config.ts` remaps Nuxt UI's internal icon aliases (loading, close, check, chevrons…) from their Lucide defaults to Heroicons.
+
 ### Dark Mode
 
-`composables/useDarkMode.ts` exposes a `system | light | dark` tri-state preference (stored at `taxi-calc-theme-preference`). `usePreferredDark` from VueUse reactively tracks the system preference when `mode === 'system'`. `ThemeToggle.vue` is a fixed-position floating button that cycles through the three modes.
+Dark mode is handled by **`@nuxtjs/color-mode`** (auto-registered by Nuxt UI), which owns the `.dark` class, the FOUC-prevention script, and the page background. The legacy `storageKey: 'taxi-calc-theme-preference'` is preserved in `nuxt.config.ts` so saved preferences carry over. `composables/useDarkMode.ts` is now a thin wrapper exposing the resolved `isDark` (used by `MapDisplay.vue` for the dark/light basemap). `ThemeToggle.vue` renders Nuxt UI's `<UColorModeButton>` (a **binary** light/dark toggle) and re-emits the `theme_preference_changed` analytics + `theme_mode` super-property by watching `colorMode.preference`.
 
 ### Recent Locations
 
@@ -204,7 +212,7 @@ PostHog initialisation lives in `plugins/posthog.client.ts`. It registers a `bef
 
 **Privacy / PII**: never pass raw addresses, lat/lng, or user search queries as event properties. Distance is sent as both raw km and a coarse bucket (`distanceBucket()` in `TaxiFareCalculator.vue`); fares and tunnel selections are fine; locations are referenced only by slot (`'start'` / `'end'`) or boolean flags (`has_start`, `has_other_location`).
 
-**Super-properties** (PostHog only, registered in `pages/index.vue` on mount and on locale change): `locale`, `is_pwa_standalone`, plus `theme_mode` set from `useDarkMode.ts`.
+**Super-properties** (PostHog only, registered in `pages/index.vue` on mount and on locale change): `locale`, `is_pwa_standalone`, plus `theme_mode` registered from `ThemeToggle.vue` (watching `colorMode.preference`).
 
 Custom events tracked include:
 - Location selections (with `source` baked into the name: `_search` / `_recent`) and swapping
@@ -229,8 +237,8 @@ Custom events tracked include:
 ## Modules & Configuration
 
 Key Nuxt modules configured in `nuxt.config.ts`:
-- `@nuxtjs/i18n`: Internationalization
-- `@nuxtjs/tailwindcss`: Utility-first CSS
+- `@nuxt/ui`: Component library (Nuxt UI v4) — bundles Tailwind CSS v4 and auto-registers `@nuxtjs/color-mode`, `@nuxt/icon`, and `@nuxt/fonts` (do not add those manually). See "UI Library" above.
+- `@nuxtjs/i18n`: Internationalization. Nuxt UI's own component strings are localized via `<UApp :locale>` in `app.vue`, mapping the active locale to `@nuxt/ui/locale`'s `en` / `zh_cn` / `zh_tw` (`zh-hk` → `zh_tw`).
 - `@nuxtjs/leaflet`: Leaflet maps
 - `@nuxtjs/sitemap`: SEO sitemap generation
 - `@sentry/nuxt`: Error tracking (tracing + debug code tree-shaken out of the client bundle via `__SENTRY_DEBUG__`/`__SENTRY_TRACING__` `vite.define` flags)

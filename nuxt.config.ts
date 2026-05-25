@@ -8,15 +8,36 @@ export default defineNuxtConfig({
   devtools: { enabled: process.env.NODE_ENV === 'development' },
 
   modules: [
+    '@nuxt/ui',
     '@nuxtjs/i18n',
     '@nuxtjs/sitemap',
-    '@nuxtjs/tailwindcss',
     '@nuxt/eslint',
     '@nuxtjs/leaflet',
     '@sentry/nuxt/module',
     '@vite-pwa/nuxt',
     '@nuxt/scripts',
   ],
+
+  // Nuxt UI bundles Tailwind CSS v4; theme is imported from this stylesheet.
+  css: ['~/assets/css/main.css'],
+
+  // Nuxt UI auto-registers @nuxtjs/color-mode. Keep the legacy storage key so
+  // existing visitors' saved light/dark/system preference carries over.
+  colorMode: {
+    storageKey: 'taxi-calc-theme-preference',
+  },
+
+  // Static GitHub Pages deploy has no server, so @nuxt/icon's default `local`
+  // server bundle (an API endpoint) is unreachable at runtime — client-only
+  // icons (collapsible chevrons, loading spinners, checkboxes) would fall back
+  // to the remote Iconify CDN and break offline in the PWA. Bundle every used
+  // icon into the client instead so they render instantly and work offline.
+  icon: {
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 256,
+    },
+  },
 
   i18n: {
     baseUrl: siteUrl,

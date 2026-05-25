@@ -1,25 +1,24 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 sm:p-8 mb-8">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $t('taxiCalculator.title') }}</h2>
-      <div class="flex items-center gap-2">
-        <div class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-600 dark:text-gray-300 flex items-center">
-          <span>🇭🇰</span>
+  <UCard class="mb-8">
+    <template #header>
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-highlighted">{{ $t('taxiCalculator.title') }}</h2>
+        <div class="flex items-center gap-2">
+          <UBadge color="neutral" variant="soft" size="lg">🇭🇰</UBadge>
+          <!-- 重新整理按鈕 -->
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="sm"
+            class="rounded-full"
+            icon="i-heroicons-arrow-path"
+            :title="$t('taxiCalculator.refreshCalculation')"
+            :aria-label="$t('taxiCalculator.refreshCalculation')"
+            @click="handleRefresh"
+          />
         </div>
-        <!-- 重新整理按鈕 -->
-        <button
-          type="button"
-          class="inline-flex justify-center p-1.5 border border-gray-200 dark:border-gray-700 shadow-sm text-sm font-medium rounded-full text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
-          :title="$t('taxiCalculator.refreshCalculation')"
-          :aria-label="$t('taxiCalculator.refreshCalculation')"
-          @click="handleRefresh"
-        >
-          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
       </div>
-    </div>
+    </template>
 
     <form>
       <div class="space-y-6">
@@ -27,7 +26,7 @@
         <div class="grid grid-cols-1 gap-6">
           <!-- 起點搜尋 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label for="startLocation" class="text-gray-700 dark:text-gray-300 font-medium">
+            <label for="startLocation" class="text-default font-medium">
               {{ $t('taxiCalculator.startLocation') }}
             </label>
             <div class="flex space-x-2">
@@ -35,37 +34,28 @@
                 id="startLocation"
                 ref="startLocationSearchRef"
                 v-model="startLocationSearch"
-                class="flex-grow"
+                class="grow"
                 @select="selectStartLocation"
                 @focus="focusedInput = 'start'"
                 @blur="focusedInput = null"
               />
               <!-- 只在支援地理位置時才顯示定位按鈕 -->
-              <button
+              <UButton
                 v-if="isGeolocationSupported"
-                type="button"
-                class="inline-flex items-center justify-center gap-2 py-2 px-4 border border-transparent shadow-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                color="success"
+                icon="i-heroicons-map-pin"
+                :loading="isGettingLocation"
                 :disabled="isGettingLocation"
                 :title="$t('taxiCalculator.useCurrentLocation')"
                 :aria-label="$t('taxiCalculator.useCurrentLocation')"
                 @click="getCurrentLocation"
-              >
-                <span v-if="isGettingLocation">
-                  <div class="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
-                </span>
-                <template v-else>
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </template>
-              </button>
+              />
             </div>
           </div>
 
           <!-- 終點搜尋 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <label for="endLocation" class="text-gray-700 dark:text-gray-300 font-medium">
+            <label for="endLocation" class="text-default font-medium">
               {{ $t('taxiCalculator.endLocation') }}
             </label>
             <div class="flex space-x-2">
@@ -73,24 +63,21 @@
                 id="endLocation"
                 ref="endLocationSearchRef"
                 v-model="endLocationSearch"
-                class="flex-grow"
+                class="grow"
                 @select="selectEndLocation"
                 @focus="focusedInput = 'end'"
                 @blur="focusedInput = null"
               />
               <!-- 交換起終點按鈕 -->
-              <button
-                type="button"
-                class="inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              <UButton
+                color="neutral"
+                variant="outline"
+                icon="i-heroicons-arrows-up-down"
                 :disabled="!selectedStartLocation || !selectedEndLocation"
                 :title="$t('taxiCalculator.swapLocations')"
                 :aria-label="$t('taxiCalculator.swapLocations')"
                 @click="swapLocations"
-              >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </button>
+              />
             </div>
           </div>
 
@@ -101,14 +88,14 @@
               :title="$t('taxiCalculator.viewDetails')"
               @click="track('inline_summary_taxi_fare_clicked', { total_fare_hkd: totalFare, taxi_type: taxiType })"
             >
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:underline">{{ $t('taxiCalculator.estimatedFare') }}</span>
-              <span v-if="isCalculating" class="text-lg font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                <span class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
+              <span class="text-sm font-medium text-default group-hover:underline">{{ $t('taxiCalculator.estimatedFare') }}</span>
+              <span v-if="isCalculating" class="text-lg font-bold text-primary flex items-center gap-2">
+                <span class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"/>
                 {{ $t('taxiCalculator.calculatingFare') }}
               </span>
-              <span v-else class="text-2xl font-bold text-blue-600 dark:text-blue-400 group-hover:underline">HK$ {{ totalFare.toFixed(2) }}</span>
+              <span v-else class="text-2xl font-bold text-primary group-hover:underline">HK$ {{ totalFare.toFixed(2) }}</span>
             </a>
-            <div v-if="!isCalculating && routeInfo.time > 0" class="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+            <div v-if="!isCalculating && routeInfo.time > 0" class="text-xs text-dimmed leading-tight">
               ~{{ Math.round(routeInfo.time / 60) }} {{ $t('transitComparison.min') }}<template v-if="transitMinutesSaved > 0"> · <a
                 href="#transit-detail"
                 :class="transitSavingsLinkClass"
@@ -146,7 +133,7 @@
 
       </div>
     </form>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">

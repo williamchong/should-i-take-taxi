@@ -1,22 +1,22 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-muted">
     <!-- Theme Toggle -->
     <ClientOnly><ThemeToggle /></ClientOnly>
 
     <!-- Sticky Fare Summary -->
     <Transition name="slide-down">
-      <div v-if="showStickyFare" class="fixed top-0 left-0 right-0 z-[1000] bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
+      <div v-if="showStickyFare" class="fixed top-0 left-0 right-0 z-[1000] bg-default shadow-lg border-b border-default">
         <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('taxiCalculator.estimatedFare') }}:</span>
-            <span v-if="fareData?.isCalculating" class="text-lg font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
-              <span class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
+            <span class="text-sm text-muted">{{ $t('taxiCalculator.estimatedFare') }}:</span>
+            <span v-if="fareData?.isCalculating" class="text-lg font-bold text-primary flex items-center gap-2">
+              <span class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"/>
               {{ $t('taxiCalculator.calculatingFare') }}
             </span>
             <button
               v-else
               type="button"
-              class="text-2xl font-bold text-blue-600 dark:text-blue-400"
+              class="text-2xl font-bold text-primary"
               @click="scrollToFare"
             >
               HK$ {{ fareData?.totalFare.toFixed(2) }}
@@ -36,8 +36,8 @@
       >
         <!-- 1. Title/Logo (only when no locations selected) -->
         <template v-if="!hasSelectedLocations">
-          <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">{{ $t('title') }}</h1>
-          <p class="text-center text-gray-600 dark:text-gray-400 text-lg mb-8">{{ $t('description') }}</p>
+          <h1 class="text-3xl sm:text-4xl font-bold text-center text-highlighted mb-2">{{ $t('title') }}</h1>
+          <p class="text-center text-muted text-lg mb-8">{{ $t('description') }}</p>
           <div v-if="isInitialGpsPending" class="flex justify-center mb-8">
             <div class="relative">
               <picture>
@@ -60,7 +60,7 @@
                   <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full" />
                   <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full animate-spin border-t-transparent" />
                 </div>
-                <p class="text-sm font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-md">
+                <p class="text-sm font-semibold text-primary bg-default px-3 py-1 rounded-full shadow-md">
                   {{ $t('loading') }}
                 </p>
               </div>
@@ -79,10 +79,8 @@
           @map-clicked="handleMapClick"
         />
         <!-- Hint text for draggable markers -->
-        <div v-if="hasSelectedLocations" class="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+        <div v-if="hasSelectedLocations" class="text-sm text-dimmed mt-2 flex items-center gap-1">
+          <UIcon name="i-heroicons-information-circle" class="h-4 w-4" />
           <span>{{ $t('taxiCalculator.markerDragHint') }}</span>
         </div>
       </div>
@@ -102,19 +100,19 @@
 
       <!-- 4. Fare Display (prominent, when calculated) -->
       <div v-if="fareData" id="taxi-fare-detail" ref="fareDisplayRef" class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border-2 border-blue-200 dark:border-blue-700 scroll-mt-20">
-        <h3 class="text-xl font-medium text-gray-900 dark:text-gray-100">{{ $t('taxiCalculator.estimatedFare') }}</h3>
-        <p v-if="fareData.isCalculating" class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2 mb-4 flex items-center gap-3">
-          <span class="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 dark:border-blue-400 border-t-transparent"/>
+        <h3 class="text-xl font-medium text-highlighted">{{ $t('taxiCalculator.estimatedFare') }}</h3>
+        <p v-if="fareData.isCalculating" class="text-3xl font-bold text-primary mt-2 mb-4 flex items-center gap-3">
+          <span class="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"/>
           {{ $t('taxiCalculator.calculatingFare') }}
         </p>
-        <p v-else class="text-5xl font-bold text-blue-600 dark:text-blue-400 mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
+        <p v-else class="text-5xl font-bold text-primary mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
 
         <div class="border-t border-blue-200 dark:border-blue-700 pt-4 mt-4">
-          <div class="text-sm text-gray-600 dark:text-gray-400">
+          <div class="text-sm text-muted">
             <div class="grid grid-cols-2 gap-2">
               <template v-if="fareData.breakdown.discount > 0">
                 <span>{{ $t('taxiCalculator.meterFare') }}:</span>
-                <span class="text-right line-through text-gray-400 dark:text-gray-500">HK$ {{ fareData.breakdown.meterFare.toFixed(2) }}</span>
+                <span class="text-right line-through text-dimmed">HK$ {{ fareData.breakdown.meterFare.toFixed(2) }}</span>
 
                 <span>{{ $t('taxiCalculator.discountedFare') }}:</span>
                 <span class="text-right">HK$ {{ (fareData.breakdown.meterFare - fareData.breakdown.discount).toFixed(2) }}</span>
@@ -150,16 +148,16 @@
       </div>
 
       <!-- Transit Comparison -->
-      <div v-if="transitData" id="transit-detail" class="mb-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 scroll-mt-20">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ $t('transitComparison.title') }}</h3>
+      <UCard v-if="transitData" id="transit-detail" class="mb-8 scroll-mt-20">
+        <h3 class="text-lg font-semibold text-highlighted mb-4">{{ $t('transitComparison.title') }}</h3>
 
         <!-- Loading skeleton -->
         <div v-if="transitData.isCalculating" class="animate-pulse space-y-3">
           <div class="grid grid-cols-2 gap-4">
-            <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
-            <div class="h-16 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div class="h-16 bg-elevated rounded-lg" />
+            <div class="h-16 bg-elevated rounded-lg" />
           </div>
-          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+          <div class="h-4 bg-elevated rounded-sm w-3/4" />
         </div>
 
         <!-- Comparison content -->
@@ -167,15 +165,15 @@
           <div class="grid grid-cols-2 gap-4 mb-4">
             <!-- Taxi column -->
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.taxiBg">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ $t('transitComparison.taxi') }}</div>
+              <div class="text-sm font-medium text-dimmed mb-1">{{ $t('transitComparison.taxi') }}</div>
               <div class="text-2xl font-bold" :class="tierClasses.taxiText">{{ Math.round(transitData.drivingTimeSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
-              <div v-if="fareData" class="text-sm text-gray-600 dark:text-gray-400 mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
+              <div v-if="fareData" class="text-sm text-muted mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
             </div>
             <!-- Public Transit column -->
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.transitBg">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{{ $t('transitComparison.publicTransit') }}</div>
+              <div class="text-sm font-medium text-dimmed mb-1">{{ $t('transitComparison.publicTransit') }}</div>
               <div class="text-2xl font-bold" :class="tierClasses.transitText">{{ Math.round(transitData.transitDurationSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
-              <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <div class="text-sm text-muted mt-1">
                 <template v-if="transitData.transitFareMin === transitData.transitFareMax">
                   HK$ {{ transitData.transitFareMin.toFixed(2) }}
                 </template>
@@ -183,7 +181,7 @@
                   HK$ {{ transitData.transitFareMin.toFixed(2) }} – {{ transitData.transitFareMax.toFixed(2) }}
                 </template>
               </div>
-              <div v-if="transitWalkMinutes > 0 || transitWaitMinutes > 0" class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-tight">
+              <div v-if="transitWalkMinutes > 0 || transitWaitMinutes > 0" class="text-xs text-dimmed mt-1 leading-tight">
                 <span v-if="transitWalkMinutes > 0">{{ $t('transitComparison.walkingTime', { min: transitWalkMinutes }) }}</span>
                 <span v-if="transitWalkMinutes > 0 && transitWaitMinutes > 0"> · </span>
                 <span v-if="transitWaitMinutes > 0">{{ $t('transitComparison.waitingTime', { min: transitWaitMinutes }) }}</span>
@@ -192,45 +190,52 @@
           </div>
 
           <!-- Summary -->
-          <div class="text-sm text-gray-600 dark:text-gray-400">
+          <div class="text-sm text-muted">
             <template v-if="transitMinutesSaved > 0">
-              <p class="font-medium text-gray-900 dark:text-gray-100">
+              <p class="font-medium text-highlighted">
                 {{ $t('transitComparison.timeSaved', { minutes: transitMinutesSaved }) }}
               </p>
               <p v-if="transitCostPerHour" class="mt-1">
                 {{ $t('transitComparison.costPerHour', { cost: transitCostPerHour }) }}
               </p>
             </template>
-            <p v-else class="font-medium text-gray-900 dark:text-gray-100">
+            <p v-else class="font-medium text-highlighted">
               {{ $t('transitComparison.noTimeSaved') }}
             </p>
           </div>
 
           <!-- Attribution -->
-          <p class="text-xs text-gray-400 dark:text-gray-500 mt-3">
+          <p class="text-xs text-dimmed mt-3">
             <i18n-t keypath="transitComparison.poweredBy" tag="span">
               <template #link>
-                <a href="https://justusewheels.com?utm_source=shoulditake.taxi&utm_medium=referral&utm_campaign=transit_comparison" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-600 dark:hover:text-gray-300">Wheels</a>
+                <a href="https://justusewheels.com?utm_source=shoulditake.taxi&utm_medium=referral&utm_campaign=transit_comparison" target="_blank" rel="noopener noreferrer" class="underline hover:text-muted">Wheels</a>
               </template>
             </i18n-t>
           </p>
         </template>
-      </div>
+      </UCard>
 
       <!-- 5. Introduction (collapsible) -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-        <button
-          type="button"
-          class="w-full flex items-center justify-between text-left"
-          @click="showIntroduction = !showIntroduction"
-        >
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ $t('intro.showIntroduction') }}</h2>
-          <span class="text-gray-600 dark:text-gray-400 text-lg">{{ showIntroduction ? '▼' : '▶' }}</span>
-        </button>
-        <div v-show="showIntroduction" class="mt-4">
-          <IntroductionSection />
-        </div>
-      </div>
+      <UCard>
+        <UCollapsible>
+          <template #default="{ open }">
+            <UButton
+              block
+              color="neutral"
+              variant="ghost"
+              class="justify-between"
+              :trailing-icon="open ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'"
+            >
+              <span class="text-xl font-semibold text-highlighted">{{ $t('intro.showIntroduction') }}</span>
+            </UButton>
+          </template>
+          <template #content>
+            <div class="mt-4">
+              <IntroductionSection />
+            </div>
+          </template>
+        </UCollapsible>
+      </UCard>
     </div>
   </div>
 </template>
@@ -257,7 +262,6 @@ const { reverseGeocode, getCachedRoute } = useLocationSearch()
 const { track, registerSuperProperties } = useAnalytics()
 const { url: siteUrl } = useSiteConfig()
 
-const showIntroduction = ref(false)
 const isFareVisible = ref(false)
 const showStickyFare = computed(() => {
   return !isFareVisible.value && hasSelectedLocations.value && fareData.value !== null
