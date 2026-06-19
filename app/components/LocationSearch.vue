@@ -10,6 +10,8 @@
       class="w-full"
       :placeholder="$t('taxiCalculator.searchPlace')"
       @input="debounceSearch"
+      @compositionstart="handleCompositionStart"
+      @compositionend="handleCompositionEnd"
       @focus="handleFocus"
     >
       <template v-if="searchText && !isSearching" #trailing>
@@ -92,6 +94,9 @@ const searchText = ref(props.modelValue)
 const searchResults = ref<LocationResult[]>([])
 const isSearching = ref(false)
 const isFocused = ref(false)
+// True while an IME composition (e.g. pinyin/jyutping) is in progress. We defer
+// emitting/searching until compositionend so partial romanization isn't searched.
+const isComposing = ref(false)
 const recentLocations = ref<LocationResult[]>([])
 const lastCommittedValue = ref(props.modelValue)
 // UInput exposes the underlying <input> element via `inputRef`.
@@ -104,12 +109,15 @@ onMounted(() => {
 })
 
 watch(() => props.modelValue, (newValue) => {
-  // Update lastCommittedValue only when:
-  // 1. Not focused (normal updates like initial load)
-  // 2. Focused but value changed externally (map click, swap, GPS - not from typing)
-  if (!isFocused.value || searchText.value !== newValue) {
-    lastCommittedValue.value = newValue
-  }
+  if (searchText.value === newValue) return
+  // While this field is focused the user's keystrokes are the source of truth.
+  // Parent prop changes are just our own emit round-tripping back, and a stale
+  // echo arriving a keystroke late would reset Nuxt UI's controlled <input> and
+  // drop characters during fast typing. External updates (map/swap/GPS) blur the
+  // field first via onClickOutside, so they still apply.
+  if (isFocused.value) return
+  // External change (map click, swap, GPS, initial load).
+  lastCommittedValue.value = newValue
   searchText.value = newValue
 })
 
@@ -160,9 +168,21 @@ const debouncedSearch = useDebounceFn(async () => {
 }, UI_CONSTANTS.SEARCH_DEBOUNCE_MS)
 
 const debounceSearch = () => {
+  // Skip mid-composition; handleCompositionEnd calls this once with the committed text.
+  if (isComposing.value) return
   isFocused.value = true
   emit('update:modelValue', searchText.value)
   debouncedSearch()
+}
+
+const handleCompositionStart = () => {
+  isComposing.value = true
+}
+
+const handleCompositionEnd = () => {
+  // v-model flushes searchText on compositionend, so the committed text is ready.
+  isComposing.value = false
+  debounceSearch()
 }
 
 const handleSelect = async (location: LocationResult, source: 'search' | 'recent') => {
