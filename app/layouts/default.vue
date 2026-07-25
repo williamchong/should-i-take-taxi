@@ -25,9 +25,6 @@ const getAllLocaleUrls = () => {
 const getFAQData = () => {
   const faqObj = tm('intro.faq') as { questions?: Array<{ question: string; answer: string }> }
   const faqQuestions = faqObj && Array.isArray(faqObj.questions) ? faqObj.questions : []
-  if (!Array.isArray(faqQuestions)) {
-    return []
-  }
   return faqQuestions.map(faq => ({
     '@type': 'Question',
     name: rt(faq.question),
@@ -42,9 +39,6 @@ const getFAQData = () => {
 const getFeatureList = () => {
   const featureObj = tm('intro.features') as { list?: Array<{ title: string; description: string }> }
   const features = featureObj && Array.isArray(featureObj.list) ? featureObj.list : []
-  if (!Array.isArray(features)) {
-    return []
-  }
   return features.map(feature => rt(feature.description))
 }
 

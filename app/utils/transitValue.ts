@@ -20,6 +20,21 @@ export interface TaxiValueInput {
   transitTimeSeconds: number
 }
 
+/**
+ * The taxi-vs-transit payload TaxiFareCalculator emits and pages/index.vue
+ * renders. `isCalculating` marks the placeholder emitted while the Wheels
+ * request is still in flight.
+ */
+export interface TransitComparison {
+  transitDurationSeconds: number
+  transitFareMin: number
+  transitFareMax: number
+  transitWalkSeconds: number
+  transitWaitSeconds: number
+  drivingTimeSeconds: number
+  isCalculating: boolean
+}
+
 // Classify whether taking a taxi over public transit is "worth it" for a
 // typical HK person. Compares cost-per-minute-saved against wage-rate
 // thresholds, scaled up for trips that save a lot of absolute time:

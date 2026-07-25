@@ -81,7 +81,7 @@
             </div>
           </div>
 
-          <div v-if="totalFare > 0 || isCalculating" class="mt-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700/50">
+          <div v-if="totalFare > 0 || isCalculatingDistance" class="mt-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700/50">
             <a
               href="#taxi-fare-detail"
               class="flex items-center justify-between group"
@@ -89,13 +89,13 @@
               @click="track('inline_summary_taxi_fare_clicked', { total_fare_hkd: totalFare, taxi_type: taxiType })"
             >
               <span class="text-sm font-medium text-default group-hover:underline">{{ $t('taxiCalculator.estimatedFare') }}</span>
-              <span v-if="isCalculating" class="text-lg font-bold text-primary flex items-center gap-2">
+              <span v-if="isCalculatingDistance" class="text-lg font-bold text-primary flex items-center gap-2">
                 <span class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"/>
                 {{ $t('taxiCalculator.calculatingFare') }}
               </span>
               <span v-else class="text-2xl font-bold text-primary group-hover:underline">HK$ {{ totalFare.toFixed(2) }}</span>
             </a>
-            <div v-if="!isCalculating && routeInfo.time > 0" class="text-xs text-dimmed leading-tight">
+            <div v-if="!isCalculatingDistance && routeInfo.time > 0" class="text-xs text-dimmed leading-tight">
               ~{{ Math.round(routeInfo.time / 60) }} {{ $t('transitComparison.min') }}<template v-if="transitMinutesSaved > 0"> · <a
                 href="#transit-detail"
                 :class="transitSavingsLinkClass"
@@ -153,7 +153,9 @@ import {
 } from '~/types/constants'
 import { createLocationFromCoordinates } from '~/utils/location'
 import { calculateTotalFare } from '~/utils/fareCalculation'
-import { getTaxiValueTier, getTierClasses, summarizeTransitLegs } from '~/utils/transitValue'
+import type { TransitComparison } from '~/utils/transitValue'
+import { summarizeTransitLegs } from '~/utils/transitValue'
+import { useTransitComparison } from '~/composables/useTransitComparison'
 import { distanceBucket } from '~/utils/analytics'
 
 const props = defineProps<{
@@ -188,16 +190,8 @@ const selectedEndLocation = ref<LocationResult | null>(null)
 const isCalculatingDistance = ref(false)
 const isGettingLocation = ref(false)
 const routeInfo = ref({ distance: 0, time: 0, coordinates: [] as [number, number][] })
-const transitInfo = ref<{
-  transitDurationSeconds: number
-  transitFareMin: number
-  transitFareMax: number
-  transitWalkSeconds: number
-  transitWaitSeconds: number
-  drivingTimeSeconds: number
-  isCalculating: boolean
-} | null>(null)
-const focusedInput = ref<'start' | 'end' | null>(null)
+const transitInfo = ref<TransitComparison | null>(null)
+const focusedInput = ref<LocationSlot | null>(null)
 
 // 距離編輯相關
 const autoCalculatedDistance = ref(0)
@@ -207,15 +201,68 @@ const isManualOverride = ref(false)
 const startLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | null>(null)
 const endLocationSearchRef = ref<{ focus: (options?: FocusOptions) => void } | null>(null)
 
+const slotLocation = { start: selectedStartLocation, end: selectedEndLocation }
+const slotSearch = { start: startLocationSearch, end: endLocationSearch }
+const otherSlot = (slot: LocationSlot): LocationSlot => slot === 'start' ? 'end' : 'start'
+
 // Abort controllers to cancel stale async operations (distance calc, geocoding per slot)
 let distanceAbort: AbortController | null = null
-let startGeocodeAbort: AbortController | null = null
-let endGeocodeAbort: AbortController | null = null
 let transitAbort: AbortController | null = null
+const geocodeAborts: Record<LocationSlot, AbortController | null> = { start: null, end: null }
+
+// 出租車類型標籤
+const taxiTypeLabel = computed(() => {
+  const typeMap: Record<TaxiType, string> = {
+    urban: t('taxiCalculator.urban'),
+    newTerritories: t('taxiCalculator.newTerritories'),
+    lantau: t('taxiCalculator.lantau'),
+  }
+  return typeMap[taxiType.value]
+})
+
+const fareResult = computed(() => calculateTotalFare({
+  distance: distance.value,
+  taxiType: taxiType.value,
+  selectedTunnels: selectedTunnels.value,
+  tunnelFeeType: tunnelFeeType.value,
+  isDiscountFare: isDiscountFare.value,
+  luggageCount: luggageCount.value,
+}))
+
+const totalFare = computed(() => fareResult.value.totalFare)
+
+const fareBreakdown = computed(() => ({
+  ...fareResult.value.breakdown,
+  taxiTypeLabel: taxiTypeLabel.value,
+}))
+
+const {
+  minutesSaved: transitMinutesSaved,
+  tier: taxiValueTier,
+  tierClasses,
+} = useTransitComparison(transitInfo, totalFare)
 
 const createFallbackLocation = (latitude: number, longitude: number): LocationResult => {
   const coordsLabel = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
   return createLocationFromCoordinates(latitude, longitude, `${t('taxiCalculator.customLocation')} (${coordsLabel})`)
+}
+
+/** Point a slot at a location, sync its search box, and tell the parent. */
+const setSlotLocation = (slot: LocationSlot, location: LocationResult) => {
+  slotLocation[slot].value = location
+  slotSearch[slot].value = location.displayAddress
+  emitLocations()
+}
+
+const abortSlotGeocode = (slot: LocationSlot) => {
+  geocodeAborts[slot]?.abort()
+  geocodeAborts[slot] = null
+}
+
+/** Cancel any in-flight geocode for a slot and take ownership of the next one. */
+const beginSlotGeocode = (slot: LocationSlot): AbortController => {
+  geocodeAborts[slot]?.abort()
+  return (geocodeAborts[slot] = new AbortController())
 }
 
 // Auto-select Cross Harbour Tunnel for cross-harbour routes
@@ -233,12 +280,10 @@ const autoSelectCrossHarbourTunnel = () => {
 
 const selectLocation = async (type: LocationSlot, location: LocationResult | null, source?: 'search' | 'recent') => {
   // Abort any in-flight geocoding for this slot
-  if (type === 'start') { startGeocodeAbort?.abort(); startGeocodeAbort = null }
-  else { endGeocodeAbort?.abort(); endGeocodeAbort = null }
+  abortSlotGeocode(type)
 
-  const locationRef = type === 'start' ? selectedStartLocation : selectedEndLocation
-  const otherLocationRef = type === 'start' ? selectedEndLocation : selectedStartLocation
-  locationRef.value = location
+  const otherLocation = slotLocation[otherSlot(type)]
+  slotLocation[type].value = location
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
 
   // Clear transit info and abort any in-flight transit request
@@ -257,7 +302,7 @@ const selectLocation = async (type: LocationSlot, location: LocationResult | nul
   track('taxi_location_selected', {
     slot: type,
     source: source ?? 'programmatic',
-    has_other_location: Boolean(otherLocationRef.value),
+    has_other_location: Boolean(otherLocation.value),
   }, {
     ga4Event: source
       ? `taxi_${type}_location_selected_${source}`
@@ -265,7 +310,7 @@ const selectLocation = async (type: LocationSlot, location: LocationResult | nul
   })
 
   // Auto-select Cross Harbour Tunnel if needed
-  if (location && otherLocationRef.value) {
+  if (location && otherLocation.value) {
     autoSelectCrossHarbourTunnel()
   }
 
@@ -297,22 +342,7 @@ const canCalculateDistance = computed(() => {
   return selectedStartLocation.value && selectedEndLocation.value
 })
 
-const transitMinutesSaved = computed(() => {
-  if (!transitInfo.value || transitInfo.value.isCalculating) return 0
-  return Math.round((transitInfo.value.transitDurationSeconds - transitInfo.value.drivingTimeSeconds) / 60)
-})
-
-const taxiValueTier = computed(() => {
-  if (!transitInfo.value || transitInfo.value.isCalculating || totalFare.value <= 0) return null
-  return getTaxiValueTier({
-    taxiFare: totalFare.value,
-    taxiTimeSeconds: routeInfo.value.time,
-    transitFareMin: transitInfo.value.transitFareMin,
-    transitTimeSeconds: transitInfo.value.transitDurationSeconds,
-  })
-})
-
-const transitSavingsLinkClass = computed(() => `${getTierClasses(taxiValueTier.value).savingsText} hover:underline`)
+const transitSavingsLinkClass = computed(() => `${tierClasses.value.savingsText} hover:underline`)
 
 // Suggest taxi type based on route
 const suggestTaxiType = () => {
@@ -342,51 +372,24 @@ const dismissSuggestion = () => {
 const handleMarkerDragged = async ({ type, latitude, longitude }: { type: LocationSlot, latitude: number, longitude: number }) => {
   track('taxi_marker_dragged', { slot: type }, { ga4Event: `taxi_marker_dragged_${type}` })
 
-  // Immediately update location with coordinates (non-blocking)
-  const tempLocation = createFallbackLocation(latitude, longitude)
+  // Show the raw coordinates immediately; the geocoded address replaces them below
+  setSlotLocation(type, createFallbackLocation(latitude, longitude))
 
-  if (type === 'start') {
-    selectedStartLocation.value = tempLocation
-    startLocationSearch.value = tempLocation.displayAddress
-  } else {
-    selectedEndLocation.value = tempLocation
-    endLocationSearch.value = tempLocation.displayAddress
-  }
+  autoSelectCrossHarbourTunnel()
 
-  // Emit to parent immediately
-  emitLocations()
-
-  // Auto-select cross-harbour tunnel if applicable
-  if (selectedStartLocation.value && selectedEndLocation.value) {
-    autoSelectCrossHarbourTunnel()
-  }
-
-  // Recalculate route (this will show loading overlay, but that's for route calculation)
   if (canCalculateDistance.value) {
     await handleCalculateDistance()
   }
 
-  // Do reverse geocoding in background to get proper address
-  const controller = new AbortController()
-  if (type === 'start') { startGeocodeAbort?.abort(); startGeocodeAbort = controller }
-  else { endGeocodeAbort?.abort(); endGeocodeAbort = controller }
+  const controller = beginSlotGeocode(type)
 
   try {
     const location = await reverseGeocode(latitude, longitude, controller.signal)
 
     // Update with geocoded address if successful
     if (location) {
-      if (type === 'start') {
-        selectedStartLocation.value = location
-        startLocationSearch.value = location.displayAddress
-      } else {
-        selectedEndLocation.value = location
-        endLocationSearch.value = location.displayAddress
-      }
+      setSlotLocation(type, location)
       track('taxi_marker_drag_geocoded', { slot: type }, { ga4Event: `taxi_marker_drag_geocoded_${type}` })
-
-      // Emit updated location to parent
-      emitLocations()
     } else {
       // Geocoding failed, keep the coordinates-based location
       console.warn('Reverse geocoding failed, using coordinates only')
@@ -452,11 +455,11 @@ const handleCalculateTransit = async () => {
       }
       transitInfo.value = payload
       emit('update:transitInfo', payload)
+      // Both read through the composable, which now sees the payload assigned above.
       const tier = taxiValueTier.value ?? 'unknown'
-      const minutesSaved = Math.round((payload.transitDurationSeconds - payload.drivingTimeSeconds) / 60)
       track('transit_comparison_loaded', {
         tier,
-        minutes_saved: minutesSaved,
+        minutes_saved: transitMinutesSaved.value,
         taxi_fare_hkd: totalFare.value,
         transit_fare_min_hkd: payload.transitFareMin,
         transit_fare_max_hkd: payload.transitFareMax,
@@ -543,8 +546,7 @@ const getCurrentLocation = async () => {
     return
   }
 
-  startGeocodeAbort?.abort()
-  const controller = startGeocodeAbort = new AbortController()
+  const controller = beginSlotGeocode('start')
   isGettingLocation.value = true
   track('taxi_get_current_location_attempt')
 
@@ -588,7 +590,7 @@ const getCurrentLocation = async () => {
 
     // 更新位置
     startLocationSearch.value = location.displayAddress
-    startGeocodeAbort = null
+    geocodeAborts.start = null
     await selectStartLocation(location)
     track('taxi_get_current_location_success', {
       reverse_geocoded: location.addressEN !== '' || location.addressZH !== '',
@@ -612,8 +614,8 @@ const swapLocations = async () => {
   }
 
   // Abort any in-flight geocoding and transit requests
-  startGeocodeAbort?.abort(); startGeocodeAbort = null
-  endGeocodeAbort?.abort(); endGeocodeAbort = null
+  abortSlotGeocode('start')
+  abortSlotGeocode('end')
   transitAbort?.abort(); transitAbort = null
   emit('update:transitInfo', null)
 
@@ -723,8 +725,8 @@ watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as c
 
 onUnmounted(() => {
   distanceAbort?.abort()
-  startGeocodeAbort?.abort()
-  endGeocodeAbort?.abort()
+  abortSlotGeocode('start')
+  abortSlotGeocode('end')
   transitAbort?.abort()
 })
 
@@ -756,36 +758,6 @@ onMounted(() => {
   }
 })
 
-// 獲取出租車類型標籤的計算屬性
-const getTaxiTypeLabel = computed(() => {
-  const typeMap: Record<'urban' | 'newTerritories' | 'lantau', string> = {
-    'urban': t('taxiCalculator.urban'),
-    'newTerritories': t('taxiCalculator.newTerritories'),
-    'lantau': t('taxiCalculator.lantau')
-  };
-  return typeMap[taxiType.value]
-})
-
-const fareResult = computed(() => calculateTotalFare({
-  distance: distance.value,
-  taxiType: taxiType.value,
-  selectedTunnels: selectedTunnels.value,
-  tunnelFeeType: tunnelFeeType.value,
-  isDiscountFare: isDiscountFare.value,
-  luggageCount: luggageCount.value,
-}))
-
-const totalFare = computed(() => fareResult.value.totalFare)
-
-const fareBreakdown = computed(() => ({
-  ...fareResult.value.breakdown,
-  taxiTypeLabel: getTaxiTypeLabel.value,
-}))
-
-const isCalculating = computed(() => {
-  return isCalculatingDistance.value
-})
-
 watch(totalFare, (newTotalFare, prevTotalFare) => {
   if (newTotalFare > 0 && newTotalFare !== prevTotalFare) {
     track('taxi_fare_calculated', {
@@ -803,11 +775,11 @@ watch(totalFare, (newTotalFare, prevTotalFare) => {
   }
 })
 
-watch([totalFare, isCalculating], ([newTotalFare]) => {
+watch([totalFare, isCalculatingDistance], ([newTotalFare, calculating]) => {
   emit('update:fare', {
     totalFare: newTotalFare,
     breakdown: fareBreakdown.value,
-    isCalculating: isCalculating.value
+    isCalculating: calculating
   })
 })
 
@@ -820,68 +792,36 @@ watch(focusedInput, (newValue) => {
 // the input's blur fires before click, so we can't rely on focusedInput here.
 const handleMapClick = async (latitude: number, longitude: number, target: LocationSlot) => {
   // Only set location if the corresponding marker doesn't exist
-  if (target === 'start' && !selectedStartLocation.value) {
-    const tempLocation = createFallbackLocation(latitude, longitude)
-    selectedStartLocation.value = tempLocation
-    startLocationSearch.value = tempLocation.displayAddress
-    emitLocations()
+  if (slotLocation[target].value) return
 
-    track('taxi_map_click_set_location', { slot: 'start' }, { ga4Event: 'taxi_map_click_set_start' })
+  setSlotLocation(target, createFallbackLocation(latitude, longitude))
 
-    // Do reverse geocoding in background
-    startGeocodeAbort?.abort()
-    const startController = startGeocodeAbort = new AbortController()
-    try {
-      const location = await reverseGeocode(latitude, longitude, startController.signal)
-      if (location) {
-        selectedStartLocation.value = location
-        startLocationSearch.value = location.displayAddress
-        emitLocations()
-      }
-    } catch (error) {
-      if (startController.signal.aborted) return
-      console.error('Error reverse geocoding map click:', error)
-    }
+  track('taxi_map_click_set_location', { slot: target }, { ga4Event: `taxi_map_click_set_${target}` })
 
-    // Auto-focus end location input after setting start
-    if (!selectedEndLocation.value) {
-      nextTick(() => {
-        endLocationSearchRef.value?.focus({ preventScroll: true })
-      })
-    }
-  } else if (target === 'end' && !selectedEndLocation.value) {
-    const tempLocation = createFallbackLocation(latitude, longitude)
-    selectedEndLocation.value = tempLocation
-    endLocationSearch.value = tempLocation.displayAddress
-    emitLocations()
+  // Fire the geocode before awaiting the route so the address label isn't
+  // gated on OSRM. Catching here (rather than at the await) keeps a rejection
+  // from surfacing as unhandled while handleCalculateDistance is in flight.
+  const controller = beginSlotGeocode(target)
+  const geocoding = reverseGeocode(latitude, longitude, controller.signal).catch((error) => {
+    if (!controller.signal.aborted) console.error('Error reverse geocoding map click:', error)
+    return null
+  })
 
-    track('taxi_map_click_set_location', { slot: 'end' }, { ga4Event: 'taxi_map_click_set_end' })
+  autoSelectCrossHarbourTunnel()
 
-    // Auto-select cross-harbour tunnel if applicable
-    if (selectedStartLocation.value) {
-      autoSelectCrossHarbourTunnel()
-    }
-
-    // Calculate route if both locations are set
-    if (canCalculateDistance.value) {
-      await handleCalculateDistance()
-    }
-
-    // Do reverse geocoding in background
-    endGeocodeAbort?.abort()
-    const endController = endGeocodeAbort = new AbortController()
-    try {
-      const location = await reverseGeocode(latitude, longitude, endController.signal)
-      if (location) {
-        selectedEndLocation.value = location
-        endLocationSearch.value = location.displayAddress
-        emitLocations()
-      }
-    } catch (error) {
-      if (endController.signal.aborted) return
-      console.error('Error reverse geocoding map click:', error)
-    }
+  if (canCalculateDistance.value) {
+    await handleCalculateDistance()
   }
+
+  // Auto-focus end location input after setting start
+  if (target === 'start' && !selectedEndLocation.value) {
+    nextTick(() => {
+      endLocationSearchRef.value?.focus({ preventScroll: true })
+    })
+  }
+
+  const location = await geocoding
+  if (location) setSlotLocation(target, location)
 }
 
 // Expose handleMarkerDragged and handleMapClick to parent component

@@ -30,6 +30,15 @@ export interface FareResult {
 }
 
 /**
+ * The fare payload TaxiFareCalculator emits for display in pages/index.vue —
+ * a FareResult plus the localized taxi-type label and in-flight state.
+ */
+export interface FareSummary extends FareResult {
+  breakdown: FareBreakdown & { taxiTypeLabel: string }
+  isCalculating: boolean
+}
+
+/**
  * Calculate the distance-based fare component (excluding flag fall).
  * Returns 0 for distances within the first-tier (flag fall covers first 2km).
  */

@@ -23,6 +23,24 @@ interface TransitResponse {
   plans: TransitPlan[]
 }
 
+/** The subset of Nominatim's /reverse payload we read. */
+interface NominatimReverseResponse {
+  display_name?: string
+  name?: string
+  address?: {
+    amenity?: string
+    building?: string
+    road?: string
+    pedestrian?: string
+    suburb?: string
+    quarter?: string
+    neighbourhood?: string
+    city?: string
+    town?: string
+    village?: string
+  }
+}
+
 function mapLocaleForTransit(locale: string): string {
   if (locale === 'en-hk') return 'en'
   if (locale === 'zh-cn') return 'zh'
@@ -34,6 +52,28 @@ const TRANSIT_CACHE_TTL_MS = 2 * 60 * 1000
 
 export function coordKey(...nums: number[]): string {
   return nums.map(n => n.toFixed(6)).join(',')
+}
+
+export interface LatLng {
+  lat: number
+  lng: number
+}
+
+// pages/index.vue emits <link rel="preload" as="fetch"> for these exact URLs.
+// A preload is only reused when it matches the eventual request byte-for-byte,
+// so both the fetch and the hint must come from these builders.
+
+export function nominatimReverseUrl({ lat, lng }: LatLng, locale: string): string {
+  return `https://nominatim.openstreetmap.org/reverse?${new URLSearchParams({
+    lat: lat.toString(),
+    lon: lng.toString(),
+    format: 'json',
+    'accept-language': locale,
+  })}`
+}
+
+export function osrmRouteUrl(from: LatLng, to: LatLng): string {
+  return `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=simplified&geometries=geojson`
 }
 
 export function useLocationSearch() {
@@ -139,7 +179,7 @@ export function useLocationSearch() {
 
     try {
       const data = await $fetch(
-        `https://router.project-osrm.org/route/v1/driving/${start.x},${start.y};${end.x},${end.y}?overview=simplified&geometries=geojson`,
+        osrmRouteUrl({ lat: start.y, lng: start.x }, { lat: end.y, lng: end.x }),
         { signal }
       ) as { code: string; routes: { distance: number; duration: number; geometry: { coordinates: [number, number][] } }[] }
 
@@ -168,18 +208,12 @@ export function useLocationSearch() {
     if (cached !== undefined) return cached
 
     try {
-      const data = await $fetch('https://nominatim.openstreetmap.org/reverse', {
-        query: {
-          lat: latitude.toString(),
-          lon: longitude.toString(),
-          format: 'json',
-          'accept-language': locale.value
-        },
+      const data = await $fetch(nominatimReverseUrl({ lat: latitude, lng: longitude }, locale.value), {
         headers: {
           'User-Agent': 'ShouldITakeTaxi/1.0'
         },
         signal,
-      }) as any
+      }) as NominatimReverseResponse
 
       if (data && data.display_name) {
         const isZh = locale.value.startsWith('zh')

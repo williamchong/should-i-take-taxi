@@ -1,4 +1,4 @@
-import { CACHE_PREFIXES, getCache, setCache } from '~/utils/cache'
+import { CACHE_PREFIXES, setCacheMany } from '~/utils/cache'
 
 /**
  * Seeds the route and geocode caches with precomputed data for popular
@@ -17,6 +17,11 @@ import { CACHE_PREFIXES, getCache, setCache } from '~/utils/cache'
 const SEED_VERSION = '1' // bump when precompute-routes is re-run
 const SEED_KEY = '__cache_seed_v'
 
+// The sentinel stops us re-seeding, so seeded entries must outlive the default
+// 7-day TTL — otherwise sweep-cache.client.ts reclaims them and nothing puts
+// them back. Bumping SEED_VERSION is the only intended way to refresh them.
+const SEED_TTL_MS = 365 * 24 * 60 * 60 * 1000
+
 export default defineNuxtPlugin(async () => {
   try {
     if (localStorage.getItem(SEED_KEY) === SEED_VERSION) return
@@ -26,19 +31,13 @@ export default defineNuxtPlugin(async () => {
 
   const { default: precomputedCache } = await import('~~/data/precomputed-cache.json')
 
-  const routes = precomputedCache.routes as Record<string, unknown>
-  for (const [key, value] of Object.entries(routes)) {
-    if (getCache(CACHE_PREFIXES.ROUTE, key) === undefined) {
-      setCache(CACHE_PREFIXES.ROUTE, key, value)
-    }
-  }
+  // Both run before the check — `&&` would skip the geocode batch on failure.
+  const routesSeeded = setCacheMany(CACHE_PREFIXES.ROUTE, precomputedCache.routes as Record<string, unknown>, SEED_TTL_MS)
+  const geocodesSeeded = setCacheMany(CACHE_PREFIXES.GEOCODE, precomputedCache.geocodes as Record<string, unknown>, SEED_TTL_MS)
 
-  const geocodes = precomputedCache.geocodes as Record<string, unknown>
-  for (const [key, value] of Object.entries(geocodes)) {
-    if (getCache(CACHE_PREFIXES.GEOCODE, key) === undefined) {
-      setCache(CACHE_PREFIXES.GEOCODE, key, value)
-    }
-  }
+  // A partial write (quota, private browsing) must not be recorded as done, or
+  // the landing pages fall back to live OSRM/Nominatim forever.
+  if (!routesSeeded || !geocodesSeeded) return
 
   try {
     localStorage.setItem(SEED_KEY, SEED_VERSION)

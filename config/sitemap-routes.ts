@@ -159,11 +159,27 @@ export function findLocationByCoordinates(lat: number, lng: number, tolerance = 
   return null
 }
 
+export interface SitemapUrl {
+  loc: string
+  changefreq: string
+  priority: number
+  _i18nTransform: boolean
+}
+
+function routeUrl(from: Location, to: Location): SitemapUrl {
+  return {
+    loc: `/?from=${from.lat.toFixed(6)},${from.lng.toFixed(6)}&to=${to.lat.toFixed(6)},${to.lng.toFixed(6)}`,
+    changefreq: 'weekly',
+    priority: 0.8,
+    _i18nTransform: true,
+  }
+}
+
 /**
  * Generate sitemap URLs for all popular routes in both directions and both locales
  */
-export function generateSitemapUrls() {
-  const urls: any[] = []
+export function generateSitemapUrls(): SitemapUrl[] {
+  const urls: SitemapUrl[] = []
 
   popularRoutes.forEach(([from, to]) => {
     const fromLoc = popularLocations[from]
@@ -174,21 +190,7 @@ export function generateSitemapUrls() {
       return
     }
 
-    // Forward direction (from -> to)
-    urls.push({
-      loc: `/?from=${fromLoc.lat.toFixed(6)},${fromLoc.lng.toFixed(6)}&to=${toLoc.lat.toFixed(6)},${toLoc.lng.toFixed(6)}`,
-      changefreq: 'weekly',
-      priority: 0.8,
-      _i18nTransform: true,
-    })
-
-    // Reverse direction (to -> from)
-    urls.push({
-      loc: `/?from=${toLoc.lat.toFixed(6)},${toLoc.lng.toFixed(6)}&to=${fromLoc.lat.toFixed(6)},${fromLoc.lng.toFixed(6)}`,
-      changefreq: 'weekly',
-      priority: 0.8,
-      _i18nTransform: true,
-    })
+    urls.push(routeUrl(fromLoc, toLoc), routeUrl(toLoc, fromLoc))
   })
 
   return urls

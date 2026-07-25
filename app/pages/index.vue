@@ -166,13 +166,13 @@
             <!-- Taxi column -->
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.taxiBg">
               <div class="text-sm font-medium text-dimmed mb-1">{{ $t('transitComparison.taxi') }}</div>
-              <div class="text-2xl font-bold" :class="tierClasses.taxiText">{{ Math.round(transitData.drivingTimeSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
+              <div class="text-2xl font-bold" :class="tierClasses.taxiText">{{ taxiMinutes }} {{ $t('transitComparison.min') }}</div>
               <div v-if="fareData" class="text-sm text-muted mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
             </div>
             <!-- Public Transit column -->
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.transitBg">
               <div class="text-sm font-medium text-dimmed mb-1">{{ $t('transitComparison.publicTransit') }}</div>
-              <div class="text-2xl font-bold" :class="tierClasses.transitText">{{ Math.round(transitData.transitDurationSeconds / 60) }} {{ $t('transitComparison.min') }}</div>
+              <div class="text-2xl font-bold" :class="tierClasses.transitText">{{ transitMinutes }} {{ $t('transitComparison.min') }}</div>
               <div class="text-sm text-muted mt-1">
                 <template v-if="transitData.transitFareMin === transitData.transitFareMax">
                   HK$ {{ transitData.transitFareMin.toFixed(2) }}
@@ -246,12 +246,14 @@ import LogoEnWebp from '@/assets/images/nobody_got_time.webp'
 import IntroductionSection from '@/components/IntroductionSection.vue'
 import TaxiFareCalculator from '@/components/TaxiFareCalculator.vue'
 import type { LocationResult } from '@/types/location'
+import type { ResolvableLink } from '@unhead/vue'
 import { useEventListener, useIntersectionObserver } from '@vueuse/core'
-import { useLocationSearch } from '@/composables/useLocationSearch'
+import { coordKey, nominatimReverseUrl, osrmRouteUrl, useLocationSearch } from '@/composables/useLocationSearch'
 import { findLocationByCoordinates } from '~~/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
-import { calculateTotalFare } from '~/utils/fareCalculation'
-import { getTaxiValueTier, getTierClasses } from '~/utils/transitValue'
+import { calculateTotalFare, type FareSummary } from '~/utils/fareCalculation'
+import type { TransitComparison } from '~/utils/transitValue'
+import { useTransitComparison } from '~/composables/useTransitComparison'
 
 const MapDisplay = defineAsyncComponent(() => import('@/components/MapDisplay.vue'))
 
@@ -287,78 +289,33 @@ const selectedLocations = ref<{
   coordinates: []
 })
 
-const fareData = ref<{
-  totalFare: number;
-  breakdown: {
-    flagFall: number;
-    distanceFare: number;
-    meterFare: number;
-    discount: number;
-    tunnelFees: number;
-    luggageFees: number;
-    returnToll: number;
-    taxiTypeLabel: string;
-  };
-  isCalculating: boolean;
-} | null>(null)
+const fareData = ref<FareSummary | null>(null)
 
-const transitData = ref<{
-  transitDurationSeconds: number;
-  transitFareMin: number;
-  transitFareMax: number;
-  transitWalkSeconds: number;
-  transitWaitSeconds: number;
-  drivingTimeSeconds: number;
-  isCalculating: boolean;
-} | null>(null)
+const transitData = ref<TransitComparison | null>(null)
 
 const hasSelectedLocations = computed(() =>
   selectedLocations.value.start !== null || selectedLocations.value.end !== null
 )
 
-const transitMinutesSaved = computed(() => {
-  if (!transitData.value || transitData.value.isCalculating) return 0
-  return Math.round((transitData.value.transitDurationSeconds - transitData.value.drivingTimeSeconds) / 60)
-})
-
-const transitWalkMinutes = computed(() => {
-  if (!transitData.value || transitData.value.isCalculating) return 0
-  return Math.round(transitData.value.transitWalkSeconds / 60)
-})
-
-const transitWaitMinutes = computed(() => {
-  if (!transitData.value || transitData.value.isCalculating) return 0
-  return Math.round(transitData.value.transitWaitSeconds / 60)
-})
-
-const transitCostPerHour = computed(() => {
-  if (!fareData.value || !transitData.value || transitMinutesSaved.value <= 0) return null
-  const taxiFareDiff = fareData.value.totalFare - transitData.value.transitFareMin
-  if (taxiFareDiff <= 0) return null
-  return Math.round((taxiFareDiff / transitMinutesSaved.value) * 60)
-})
-
-const taxiValueTier = computed(() => {
-  if (!fareData.value || !transitData.value || transitData.value.isCalculating) return null
-  return getTaxiValueTier({
-    taxiFare: fareData.value.totalFare,
-    taxiTimeSeconds: transitData.value.drivingTimeSeconds,
-    transitFareMin: transitData.value.transitFareMin,
-    transitTimeSeconds: transitData.value.transitDurationSeconds,
-  })
-})
-
-const tierClasses = computed(() => getTierClasses(taxiValueTier.value))
+const {
+  minutesSaved: transitMinutesSaved,
+  taxiMinutes,
+  transitMinutes,
+  walkMinutes: transitWalkMinutes,
+  waitMinutes: transitWaitMinutes,
+  costPerHourSaved: transitCostPerHour,
+  tierClasses,
+} = useTransitComparison(transitData, () => fareData.value?.totalFare ?? 0)
 
 function updateLocations(locations: { start: LocationResult | null; end: LocationResult | null, coordinates: [number, number][] }) {
   selectedLocations.value = locations
 }
 
-function updateFare(data: any) {
+function updateFare(data: FareSummary) {
   fareData.value = data
 }
 
-function updateTransitInfo(data: any) {
+function updateTransitInfo(data: TransitComparison | null) {
   transitData.value = data
 }
 
@@ -445,22 +402,10 @@ async function parseQueryParams() {
     }
 
     // Run reverse geocoding in parallel to get proper addresses
-    const geocodePromises: Promise<LocationResult | null>[] = []
-
-    if (fromCoords) {
-      geocodePromises.push(reverseGeocode(fromCoords.lat, fromCoords.lng))
-    } else {
-      geocodePromises.push(Promise.resolve(null))
-    }
-
-    if (toCoords) {
-      geocodePromises.push(reverseGeocode(toCoords.lat, toCoords.lng))
-    } else {
-      geocodePromises.push(Promise.resolve(null))
-    }
-
-    // Wait for all reverse geocoding to complete
-    const [fromGeocodedResult, toGeocodedResult] = await Promise.all(geocodePromises)
+    const [fromGeocodedResult, toGeocodedResult] = await Promise.all([
+      fromCoords ? reverseGeocode(fromCoords.lat, fromCoords.lng) : null,
+      toCoords ? reverseGeocode(toCoords.lat, toCoords.lng) : null,
+    ])
 
     // Update locations with proper addresses if reverse geocoding succeeded
     if (fromGeocodedResult || toGeocodedResult) {
@@ -477,19 +422,29 @@ async function parseQueryParams() {
   }
 }
 
+/**
+ * Write from/to into `params`, removing the param when its location is unset —
+ * otherwise clearing one endpoint would leave a stale coordinate in the URL
+ * that parseQueryParams would restore on the next visit.
+ *
+ * Uses coordKey() so URL coordinates keep the same 6-decimal precision as the
+ * route cache keys; otherwise getCachedRoute() misses on shared links.
+ */
+function applyLocationParams(
+  params: URLSearchParams,
+  locations: { start: LocationResult | null; end: LocationResult | null },
+) {
+  const slots = [['from', locations.start], ['to', locations.end]] as const
+  for (const [key, location] of slots) {
+    if (location) params.set(key, coordKey(location.y, location.x))
+    else params.delete(key)
+  }
+}
+
 // Update URL with current locations
 function updateUrlParams(locations: { start: LocationResult | null; end: LocationResult | null }) {
   const params = new URLSearchParams(route.query as Record<string, string>)
-
-  if (locations.start) {
-    const { y, x } = locations.start
-    params.set('from', `${y.toFixed(6)},${x.toFixed(6)}`)
-  }
-
-  if (locations.end) {
-    const { y, x } = locations.end
-    params.set('to', `${y.toFixed(6)},${x.toFixed(6)}`)
-  }
+  applyLocationParams(params, locations)
 
   const queryString = params.toString()
   const newPath = queryString ? `?${queryString}` : route.path
@@ -561,14 +516,7 @@ const canonicalUrl = computed(() => {
   const url = `${siteUrl}${localePath}/`
 
   const params = new URLSearchParams()
-  if (selectedLocations.value.start) {
-    const { y, x } = selectedLocations.value.start
-    params.set('from', `${y.toFixed(6)},${x.toFixed(6)}`)
-  }
-  if (selectedLocations.value.end) {
-    const { y, x } = selectedLocations.value.end
-    params.set('to', `${y.toFixed(6)},${x.toFixed(6)}`)
-  }
+  applyLocationParams(params, selectedLocations.value)
 
   const queryString = params.toString()
   return queryString ? `${url}?${queryString}` : url
@@ -605,61 +553,30 @@ function parseCoordinates(coordStr: string | undefined): { lat: number; lng: num
 
 useHead({ htmlAttrs: { class: 'scroll-smooth' } })
 
+// Both origins are already preconnected app-wide in nuxt.config.ts; unhead does
+// not dedupe unkeyed links, so repeating them here would emit duplicate tags.
+const preloadFetch = (href: string): ResolvableLink =>
+  ({ rel: 'preload', as: 'fetch', href, crossorigin: 'anonymous' })
+
 useHead(() => {
-  const links: any[] = [
+  const links: ResolvableLink[] = [
     {
       rel: 'canonical',
       href: canonicalUrl.value
     }
   ]
 
-  // Add DNS prefetch and preconnect for APIs when coordinates are in URL
+  // Preload the exact requests the page is about to make from ?from/?to
   if (shouldPreloadApis.value) {
-    // Nominatim API (reverse geocoding)
-    links.push(
-      { rel: 'dns-prefetch', href: 'https://nominatim.openstreetmap.org' },
-      { rel: 'preconnect', href: 'https://nominatim.openstreetmap.org', crossorigin: 'anonymous' as const }
-    )
-
-    // Preload specific Nominatim reverse geocoding requests
     const fromCoords = parseCoordinates(route.query.from as string)
     const toCoords = parseCoordinates(route.query.to as string)
 
-    if (fromCoords) {
-      const nominatimFromUrl = `https://nominatim.openstreetmap.org/reverse?lat=${fromCoords.lat}&lon=${fromCoords.lng}&format=json&accept-language=${locale.value}`
-      links.push({
-        rel: 'preload',
-        as: 'fetch',
-        href: nominatimFromUrl,
-        crossorigin: 'anonymous' as const
-      })
+    for (const coords of [fromCoords, toCoords]) {
+      if (coords) links.push(preloadFetch(nominatimReverseUrl(coords, locale.value)))
     }
 
-    if (toCoords) {
-      const nominatimToUrl = `https://nominatim.openstreetmap.org/reverse?lat=${toCoords.lat}&lon=${toCoords.lng}&format=json&accept-language=${locale.value}`
-      links.push({
-        rel: 'preload',
-        as: 'fetch',
-        href: nominatimToUrl,
-        crossorigin: 'anonymous' as const
-      })
-    }
-
-    // OSRM routing API (only if both from and to are present)
     if (fromCoords && toCoords) {
-      links.push(
-        { rel: 'dns-prefetch', href: 'https://router.project-osrm.org' },
-        { rel: 'preconnect', href: 'https://router.project-osrm.org', crossorigin: 'anonymous' as const }
-      )
-
-      // Preload specific OSRM routing request
-      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${fromCoords.lng},${fromCoords.lat};${toCoords.lng},${toCoords.lat}?overview=simplified&geometries=geojson`
-      links.push({
-        rel: 'preload',
-        as: 'fetch',
-        href: osrmUrl,
-        crossorigin: 'anonymous' as const
-      })
+      links.push(preloadFetch(osrmRouteUrl(fromCoords, toCoords)))
     }
   }
 

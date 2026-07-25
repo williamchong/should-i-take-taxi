@@ -83,8 +83,8 @@
 </template>
 
 <script setup lang="ts">
-import type { LocationResult } from '~/types/location'
-import type { LatLngExpression } from 'leaflet'
+import type { LocationResult, LocationSlot } from '~/types/location'
+import type { DragEndEvent, LatLngExpression, LeafletMouseEvent } from 'leaflet'
 import {
   LANTAU_BOUNDING_BOX,
   HK_ISLAND_BOX_1,
@@ -99,12 +99,12 @@ const props = defineProps<{
   routeCoordinates?: [number, number][]
   showBoundingBoxes?: boolean
   isCalculatingDistance?: boolean
-  focusedInput?: 'start' | 'end' | null
+  focusedInput?: LocationSlot | null
 }>()
 
 const emit = defineEmits<{
-  'marker-dragged': [{ type: 'start' | 'end', latitude: number, longitude: number }]
-  'map-clicked': [{ latitude: number, longitude: number, target: 'start' | 'end' }]
+  'marker-dragged': [{ type: LocationSlot, latitude: number, longitude: number }]
+  'map-clicked': [{ latitude: number, longitude: number, target: LocationSlot }]
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -142,15 +142,13 @@ if (import.meta.client) {
 }
 
 // Drag event handlers
-const handleStartMarkerDragEnd = (event: any) => {
+const handleMarkerDragEnd = (type: LocationSlot) => (event: DragEndEvent) => {
   const { lat, lng } = event.target.getLatLng()
-  emit('marker-dragged', { type: 'start', latitude: lat, longitude: lng })
+  emit('marker-dragged', { type, latitude: lat, longitude: lng })
 }
 
-const handleEndMarkerDragEnd = (event: any) => {
-  const { lat, lng } = event.target.getLatLng()
-  emit('marker-dragged', { type: 'end', latitude: lat, longitude: lng })
-}
+const handleStartMarkerDragEnd = handleMarkerDragEnd('start')
+const handleEndMarkerDragEnd = handleMarkerDragEnd('end')
 
 const tileLayerUrl = computed(() => {
   return isDark.value
@@ -178,28 +176,26 @@ const routeCoordinates = computed(() => {
   return (props.routeCoordinates?.map(coord => [coord[1], coord[0]]) || []) as LatLngExpression[]
 })
 
-watch([() => props.startLocation, () => props.endLocation], ([start, end]) => {
-  if (start && end) {
-    map.value?.leafletObject?.fitBounds([
-      [start.y, start.x],
-      [end.y, end.x],
-    ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
-  }
-})
+// Frame both pins, with breathing room.
+const fitToLocations = () => {
+  const { startLocation: start, endLocation: end } = props
+  if (!start || !end) return
+  map.value?.leafletObject?.fitBounds([
+    [start.y, start.x],
+    [end.y, end.x],
+  ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
+}
+
+watch([() => props.startLocation, () => props.endLocation], fitToLocations)
 
 const onMapReady = () => {
   isLoading.value = false
-  if (props.startLocation && props.endLocation) {
-    map.value?.leafletObject?.fitBounds([
-      [props.startLocation.y, props.startLocation.x],
-      [props.endLocation.y, props.endLocation.x],
-    ], { padding: [MAP_CONSTANTS.MAP_PADDING, MAP_CONSTANTS.MAP_PADDING] })
-  }
+  fitToLocations()
 }
 
 // Snapshot focusedInput on mousedown — by the time click fires, the input's
 // blur has already reset focusedInput to null.
-let focusedInputAtMouseDown: 'start' | 'end' | null = null
+let focusedInputAtMouseDown: LocationSlot | null = null
 
 const handleMapMouseDown = () => {
   focusedInputAtMouseDown = props.focusedInput ?? null
@@ -207,7 +203,7 @@ const handleMapMouseDown = () => {
 
 // Handle map click to set location — only emit if an input was focused at
 // mousedown and its corresponding marker doesn't already exist.
-const handleMapClick = (event: any) => {
+const handleMapClick = (event: LeafletMouseEvent) => {
   const target = focusedInputAtMouseDown
   if (
     (target === 'start' && !props.startLocation) ||

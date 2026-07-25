@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { clearCache, getCache, setCache, sweepExpired } from '~/utils/cache'
+import { CACHE_PREFIXES, clearCache, getCache, setCache, setCacheMany, sweepExpired } from '~/utils/cache'
 
 describe('cache', () => {
   beforeEach(() => {
@@ -138,6 +138,94 @@ describe('cache', () => {
 
     const idx = JSON.parse(localStorage.getItem(`${prefix}__idx`) || '[]')
     expect(idx).toEqual(['b'])
+  })
+
+  it('gives seeded prefixes room for the whole precomputed payload', () => {
+    // data/precomputed-cache.json seeds ~46 routes and ~60 geocodes; a 50-entry
+    // cap would silently evict part of the seed.
+    const entries = Object.fromEntries(
+      Array.from({ length: 60 }, (_, i) => [`key${i}`, `value${i}`]),
+    )
+
+    setCacheMany(CACHE_PREFIXES.GEOCODE, entries)
+
+    expect(getCache(CACHE_PREFIXES.GEOCODE, 'key0')).toBe('value0')
+    expect(getCache(CACHE_PREFIXES.GEOCODE, 'key59')).toBe('value59')
+  })
+
+  it('setCacheMany writes every entry and the index exactly once', () => {
+    const prefix = 'test_many_'
+    const setItem = vi.spyOn(localStorage, 'setItem')
+
+    setCacheMany(prefix, { a: 1, b: 2, c: 3 })
+
+    expect(getCache(prefix, 'a')).toBe(1)
+    expect(getCache(prefix, 'c')).toBe(3)
+    // 3 entries + 1 index write — not one index write per entry.
+    expect(setItem).toHaveBeenCalledTimes(4)
+    expect(JSON.parse(localStorage.getItem(`${prefix}__idx`)!)).toEqual(['a', 'b', 'c'])
+
+    vi.restoreAllMocks()
+  })
+
+  it('setCacheMany overwrites existing keys without duplicating them in the index', () => {
+    const prefix = 'test_many_over_'
+    setCache(prefix, 'a', 'original')
+
+    setCacheMany(prefix, { a: 'seeded', b: 'seeded' })
+
+    expect(getCache(prefix, 'a')).toBe('seeded')
+    expect(JSON.parse(localStorage.getItem(`${prefix}__idx`)!)).toEqual(['a', 'b'])
+  })
+
+  it('setCacheMany honors a ttl override so seeded entries survive the sweep', () => {
+    const prefix = 'test_many_ttl_'
+    const now = Date.now()
+
+    vi.spyOn(Date, 'now').mockReturnValue(now)
+    setCacheMany(prefix, { a: 'seeded' }, 60 * 60 * 1000) // 1 hour
+
+    // Past the 7-day default, but inside the override.
+    vi.spyOn(Date, 'now').mockReturnValue(now + 30 * 60 * 1000)
+    expect(sweepExpired(prefix)).toBe(0)
+    expect(getCache(prefix, 'a')).toBe('seeded')
+
+    vi.restoreAllMocks()
+  })
+
+  it('setCacheMany reports failure when an entry cannot be persisted', () => {
+    const prefix = 'test_many_quota_'
+    const setItem = vi.spyOn(localStorage, 'setItem')
+    setItem.mockImplementation(() => {
+      throw new Error('QuotaExceededError')
+    })
+
+    try {
+      expect(setCacheMany(prefix, { a: 1, b: 2 })).toBe(false)
+    } finally {
+      // vi.restoreAllMocks() does not reach happy-dom's Storage — restore explicitly.
+      setItem.mockRestore()
+    }
+
+    // The memory entry still serves the current session.
+    expect(getCache(prefix, 'a')).toBe(1)
+  })
+
+  it('setCacheMany reports success when everything persists', () => {
+    expect(setCacheMany('test_many_ok_', { a: 1 })).toBe(true)
+  })
+
+  it('setCacheMany still evicts past the prefix limit', () => {
+    const prefix = 'test_many_lru_'
+    const entries = Object.fromEntries(
+      Array.from({ length: 51 }, (_, i) => [`key${i}`, `value${i}`]),
+    )
+
+    setCacheMany(prefix, entries)
+
+    expect(getCache(prefix, 'key0')).toBeUndefined()
+    expect(localStorage.getItem(`${prefix}key0`)).toBeNull()
+    expect(getCache(prefix, 'key50')).toBe('value50')
   })
 
   it('serves from memory cache on subsequent gets', () => {
