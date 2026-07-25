@@ -6,43 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 "Should I Take Taxi?" is a Hong Kong-focused web application that provides accurate taxi fare calculations for all three Hong Kong taxi types (Urban Red, New Territories Green, Lantau Blue). Built with Nuxt 4, it features real-time route planning with GPS location detection, automatic distance calculation via OSRM routing, interactive map displays, and comprehensive fare breakdowns including all tunnel fees and surcharges.
 
-## Development Commands
-
-```bash
-# Development
-npm run dev                 # Start development server on http://localhost:3000
-npm run build              # Build for production
-npm run preview            # Preview production build
-npm run generate           # Generate static site
-
-# Code Quality
-npm run lint               # Run ESLint on entire codebase
-npm run typecheck          # Run TypeScript type checking
-
-# Testing
-npm run test               # Run all tests once
-npm run test:watch         # Run tests in watch mode
-```
-
 ## Architecture & Key Patterns
 
 ### Nuxt 4 Structure
 
-This is a standard Nuxt 4 application. Source code lives under **`app/`** (the Nuxt 4 `srcDir` default), so the `~` and `@` aliases resolve to `app/`, while `~~` and `@@` resolve to the project root. Directories that stay at the root (`config/`, `data/`, `i18n/`, `scripts/`, `server/`, `public/`) are imported from app code via `~~` (e.g. `~~/config/sitemap-routes`, `~~/data/precomputed-cache.json`).
-
-Under `app/`:
-- **app/components/**: Vue 3 components using Composition API with `<script setup>`
-- **app/composables/**: Reusable composition functions (`useLocationSearch.ts`, `useLocationDetection.ts`, `useRecentLocations.ts`, `useDarkMode.ts`)
-- **app/pages/**: File-based routing (currently single page: `index.vue`)
-- **app/plugins/**: Client-only plugins — `seed-cache.client.ts` populates the route/geocode caches from `~~/data/precomputed-cache.json` on first visit (SEO landing page acceleration); `sweep-cache.client.ts` removes expired localStorage entries on app mount via `requestIdleCallback`
-- **app/types/**: TypeScript type definitions and constants (`constants.ts` holds `TAXI_RATES`, `TUNNEL_FEES`, `TAXI_FARE_CONSTANTS`, etc.)
-- **app/utils/**: Pure-function helpers — `fareCalculation.ts` (extracted fare math), `cache.ts` (TTL + LRU cache), `boundingBoxes.ts` (HK region detection), `location.ts` (coordinate utilities), `transitValue.ts` (taxi-vs-transit value tier classification)
-
-At the project root:
-- **i18n/locales/**: Multilingual support (English, Traditional Chinese HK/TW, Simplified Chinese CN). The `i18n/` directory is resolved relative to the project root (not `app/`), per `@nuxtjs/i18n`'s default `restructureDir: 'i18n'`
-- **scripts/**: `precompute-routes.mjs` — offline script that calls OSRM/Nominatim to generate `data/precomputed-cache.json` for popular sitemap routes
-- **config/**: `sitemap-routes.ts` — known landmark coordinates used for sitemap generation and reverse matching on shared URLs
-- **server/**: Server-side code (minimal usage)
+This is a standard Nuxt 4 application. Source code lives under **`app/`** (the Nuxt 4 `srcDir` default), so the `~` and `@` aliases resolve to `app/`, while `~~` and `@@` resolve to the project root. Directories that stay at the root (`config/`, `data/`, `i18n/`, `scripts/`, `server/`, `public/`) are imported from app code via `~~` (e.g. `~~/config/sitemap-routes`, `~~/data/precomputed-cache.json`). Note `i18n/` is resolved relative to the project root rather than `app/`, per `@nuxtjs/i18n`'s default `restructureDir: 'i18n'`.
 
 ### Coordinate Systems & Geographic Data
 
@@ -71,7 +39,7 @@ The coordinate transformation flow:
 
 ### Taxi Fare Calculation Logic
 
-Implemented in `components/TaxiFareCalculator.vue`:
+Fare math lives in `app/utils/fareCalculation.ts` (pure functions); `TaxiFareCalculator.vue` consumes it via `calculateTotalFare()`.
 
 1. **Rate structure** varies by taxi type (urban/newTerritories/lantau)
 2. **Distance calculation**:
@@ -89,14 +57,6 @@ Implemented in `components/TaxiFareCalculator.vue`:
    - **Cross-harbour detection**: Automatically selects Cross Harbour Tunnel when route crosses Victoria Harbour (detected using two bounding boxes for Hong Kong Island via `useLocationDetection.ts` and `utils/boundingBoxes.ts`) and auto-expands advanced options
    - **Taxi type suggestions**: Suggests Lantau Blue taxi when both start and end locations are within the Lantau bounding box (coordinate-based detection, not keyword-based)
    - **Location swapping**: One-click swap between start and end locations for return trip calculations
-
-### i18n Multilingual Support
-
-- **Default locale**: `en-hk` (English - Hong Kong)
-- **Supported locales**: `en-hk`, `zh-hk` (Traditional Chinese - Hong Kong), `zh-tw` (Traditional Chinese - Taiwan), `zh-cn` (Simplified Chinese - China)
-- **URL strategy**: `prefix_and_default` - default locale has no prefix, others prefixed with locale code
-- **Detection**: Browser language detection on root path only
-- Translation files: `i18n/locales/en-HK.json`, `zh-HK.json`, `zh-TW.json`, `zh-CN.json`
 
 ### Map Integration
 
@@ -126,14 +86,6 @@ When both locations are set, `handleCalculateTransit()` in `TaxiFareCalculator.v
 - **Known-location matching**: `findLocationByCoordinates` in `config/sitemap-routes.ts` maps URL coordinates back to localized landmark names for display, avoiding a Nominatim round-trip for popular routes.
 - **API preloading**: When `?from` / `?to` are present, `useHead` adds `preconnect` + `preload` hints for the specific Nominatim and OSRM URLs that will be requested.
 
-### PWA Support
-
-Configured in `nuxt.config.ts` via `@vite-pwa/nuxt`:
-
-- **Manifest**: name, short_name, theme_color, standalone display mode, 192/512 icons (including a maskable 512).
-- **Workbox**: precaches `**/*.{js,css,html,ico,png,svg,json,woff2}`; `navigateFallback: '/'` for offline SPA routing.
-- **Install prompt**: `client.installPrompt: true` lets the module surface the install prompt. `pages/index.vue` listens for `appinstalled` and `beforeinstallprompt` to track the install funnel via analytics.
-
 ### UI Library (Nuxt UI v4 + Tailwind CSS v4)
 
 The UI is built on **Nuxt UI v4** (`@nuxt/ui`), which bundles and requires **Tailwind CSS v4**. There is no `tailwind.config.ts`; theme tokens are imported CSS-first via `app/assets/css/main.css` (`@import "tailwindcss"; @import "@nuxt/ui";`) referenced from `nuxt.config.ts` `css`. Design tokens (`primary: blue`, `neutral: slate`) and the icon-alias remap live in `app/app.config.ts`. The root layout wraps everything in `<UApp :locale>` (see i18n below).
@@ -150,53 +102,7 @@ Dark mode is handled by **`@nuxtjs/color-mode`** (auto-registered by Nuxt UI), w
 
 `composables/useRecentLocations.ts` persists the last N selected locations to localStorage via VueUse's `useStorage` (key from `STORAGE_CONSTANTS.RECENT_LOCATIONS_KEY`, capped at `UI_CONSTANTS.MAX_RECENT_LOCATIONS`). `LocationSearch.vue` surfaces them in the dropdown when the input is empty, and differentiates analytics between `search` and `recent` selections via the `source` argument passed through the `select` emit.
 
-## Important Implementation Notes
-
-### Component Communication
-
-- `TaxiFareCalculator.vue` emits events to parent:
-  - `update:locations` event when locations or route change (includes start/end locations and route coordinates)
-  - `update:fare` event when fare calculation updates (includes total fare and detailed breakdown)
-  - `update:focusedInput` event to track which location input field is focused (used for map click-to-set)
-  - `update:transitInfo` event when the taxi-vs-transit comparison loads (includes transit duration, fare range, walking/waiting seconds, and driving time; `null` while clearing)
-- `LocationSearch.vue` is a reusable component that emits `select` event with `(transformedLocation, source)` where `source` is `'search' | 'recent'` — used so analytics can distinguish search vs. recent-locations selections
-- `MapDisplay.vue` emits events:
-  - `marker-dragged` event when a marker is dragged (includes type, latitude, longitude)
-  - `map-clicked` event when the map is clicked (includes latitude, longitude)
-- Parent page (`index.vue`) manages:
-  - Location data passed to `MapDisplay.vue` for visualization
-  - Fare data for display and sticky header
-  - Transit data for the comparison panel and color-tier classes
-  - URL ↔ state sync and dynamic `<title>` / meta description
-  - Intersection Observer for sticky fare summary (shows when scrolled past main fare display)
-
-### GPS Location Detection
-
-On component mount, `TaxiFareCalculator.vue` automatically attempts to:
-1. Check if geolocation is supported
-2. Request user's current location
-3. Reverse geocode coordinates to get address
-4. Set as start location and auto-calculate route if end location exists
-
-### UI/UX Features
-
-- **Sticky Fare Display**: Uses Intersection Observer to show a sticky header with fare when main fare display scrolls out of view
-- **Manual Distance Editing**: Inline editing mode with validation:
-  - Shows badges for "Auto" vs "Adjusted" state
-  - Validates minimum (0.1km) and maximum (200km)
-  - Warns if manual distance differs >50% from auto-calculated
-  - Allows restoration to auto-calculated value
-- **Collapsible Sections**:
-  - Introduction section (collapsed by default)
-  - Advanced options (tunnels and luggage)
-  - Other tunnels submenu
-- **Smart UI Updates**:
-  - Auto-expands advanced options when cross-harbour tunnel detected
-  - Shows suggestion banner for taxi type recommendations
-  - Swap button enabled only when both locations selected
-  - GPS button shows loading spinner during location fetch
-
-### Analytics
+## Analytics
 
 Dispatches every event to **both Google Analytics 4** and **PostHog** (both via `@nuxt/scripts`'s registry helpers — `useScriptGoogleAnalytics` and `useScriptPostHog`) through a single `useAnalytics()` composable in `composables/useAnalytics.ts`:
 
@@ -214,47 +120,14 @@ PostHog initialisation lives in `plugins/posthog.client.ts`. It registers a `bef
 
 **Super-properties** (PostHog only, registered in `pages/index.vue` on mount and on locale change): `locale`, `is_pwa_standalone`, plus `theme_mode` registered from `ThemeToggle.vue` (watching `colorMode.preference`).
 
-Custom events tracked include:
-- Location selections (with `source` baked into the name: `_search` / `_recent`) and swapping
-- Distance calculations (auto, manual edit opened/set/cancelled/reset, cache hit)
-- Taxi type selections (per-type) and suggestions (shown/accepted/dismissed)
-- Tunnel add/remove (per tunnel ID), tunnel fee type change, 85% discount toggle, luggage input/change
-- GPS attempt/success/error
-- Advanced options toggling
-- Marker drag (per slot) and geocoded/failed outcomes
-- Transit comparison load (per value tier) and error
-- Inline summary clicks (fare / transit)
-- PWA install prompt availability and install completion
-- SEO URL restored-from-query and updated
-- Theme preference change (per mode)
-
-### Error Handling
-
-- Location search failures return empty array
-- Coordinate transformation failures return original coordinates
-- Route calculation failures throw errors (caught in component)
-
 ## Modules & Configuration
 
 Key Nuxt modules configured in `nuxt.config.ts`:
 - `@nuxt/ui`: Component library (Nuxt UI v4) — bundles Tailwind CSS v4 and auto-registers `@nuxtjs/color-mode`, `@nuxt/icon`, and `@nuxt/fonts` (do not add those manually). See "UI Library" above.
 - `@nuxtjs/i18n`: Internationalization. Nuxt UI's own component strings are localized via `<UApp :locale>` in `app.vue`, mapping the active locale to `@nuxt/ui/locale`'s `en` / `zh_cn` / `zh_tw` (`zh-hk` → `zh_tw`).
-- `@nuxtjs/leaflet`: Leaflet maps
-- `@nuxtjs/sitemap`: SEO sitemap generation
 - `@sentry/nuxt`: Error tracking (tracing + debug code tree-shaken out of the client bundle via `__SENTRY_DEBUG__`/`__SENTRY_TRACING__` `vite.define` flags)
 - `@nuxt/scripts`: Third-party script loaders — provides `useScriptGoogleAnalytics` (GA4) and `useScriptPostHog`, both deferred via `trigger: 'onNuxtReady'`
-- `@vite-pwa/nuxt`: PWA manifest, service worker (Workbox), and install prompt
-- `@nuxt/eslint`: Linting
-
-## TypeScript
-
-- Extends Nuxt's auto-generated tsconfig
-- ESLint rule: `@typescript-eslint/no-explicit-any` set to 'warn' (not error)
-- Auto-imports enabled for Vue, Nuxt, and composables
 
 ## Deployment
 
 - Production URL: `https://shoulditake.taxi`
-- Sentry organization: `williamchong`
-- Sentry project: `should-i-take-taxi`
-- Source maps: client source maps set to 'hidden' for security
