@@ -56,6 +56,10 @@ export const MAP_CONSTANTS = {
   ROUTE_COLOR: '#2563eb', // blue color for route polyline
   ROUTE_WEIGHT: 5, // polyline weight
   ROUTE_OPACITY: 0.8, // polyline opacity
+  // CARTO Basemaps API key. Raster tiles show an "API key required" watermark
+  // without it. Free tier: 5M tile requests/month; keep the CARTO + OSM
+  // attribution visible. Browser-visible by nature (sent on every tile URL).
+  CARTO_API_KEY: 'cb1_2y7w_1_240b0b843b318318c4f7eef1',
 } as const
 
 /**

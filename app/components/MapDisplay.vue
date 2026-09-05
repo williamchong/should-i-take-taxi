@@ -151,9 +151,8 @@ const handleStartMarkerDragEnd = handleMarkerDragEnd('start')
 const handleEndMarkerDragEnd = handleMarkerDragEnd('end')
 
 const tileLayerUrl = computed(() => {
-  return isDark.value
-    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+  const style = isDark.value ? 'dark_all' : 'light_all'
+  return `https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png?key=${MAP_CONSTANTS.CARTO_API_KEY}`
 })
 
 const center = computed((): [number, number] => {

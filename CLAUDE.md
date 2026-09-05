@@ -61,7 +61,7 @@ Fare math lives in `app/utils/fareCalculation.ts` (pure functions); `TaxiFareCal
 ### Map Integration
 
 Uses `@nuxtjs/leaflet` module with:
-- **CartoDB Light basemap**: Clean, minimal map style suitable for Hong Kong
+- **CartoDB Light basemap**: Clean, minimal map style suitable for Hong Kong. Raster tiles require `?key=` (`MAP_CONSTANTS.CARTO_API_KEY`) or CARTO overlays an "API key required" watermark; the free tier allows 5M tile requests/month and requires the CARTO + OSM attribution to stay visible
 - **Draggable markers**: Start and end location pins that can be dragged to update locations
 - **Click-to-set locations**: Clicking the map sets the location for the currently focused input field (focus is captured on `mousedown` because the input's blur fires before the click)
 - **Route polyline**: Blue line showing OSRM-calculated driving route
