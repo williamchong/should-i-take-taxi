@@ -265,11 +265,16 @@ const beginSlotGeocode = (slot: LocationSlot): AbortController => {
   return (geocodeAborts[slot] = new AbortController())
 }
 
-/** Identifies the current start → end pair; null until both are set. */
+/**
+ * Identifies the current pair of locations; null until both are set.
+ * Direction-free, so swapping start and end keeps the user's tunnel overrides
+ * and dismissed suggestion (detection still re-runs on the reversed route).
+ */
 const tripKey = (): string | null => {
   const start = selectedStartLocation.value
   const end = selectedEndLocation.value
-  return start && end ? coordKey(start.x, start.y, end.x, end.y) : null
+  if (!start || !end) return null
+  return [coordKey(start.x, start.y), coordKey(end.x, end.y)].sort().join('|')
 }
 
 // Tunnels the last detection picked, and the trip it picked them for. The
