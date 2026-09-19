@@ -16,14 +16,25 @@ import {
   isWithinBoundingBox,
 } from '~/utils/boundingBoxes'
 import { calculateMeterFare, calculateTotalFare, routeDistanceKm } from '~/utils/fareCalculation'
-import { detectTunnels, type LngLat } from '~/utils/tunnelDetection'
+import { detectTunnels } from '~/utils/tunnelDetection'
+import type { RouteInfo } from '~/composables/useLocationSearch'
 
 const TAXI_TYPES = Object.keys(TAXI_RATES) as TaxiType[]
 
 /** The parts of a route that tunnel detection reads. */
-export interface RouteTunnelSource {
-  coordinates?: readonly LngLat[]
-  tunnels?: readonly TunnelId[]
+export type RouteTunnelSource = Partial<Pick<RouteInfo, 'coordinates' | 'tunnels'>>
+
+export type TunnelSource = 'route' | 'precomputed' | 'endpoints'
+
+/**
+ * Which input tunnel detection uses for a route, best first: its OSRM
+ * polyline (exact), else the tunnels precomputed for a seeded route that
+ * ships without one, else the endpoint cross-harbour guess.
+ */
+export function tunnelSource(route: RouteTunnelSource): TunnelSource {
+  if ((route.coordinates?.length ?? 0) > 1) return 'route'
+  if (route.tunnels) return 'precomputed'
+  return 'endpoints'
 }
 
 export function useLocationDetection() {
@@ -64,21 +75,21 @@ export function useLocationDetection() {
     return startIsOnHKIsland !== endIsOnHKIsland
   }
 
-  /**
-   * Tolled tunnels for a trip, from the best source the route carries:
-   * its OSRM polyline (exact), else the tunnels precomputed for a seeded route
-   * that ships without one, else the endpoint cross-harbour guess.
-   */
+  /** Tolled tunnels for a trip, from the best source the route carries (see tunnelSource). */
   const detectRouteTunnels = (
     startLocation: LocationResult | null,
     endLocation: LocationResult | null,
     route: RouteTunnelSource = {}
   ): TunnelId[] => {
     if (!startLocation || !endLocation) return []
-    const { coordinates = [], tunnels } = route
-    if (coordinates.length > 1) return detectTunnels(coordinates)
-    if (tunnels) return [...tunnels]
-    return shouldAutoSelectCrossHarbour(startLocation, endLocation) ? ['crossHarbour'] : []
+    switch (tunnelSource(route)) {
+      case 'route':
+        return detectTunnels(route.coordinates!)
+      case 'precomputed':
+        return [...route.tunnels!]
+      case 'endpoints':
+        return shouldAutoSelectCrossHarbour(startLocation, endLocation) ? ['crossHarbour'] : []
+    }
   }
 
   /**

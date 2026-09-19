@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { useLocationDetection } from '~/composables/useLocationDetection'
+import { tunnelSource, useLocationDetection } from '~/composables/useLocationDetection'
 import type { LocationResult } from '~/types/location'
 import { calculateMeterFare } from '~/utils/fareCalculation'
 
@@ -112,6 +112,15 @@ describe('useLocationDetection', () => {
 
     it('returns false when both are null', () => {
       expect(shouldAutoSelectCrossHarbour(null, null)).toBe(false)
+    })
+  })
+
+  describe('tunnelSource', () => {
+    it('prefers the polyline, then precomputed tunnels, then the endpoints', () => {
+      expect(tunnelSource({ coordinates: [[114.18, 22.27], [114.18, 22.25]], tunnels: [] })).toBe('route')
+      expect(tunnelSource({ coordinates: [], tunnels: [] })).toBe('precomputed')
+      expect(tunnelSource({ coordinates: [[114.18, 22.27]] })).toBe('endpoints')
+      expect(tunnelSource({})).toBe('endpoints')
     })
   })
 

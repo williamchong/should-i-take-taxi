@@ -141,7 +141,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { watchImmediate } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { coordKey, useLocationSearch, type RouteInfo } from '../composables/useLocationSearch'
-import { useLocationDetection, type RouteTunnelSource } from '../composables/useLocationDetection'
+import { tunnelSource, useLocationDetection, type RouteTunnelSource } from '../composables/useLocationDetection'
 import LocationSearch from './LocationSearch.vue'
 import TaxiTypeSelector from './TaxiTypeSelector.vue'
 import DistanceInput from './DistanceInput.vue'
@@ -283,8 +283,8 @@ const tripKey = (): string | null => {
 let autoTunnels: TunnelId[] = []
 let autoTunnelsTripKey: string | null = null
 
-// Auto-select tolled tunnels: from the route when given (see
-// detectRouteTunnels), otherwise from the endpoints (cross-harbour only).
+// Auto-select tolled tunnels from the best source the route carries (see
+// tunnelSource); with no route, from the endpoints (cross-harbour only).
 const applyAutoTunnels = (route: RouteTunnelSource = {}) => {
   const key = tripKey()
   if (!key) return
@@ -305,9 +305,7 @@ const applyAutoTunnels = (route: RouteTunnelSource = {}) => {
 
   if (newlySelected.length) {
     showAdvancedOptions.value = true // Auto-expand to show the auto-selected tunnels
-    let source = 'endpoints'
-    if ((route.coordinates?.length ?? 0) > 1) source = 'route'
-    else if (route.tunnels) source = 'precomputed'
+    const source = tunnelSource(route)
     for (const tunnel of newlySelected) {
       track('taxi_tunnel_auto_selected', { tunnel, source }, { ga4Event: `taxi_tunnel_auto_selected_${tunnel}` })
     }
@@ -550,7 +548,7 @@ const handleCalculateDistance = async () => {
     applyRouteDistance(cached)
     track('taxi_distance_cache_hit', {
       distance_km: routeDistanceKm(cached.distance),
-      distance_bucket: distanceBucket(cached.distance / 1000),
+      distance_bucket: distanceBucket(routeDistanceKm(cached.distance)),
     })
   } else {
     isCalculatingDistance.value = true
