@@ -1,12 +1,15 @@
 import { useI18n } from 'vue-i18n'
 import type { LocationResult } from '~/types/location'
+import type { TunnelId } from '~/types/constants'
 import type { TransitLeg } from '~/utils/transitValue'
 import { CACHE_PREFIXES, clearCache, getCache, setCache } from '~/utils/cache'
 
-interface RouteInfo {
+export interface RouteInfo {
   distance: number
   time: number
   coordinates: [number, number][]
+  /** Tolled tunnels, precomputed for seeded routes that ship without a polyline */
+  tunnels?: TunnelId[]
 }
 
 interface TransitPlan {

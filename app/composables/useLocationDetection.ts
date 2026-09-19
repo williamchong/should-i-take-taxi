@@ -15,10 +15,16 @@ import {
   NT_TAXI_BOXES,
   isWithinBoundingBox,
 } from '~/utils/boundingBoxes'
-import { calculateMeterFare } from '~/utils/fareCalculation'
+import { calculateMeterFare, calculateTotalFare, routeDistanceKm } from '~/utils/fareCalculation'
 import { detectTunnels, type LngLat } from '~/utils/tunnelDetection'
 
 const TAXI_TYPES = Object.keys(TAXI_RATES) as TaxiType[]
+
+/** The parts of a route that tunnel detection reads. */
+export interface RouteTunnelSource {
+  coordinates?: readonly LngLat[]
+  tunnels?: readonly TunnelId[]
+}
 
 export function useLocationDetection() {
   /**
@@ -59,17 +65,19 @@ export function useLocationDetection() {
   }
 
   /**
-   * Tolled tunnels for a trip. Uses the OSRM route polyline when there is one
-   * (exact, covers every tunnel); otherwise falls back to the endpoint
-   * cross-harbour guess, e.g. for a precomputed route that has no polyline.
+   * Tolled tunnels for a trip, from the best source the route carries:
+   * its OSRM polyline (exact), else the tunnels precomputed for a seeded route
+   * that ships without one, else the endpoint cross-harbour guess.
    */
   const detectRouteTunnels = (
     startLocation: LocationResult | null,
     endLocation: LocationResult | null,
-    routeCoordinates: readonly LngLat[] = []
+    route: RouteTunnelSource = {}
   ): TunnelId[] => {
     if (!startLocation || !endLocation) return []
-    if (routeCoordinates.length > 1) return detectTunnels(routeCoordinates)
+    const { coordinates = [], tunnels } = route
+    if (coordinates.length > 1) return detectTunnels(coordinates)
+    if (tunnels) return [...tunnels]
     return shouldAutoSelectCrossHarbour(startLocation, endLocation) ? ['crossHarbour'] : []
   }
 
@@ -120,6 +128,28 @@ export function useLocationDetection() {
     )
   }
 
+  /**
+   * Fare for a trip priced from its route alone, before any user input: the
+   * route distance, its tolled tunnels with the default return toll, and the
+   * suggested taxi type (urban when none can make the trip).
+   * `route.distance` is in metres, as OSRM and the route cache store it.
+   */
+  const estimateTripFare = (
+    startLocation: LocationResult,
+    endLocation: LocationResult,
+    route: RouteTunnelSource & { distance: number }
+  ): number => {
+    const distance = routeDistanceKm(route.distance)
+    return calculateTotalFare({
+      distance,
+      taxiType: suggestTaxiType(startLocation, endLocation, distance) ?? 'urban',
+      selectedTunnels: detectRouteTunnels(startLocation, endLocation, route),
+      tunnelFeeType: 'return',
+      isDiscountFare: false,
+      luggageCount: 0,
+    }).totalFare
+  }
+
   return {
     isOnHongKongIsland,
     isLantauLocation,
@@ -128,5 +158,6 @@ export function useLocationDetection() {
     canServe,
     eligibleTaxiTypes,
     suggestTaxiType,
+    estimateTripFare,
   }
 }

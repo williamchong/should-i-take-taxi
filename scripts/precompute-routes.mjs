@@ -12,6 +12,8 @@
 import { writeFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+// Node 24 strips types on import; tunnelDetection.ts has only type-level imports
+import { detectTunnels } from '../app/utils/tunnelDetection.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -68,8 +70,9 @@ function coordKey(...nums) {
 }
 
 async function fetchRoute(fromLoc, toLoc) {
-  // overview=false: skip geometry since we only cache distance/time (polyline fetched lazily at runtime)
-  const url = `https://router.project-osrm.org/route/v1/driving/${fromLoc.lng},${fromLoc.lat};${toLoc.lng},${toLoc.lat}?overview=false`
+  // Same geometry the app requests, used only to detect tolled tunnels. The
+  // polyline itself is not cached (fetched lazily at runtime) to keep the seed small.
+  const url = `https://router.project-osrm.org/route/v1/driving/${fromLoc.lng},${fromLoc.lat};${toLoc.lng},${toLoc.lat}?overview=simplified&geometries=geojson`
   const res = await fetch(url)
   const data = await res.json()
 
@@ -81,6 +84,7 @@ async function fetchRoute(fromLoc, toLoc) {
   return {
     distance: route.distance,
     time: route.duration,
+    tunnels: detectTunnels(route.geometry.coordinates),
   }
 }
 
@@ -168,7 +172,7 @@ async function main() {
   }
 
   const outPath = resolve(__dirname, '..', 'data', 'precomputed-cache.json')
-  writeFileSync(outPath, JSON.stringify(output, null, 2))
+  writeFileSync(outPath, JSON.stringify(output))
 
   const routeCount = Object.keys(output.routes).length
   const geocodeCount = Object.keys(output.geocodes).length

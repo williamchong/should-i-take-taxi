@@ -6,9 +6,18 @@ import {
   calculateLuggageFees,
   calculateReturnToll,
   calculateTotalFare,
+  routeDistanceKm,
 } from '~/utils/fareCalculation'
 import type { TaxiType, TunnelId } from '~/types/constants'
 import { TAXI_RATES, TUNNEL_FEES } from '~/types/constants'
+
+describe('routeDistanceKm', () => {
+  it('converts metres to km rounded to 0.1km', () => {
+    expect(routeDistanceKm(40633.5)).toBe(40.6)
+    expect(routeDistanceKm(7047.9)).toBe(7)
+    expect(routeDistanceKm(0)).toBe(0)
+  })
+})
 
 describe('calculateDistanceFare', () => {
   it('returns 0 for distance = 0', () => {

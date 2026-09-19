@@ -14,7 +14,7 @@ import { CACHE_PREFIXES, setCacheMany } from '~/utils/cache'
  * before dynamicDescription first evaluates.
  */
 
-const SEED_VERSION = '1' // bump when precompute-routes is re-run
+const SEED_VERSION = '2' // bump when precompute-routes is re-run
 const SEED_KEY = '__cache_seed_v'
 
 // The sentinel stops us re-seeding, so seeded entries must outlive the default

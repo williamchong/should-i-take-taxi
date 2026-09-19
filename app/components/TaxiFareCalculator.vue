@@ -140,8 +140,8 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { watchImmediate } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
-import { coordKey, useLocationSearch } from '../composables/useLocationSearch'
-import { useLocationDetection } from '../composables/useLocationDetection'
+import { coordKey, useLocationSearch, type RouteInfo } from '../composables/useLocationSearch'
+import { useLocationDetection, type RouteTunnelSource } from '../composables/useLocationDetection'
 import LocationSearch from './LocationSearch.vue'
 import TaxiTypeSelector from './TaxiTypeSelector.vue'
 import DistanceInput from './DistanceInput.vue'
@@ -152,7 +152,7 @@ import {
   GEOLOCATION_CONSTANTS,
 } from '~/types/constants'
 import { createLocationFromCoordinates } from '~/utils/location'
-import { calculateTotalFare } from '~/utils/fareCalculation'
+import { calculateTotalFare, routeDistanceKm } from '~/utils/fareCalculation'
 import type { TransitComparison } from '~/utils/transitValue'
 import { summarizeTransitLegs } from '~/utils/transitValue'
 import { useTransitComparison } from '~/composables/useTransitComparison'
@@ -283,13 +283,13 @@ const tripKey = (): string | null => {
 let autoTunnels: TunnelId[] = []
 let autoTunnelsTripKey: string | null = null
 
-// Auto-select tolled tunnels: from the route polyline when given, otherwise
-// from the endpoints (cross-harbour only).
-const applyAutoTunnels = (routeCoordinates: [number, number][] = []) => {
+// Auto-select tolled tunnels: from the route when given (see
+// detectRouteTunnels), otherwise from the endpoints (cross-harbour only).
+const applyAutoTunnels = (route: RouteTunnelSource = {}) => {
   const key = tripKey()
   if (!key) return
 
-  const detected = detectRouteTunnels(selectedStartLocation.value, selectedEndLocation.value, routeCoordinates)
+  const detected = detectRouteTunnels(selectedStartLocation.value, selectedEndLocation.value, route)
   // Before the first detection, whatever is ticked was ticked by the user
   const keepOverrides = autoTunnelsTripKey === null || autoTunnelsTripKey === key
   const userAdded = keepOverrides ? selectedTunnels.value.filter(id => !autoTunnels.includes(id)) : []
@@ -305,7 +305,9 @@ const applyAutoTunnels = (routeCoordinates: [number, number][] = []) => {
 
   if (newlySelected.length) {
     showAdvancedOptions.value = true // Auto-expand to show the auto-selected tunnels
-    const source = routeCoordinates.length > 1 ? 'route' : 'endpoints'
+    let source = 'endpoints'
+    if ((route.coordinates?.length ?? 0) > 1) source = 'route'
+    else if (route.tunnels) source = 'precomputed'
     for (const tunnel of newlySelected) {
       track('taxi_tunnel_auto_selected', { tunnel, source }, { ga4Event: `taxi_tunnel_auto_selected_${tunnel}` })
     }
@@ -454,12 +456,12 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: Locati
 }
 
 // Apply distance/fare state from route result
-const applyRouteDistance = (result: { distance: number; time: number; coordinates: [number, number][] }) => {
-  autoCalculatedDistance.value = parseFloat((result.distance / 1000).toFixed(1))
+const applyRouteDistance = (result: RouteInfo) => {
+  autoCalculatedDistance.value = routeDistanceKm(result.distance)
   if (!isManualOverride.value) {
     distance.value = autoCalculatedDistance.value
   }
-  applyAutoTunnels(result.coordinates)
+  applyAutoTunnels(result)
   suggestTaxiType()
 }
 
@@ -547,7 +549,7 @@ const handleCalculateDistance = async () => {
     routeInfo.value = cached
     applyRouteDistance(cached)
     track('taxi_distance_cache_hit', {
-      distance_km: parseFloat((cached.distance / 1000).toFixed(1)),
+      distance_km: routeDistanceKm(cached.distance),
       distance_bucket: distanceBucket(cached.distance / 1000),
     })
   } else {
@@ -565,7 +567,7 @@ const handleCalculateDistance = async () => {
     routeInfo.value = result
     applyRouteDistance(result)
     if (!cached) {
-      const km = parseFloat((result.distance / 1000).toFixed(1))
+      const km = routeDistanceKm(result.distance)
       track('taxi_distance_auto_calculated', {
         distance_km: km,
         distance_bucket: distanceBucket(km),

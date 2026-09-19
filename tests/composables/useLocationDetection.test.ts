@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { useLocationDetection } from '~/composables/useLocationDetection'
 import type { LocationResult } from '~/types/location'
+import { calculateMeterFare } from '~/utils/fareCalculation'
 
 function makeLocation(lat: number, lng: number): LocationResult {
   return {
@@ -49,6 +50,7 @@ describe('useLocationDetection', () => {
     canServe,
     eligibleTaxiTypes,
     suggestTaxiType,
+    estimateTripFare,
   } = useLocationDetection()
 
   describe('isOnHongKongIsland', () => {
@@ -117,7 +119,16 @@ describe('useLocationDetection', () => {
     it('uses the route polyline when there is one', () => {
       // Straight through the Aberdeen Tunnel bore
       const route: [number, number][] = [[114.18073, 22.27020], [114.18024, 22.25569]]
-      expect(detectRouteTunnels(central, tst, route)).toEqual(['aberdeen'])
+      expect(detectRouteTunnels(central, tst, { coordinates: route })).toEqual(['aberdeen'])
+    })
+
+    it('uses precomputed tunnels for a route without a polyline', () => {
+      expect(detectRouteTunnels(central, tst, { coordinates: [], tunnels: ['aberdeen'] })).toEqual(['aberdeen'])
+    })
+
+    it('prefers the polyline over precomputed tunnels', () => {
+      const route: [number, number][] = [[114.18073, 22.27020], [114.18024, 22.25569]]
+      expect(detectRouteTunnels(central, tst, { coordinates: route, tunnels: [] })).toEqual(['aberdeen'])
     })
 
     it('falls back to the endpoint cross-harbour guess without a polyline', () => {
@@ -213,6 +224,25 @@ describe('useLocationDetection', () => {
 
     it('returns null when both are null', () => {
       expect(suggestTaxiType(null, null)).toBeNull()
+    })
+  })
+
+  describe('estimateTripFare', () => {
+    it('prices a seeded route in km, with its tunnels and the return toll', () => {
+      // Airport → Central: 40,633.5m → 40.6km urban meter fare, plus $25 toll and $25 return
+      const fare = estimateTripFare(airport, central, { distance: 40633.5, tunnels: ['crossHarbour'] })
+      expect(fare).toBeCloseTo(calculateMeterFare(40.6, 'urban') + 50, 1)
+      expect(fare).toBeLessThan(500)
+    })
+
+    it('falls back to the endpoint guess when the route carries no tunnels', () => {
+      expect(estimateTripFare(central, tst, { distance: 7047.9 }))
+        .toBeCloseTo(calculateMeterFare(7, 'urban') + 50, 1)
+    })
+
+    it('prices with the suggested taxi type', () => {
+      expect(estimateTripFare(airport, tungChung, { distance: 8190.6, tunnels: [] }))
+        .toBeCloseTo(calculateMeterFare(8.2, 'lantau'), 1)
     })
   })
 })

@@ -39,6 +39,14 @@ export interface FareSummary extends FareResult {
 }
 
 /**
+ * Convert an OSRM route distance (metres) to the km figure the fare is priced
+ * on, rounded to 0.1km as the calculator displays it.
+ */
+export function routeDistanceKm(metres: number): number {
+  return parseFloat((metres / 1000).toFixed(1))
+}
+
+/**
  * Calculate the distance-based fare component (excluding flag fall).
  * Returns 0 for distances within the first-tier (flag fall covers first 2km).
  */

@@ -249,9 +249,10 @@ import type { LocationResult } from '@/types/location'
 import type { ResolvableLink } from '@unhead/vue'
 import { useEventListener, useIntersectionObserver } from '@vueuse/core'
 import { coordKey, nominatimReverseUrl, osrmRouteUrl, useLocationSearch } from '@/composables/useLocationSearch'
+import { useLocationDetection } from '@/composables/useLocationDetection'
 import { findLocationByCoordinates } from '~~/config/sitemap-routes'
 import { createLocationFromCoordinates } from '~/utils/location'
-import { calculateTotalFare, type FareSummary } from '~/utils/fareCalculation'
+import type { FareSummary } from '~/utils/fareCalculation'
 import type { TransitComparison } from '~/utils/transitValue'
 import { useTransitComparison } from '~/composables/useTransitComparison'
 
@@ -261,6 +262,7 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const { reverseGeocode, getCachedRoute } = useLocationSearch()
+const { estimateTripFare } = useLocationDetection()
 const { track, registerSuperProperties } = useAnalytics()
 const { url: siteUrl } = useSiteConfig()
 
@@ -491,14 +493,7 @@ const dynamicDescription = computed(() => {
   if (start && end) {
     const cachedRoute = getCachedRoute(start, end)
     if (cachedRoute) {
-      const fare = calculateTotalFare({
-        distance: cachedRoute.distance,
-        taxiType: 'urban',
-        selectedTunnels: [],
-        tunnelFeeType: 'oneWay',
-        isDiscountFare: false,
-        luggageCount: 0,
-      }).totalFare
+      const fare = estimateTripFare(start, end, cachedRoute)
       return t('seo.dynamicDescription.fromTo', { from: start.displayAddress, to: end.displayAddress, fare: fare.toFixed(0) })
     }
     return t('seo.dynamicDescription.fromToNoFare', { from: start.displayAddress, to: end.displayAddress })
