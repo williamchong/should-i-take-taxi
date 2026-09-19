@@ -168,7 +168,7 @@ const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInpu
 
 const { t } = useI18n()
 const { calculateDrivingDistance, getCachedRoute, clearRouteCache, calculateTransitRoute, clearTransitCache, reverseGeocode } = useLocationSearch()
-const { shouldAutoSelectCrossHarbour, suggestTaxiType: detectTaxiType } = useLocationDetection()
+const { detectRouteTunnels, suggestTaxiType: detectTaxiType } = useLocationDetection()
 const { track } = useAnalytics()
 
 const taxiType = ref<TaxiType>('urban')
@@ -265,15 +265,44 @@ const beginSlotGeocode = (slot: LocationSlot): AbortController => {
   return (geocodeAborts[slot] = new AbortController())
 }
 
-// Auto-select Cross Harbour Tunnel for cross-harbour routes
-const autoSelectCrossHarbourTunnel = () => {
-  if (!selectedStartLocation.value || !selectedEndLocation.value) return
+/** Identifies the current start → end pair; null until both are set. */
+const tripKey = (): string | null => {
+  const start = selectedStartLocation.value
+  const end = selectedEndLocation.value
+  return start && end ? coordKey(start.x, start.y, end.x, end.y) : null
+}
 
-  if (shouldAutoSelectCrossHarbour(selectedStartLocation.value, selectedEndLocation.value)) {
-    if (!selectedTunnels.value.includes('crossHarbour')) {
-      selectedTunnels.value.push('crossHarbour')
-      showAdvancedOptions.value = true // Auto-expand to show the auto-selected tunnel
-      track('taxi_cross_harbour_tunnel_auto_selected')
+// Tunnels the last detection picked, and the trip it picked them for. The
+// user's own ticks/unticks are layered on top and survive re-detection (e.g.
+// the route polyline arriving after the endpoint guess) until the trip changes.
+let autoTunnels: TunnelId[] = []
+let autoTunnelsTripKey: string | null = null
+
+// Auto-select tolled tunnels: from the route polyline when given, otherwise
+// from the endpoints (cross-harbour only).
+const applyAutoTunnels = (routeCoordinates: [number, number][] = []) => {
+  const key = tripKey()
+  if (!key) return
+
+  const detected = detectRouteTunnels(selectedStartLocation.value, selectedEndLocation.value, routeCoordinates)
+  // Before the first detection, whatever is ticked was ticked by the user
+  const keepOverrides = autoTunnelsTripKey === null || autoTunnelsTripKey === key
+  const userAdded = keepOverrides ? selectedTunnels.value.filter(id => !autoTunnels.includes(id)) : []
+  const userRemoved = keepOverrides ? autoTunnels.filter(id => !selectedTunnels.value.includes(id)) : []
+  const next = [...new Set([...detected, ...userAdded])].filter(id => !userRemoved.includes(id))
+  const newlySelected = next.filter(id => !selectedTunnels.value.includes(id))
+
+  autoTunnels = detected
+  autoTunnelsTripKey = key
+  if (next.length !== selectedTunnels.value.length || newlySelected.length) {
+    selectedTunnels.value = next
+  }
+
+  if (newlySelected.length) {
+    showAdvancedOptions.value = true // Auto-expand to show the auto-selected tunnels
+    const source = routeCoordinates.length > 1 ? 'route' : 'endpoints'
+    for (const tunnel of newlySelected) {
+      track('taxi_tunnel_auto_selected', { tunnel, source }, { ga4Event: `taxi_tunnel_auto_selected_${tunnel}` })
     }
   }
 }
@@ -297,6 +326,7 @@ const selectLocation = async (type: LocationSlot, location: LocationResult | nul
     distance.value = 0
     autoCalculatedDistance.value = 0
     isManualOverride.value = false
+    suggestTaxiType() // Clears a suggestion made for the previous trip
   }
 
   track('taxi_location_selected', {
@@ -309,9 +339,9 @@ const selectLocation = async (type: LocationSlot, location: LocationResult | nul
       : `taxi_${type}_location_selected`,
   })
 
-  // Auto-select Cross Harbour Tunnel if needed
+  // Auto-select tunnels from the endpoints; the route polyline refines this
   if (location && otherLocation.value) {
-    autoSelectCrossHarbourTunnel()
+    applyAutoTunnels()
   }
 
   if (canCalculateDistance.value) {
@@ -344,17 +374,26 @@ const canCalculateDistance = computed(() => {
 
 const transitSavingsLinkClass = computed(() => `${tierClasses.value.savingsText} hover:underline`)
 
-// Suggest taxi type based on route
-const suggestTaxiType = () => {
-  const suggested = detectTaxiType(selectedStartLocation.value, selectedEndLocation.value)
+// Suggestion keys (`trip:type`) — a dismissed suggestion stays dismissed, and
+// is only tracked once, while the trip is unchanged
+let shownSuggestionKey: string | null = null
+let dismissedSuggestionKey: string | null = null
 
-  if (suggested && taxiType.value !== suggested) {
+// Suggest the cheapest taxi type that can serve the route
+const suggestTaxiType = () => {
+  const suggested = detectTaxiType(selectedStartLocation.value, selectedEndLocation.value, distance.value)
+  const key = suggested && `${tripKey()}:${suggested}`
+
+  if (suggested && taxiType.value !== suggested && key !== dismissedSuggestionKey) {
     suggestedTaxiType.value = suggested
     showSuggestion.value = true
-    track('taxi_type_suggestion_shown', {
-      suggested,
-      current_type: taxiType.value,
-    })
+    if (key !== shownSuggestionKey) {
+      shownSuggestionKey = key
+      track('taxi_type_suggestion_shown', {
+        suggested,
+        current_type: taxiType.value,
+      })
+    }
     return
   }
 
@@ -366,7 +405,13 @@ const suggestTaxiType = () => {
 // Handle suggestion dismissal
 const dismissSuggestion = () => {
   showSuggestion.value = false
+  dismissedSuggestionKey = suggestedTaxiType.value && `${tripKey()}:${suggestedTaxiType.value}`
 }
+
+// Picking the suggested type by hand also answers the suggestion
+watch(taxiType, (type) => {
+  if (type === suggestedTaxiType.value) showSuggestion.value = false
+})
 
 // Handle marker dragged events
 const handleMarkerDragged = async ({ type, latitude, longitude }: { type: LocationSlot, latitude: number, longitude: number }) => {
@@ -375,7 +420,7 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: Locati
   // Show the raw coordinates immediately; the geocoded address replaces them below
   setSlotLocation(type, createFallbackLocation(latitude, longitude))
 
-  autoSelectCrossHarbourTunnel()
+  applyAutoTunnels()
 
   if (canCalculateDistance.value) {
     await handleCalculateDistance()
@@ -404,11 +449,12 @@ const handleMarkerDragged = async ({ type, latitude, longitude }: { type: Locati
 }
 
 // Apply distance/fare state from route result
-const applyRouteDistance = (result: { distance: number; time: number }) => {
+const applyRouteDistance = (result: { distance: number; time: number; coordinates: [number, number][] }) => {
   autoCalculatedDistance.value = parseFloat((result.distance / 1000).toFixed(1))
   if (!isManualOverride.value) {
     distance.value = autoCalculatedDistance.value
   }
+  applyAutoTunnels(result.coordinates)
   suggestTaxiType()
 }
 
@@ -632,8 +678,8 @@ const swapLocations = async () => {
   // 清除舊的路線資訊
   routeInfo.value = { distance: 0, time: 0, coordinates: [] }
 
-  // Auto-select Cross Harbour Tunnel if needed after swapping
-  autoSelectCrossHarbourTunnel()
+  // Auto-select tunnels from the endpoints; the route polyline refines this
+  applyAutoTunnels()
 
   // 重新計算路線
   if (canCalculateDistance.value) {
@@ -671,9 +717,8 @@ const handleRefresh = async () => {
     clearRouteCache(selectedStartLocation.value, selectedEndLocation.value)
     clearTransitCache(selectedStartLocation.value, selectedEndLocation.value)
 
-    // 重新清除並檢測過海隧道
-    selectedTunnels.value = selectedTunnels.value.filter(t => t !== 'crossHarbour')
-    autoSelectCrossHarbourTunnel()
+    // 捨棄手動更改的隧道，保留已偵測的隧道（新路線到達後會再細化）
+    selectedTunnels.value = [...autoTunnels]
 
     // 重新計算距離
     await handleCalculateDistance()
@@ -714,7 +759,7 @@ watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as c
   }
 
   if (coordsChanged && selectedStartLocation.value && selectedEndLocation.value) {
-    autoSelectCrossHarbourTunnel()
+    applyAutoTunnels()
     handleCalculateDistance()
   }
 
@@ -807,7 +852,7 @@ const handleMapClick = async (latitude: number, longitude: number, target: Locat
     return null
   })
 
-  autoSelectCrossHarbourTunnel()
+  applyAutoTunnels()
 
   if (canCalculateDistance.value) {
     await handleCalculateDistance()

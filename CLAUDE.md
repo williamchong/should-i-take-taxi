@@ -54,8 +54,8 @@ Fare math lives in `app/utils/fareCalculation.ts` (pure functions); `TaxiFareCal
    - Luggage fees (HK$6 per piece)
    - **85% discount fare** (85折): Optional toggle that applies 0.85 multiplier to meter fare only (flag fall + distance charges); tunnel fees and luggage fees are not discounted
 4. **Smart features**:
-   - **Cross-harbour detection**: Automatically selects Cross Harbour Tunnel when route crosses Victoria Harbour (detected using two bounding boxes for Hong Kong Island via `useLocationDetection.ts` and `utils/boundingBoxes.ts`) and auto-expands advanced options
-   - **Taxi type suggestions**: Suggests Lantau Blue taxi when both start and end locations are within the Lantau bounding box (coordinate-based detection, not keyword-based)
+   - **Tunnel detection**: `utils/tunnelDetection.ts` lays a short gate across the middle of each tolled bore and auto-selects every tunnel whose gate the OSRM polyline crosses (a segment-intersection test, because `overview=simplified` drops the vertices inside straight bores). Until the polyline arrives (e.g. a precomputed route with no geometry), `detectRouteTunnels()` falls back to the endpoint HK-Island-box guess for Cross Harbour only. `TaxiFareCalculator.vue` keeps the user's own ticks/unticks on top of re-detection until the start/end pair changes; refresh drops them. Gate positions are validated against real routes, including near-misses on parallel toll-free roads, in `tests/fixtures/osrm-routes.json`. Keep `GATE_HALF_WIDTH_M` under 250m or Tai Po Road registers as Route 8K
+   - **Taxi type suggestions**: `suggestTaxiType()` suggests the cheapest taxi type (by `calculateMeterFare`) allowed to serve both ends — Urban everywhere but South Lantau, NT in `NT_TAXI_BOXES` + the airport, Lantau on Lantau + the airport. This includes suggesting Urban when the selected type can't make the trip. A dismissed suggestion stays dismissed for that trip. `NT_TAXI_BOXES` is a coarse fit, not the gazetted operating area
    - **Location swapping**: One-click swap between start and end locations for return trip calculations
 
 ### Map Integration

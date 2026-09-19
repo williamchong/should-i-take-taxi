@@ -188,8 +188,9 @@ permission prompt blocks the map behind a splash until a human answers it.
   and looks like a broken geodata API. The driver waits for Leaflet to mount
   (the cheapest available proof hydration finished) before typing. A `?from=`
   navigation needs no such wait, so `route` overlaps the two.
-- **Advanced Options may already be open.** The cross-harbour detector
-  auto-expands it for harbour-crossing routes, so a blind click *closes* it.
+- **Advanced Options may already be open.** Tunnel detection auto-expands it
+  (and "Other Tunnels") for any route through a tolled tunnel, so a blind click
+  *closes* it.
   Use `advanced open` / `advanced close`, which read `data-state` first.
 - **`search` picks dropdown result #1, which is often not what you meant.** The
   HK Government geodata API ranked "Central" as *"PetroChina Central Plaza EV

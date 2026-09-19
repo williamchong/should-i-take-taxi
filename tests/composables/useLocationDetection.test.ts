@@ -26,9 +26,30 @@ const mongKok = makeLocation(22.319, 114.169)
 const tungChung = makeLocation(22.289, 113.941)
 // Tai O, Lantau
 const taiO = makeLocation(22.252, 113.862)
+// Mui Wo, South Lantau
+const muiWo = makeLocation(22.265, 113.998)
+// Airport terminal, Chek Lap Kok
+const airport = makeLocation(22.314, 113.913)
+// Ma Wan — inside the old Lantau box, but not Lantau
+const maWan = makeLocation(22.351, 114.058)
+// Sha Tin, Tai Po, Yuen Long, Tuen Mun — NT taxi areas
+const shaTin = makeLocation(22.383, 114.188)
+const taiPo = makeLocation(22.451, 114.165)
+const yuenLong = makeLocation(22.445, 114.030)
+const tuenMun = makeLocation(22.392, 113.976)
+// Tsuen Wan — NT, but not an NT taxi area
+const tsuenWan = makeLocation(22.371, 114.113)
 
 describe('useLocationDetection', () => {
-  const { isOnHongKongIsland, isLantauLocation, shouldAutoSelectCrossHarbour, suggestTaxiType } = useLocationDetection()
+  const {
+    isOnHongKongIsland,
+    isLantauLocation,
+    shouldAutoSelectCrossHarbour,
+    detectRouteTunnels,
+    canServe,
+    eligibleTaxiTypes,
+    suggestTaxiType,
+  } = useLocationDetection()
 
   describe('isOnHongKongIsland', () => {
     it('returns true for Central', () => {
@@ -55,6 +76,10 @@ describe('useLocationDetection', () => {
 
     it('returns false for Central', () => {
       expect(isLantauLocation(central)).toBe(false)
+    })
+
+    it('returns false for Ma Wan', () => {
+      expect(isLantauLocation(maWan)).toBe(false)
     })
 
     it('returns false for null', () => {
@@ -88,21 +113,102 @@ describe('useLocationDetection', () => {
     })
   })
 
+  describe('detectRouteTunnels', () => {
+    it('uses the route polyline when there is one', () => {
+      // Straight through the Aberdeen Tunnel bore
+      const route: [number, number][] = [[114.18073, 22.27020], [114.18024, 22.25569]]
+      expect(detectRouteTunnels(central, tst, route)).toEqual(['aberdeen'])
+    })
+
+    it('falls back to the endpoint cross-harbour guess without a polyline', () => {
+      expect(detectRouteTunnels(central, tst)).toEqual(['crossHarbour'])
+      expect(detectRouteTunnels(tst, mongKok)).toEqual([])
+    })
+
+    it('returns nothing until both locations are set', () => {
+      expect(detectRouteTunnels(central, null)).toEqual([])
+    })
+  })
+
+  describe('canServe', () => {
+    it('keeps urban taxis out of South Lantau only', () => {
+      expect(canServe('urban', central)).toBe(true)
+      expect(canServe('urban', tungChung)).toBe(true)
+      expect(canServe('urban', airport)).toBe(true)
+      expect(canServe('urban', muiWo)).toBe(false)
+      expect(canServe('urban', taiO)).toBe(false)
+    })
+
+    it('lets NT taxis serve NT areas and the airport', () => {
+      for (const place of [shaTin, taiPo, yuenLong, tuenMun, airport]) {
+        expect(canServe('newTerritories', place)).toBe(true)
+      }
+      for (const place of [central, tst, mongKok, tsuenWan, tungChung]) {
+        expect(canServe('newTerritories', place)).toBe(false)
+      }
+    })
+
+    it('keeps Lantau taxis on Lantau and the airport', () => {
+      for (const place of [tungChung, taiO, muiWo, airport]) {
+        expect(canServe('lantau', place)).toBe(true)
+      }
+      for (const place of [central, shaTin, maWan]) {
+        expect(canServe('lantau', place)).toBe(false)
+      }
+    })
+  })
+
+  describe('eligibleTaxiTypes', () => {
+    it('allows only urban taxis in the city', () => {
+      expect(eligibleTaxiTypes(central, tst)).toEqual(['urban'])
+    })
+
+    it('allows urban and NT taxis within the NT', () => {
+      expect(eligibleTaxiTypes(shaTin, taiPo)).toEqual(['urban', 'newTerritories'])
+    })
+
+    it('allows nothing for a trip no single taxi can make', () => {
+      expect(eligibleTaxiTypes(taiO, central)).toEqual([])
+    })
+  })
+
   describe('suggestTaxiType', () => {
     it('suggests lantau when both locations are in Lantau', () => {
       expect(suggestTaxiType(tungChung, taiO)).toBe('lantau')
     })
 
-    it('returns null when only start is in Lantau', () => {
-      expect(suggestTaxiType(tungChung, tst)).toBeNull()
+    it('suggests lantau between the airport and Tung Chung', () => {
+      expect(suggestTaxiType(airport, tungChung)).toBe('lantau')
     })
 
-    it('returns null when only end is in Lantau', () => {
-      expect(suggestTaxiType(central, tungChung)).toBeNull()
+    it('suggests lantau for South Lantau, where urban taxis cannot go', () => {
+      expect(suggestTaxiType(muiWo, taiO, 15)).toBe('lantau')
     })
 
-    it('returns null when neither is in Lantau', () => {
-      expect(suggestTaxiType(central, tst)).toBeNull()
+    it('suggests newTerritories within the NT taxi areas', () => {
+      expect(suggestTaxiType(shaTin, taiPo, 12)).toBe('newTerritories')
+      expect(suggestTaxiType(yuenLong, tuenMun, 10)).toBe('newTerritories')
+    })
+
+    it('suggests newTerritories from the airport to the NT', () => {
+      expect(suggestTaxiType(airport, yuenLong, 30)).toBe('newTerritories')
+    })
+
+    it('suggests urban when leaving Lantau', () => {
+      expect(suggestTaxiType(tungChung, tst)).toBe('urban')
+      expect(suggestTaxiType(central, tungChung)).toBe('urban')
+    })
+
+    it('suggests urban for Tsuen Wan, outside the NT taxi areas', () => {
+      expect(suggestTaxiType(tsuenWan, shaTin)).toBe('urban')
+    })
+
+    it('suggests urban within the city', () => {
+      expect(suggestTaxiType(central, tst)).toBe('urban')
+    })
+
+    it('returns null when no single taxi can make the trip', () => {
+      expect(suggestTaxiType(taiO, central)).toBeNull()
     })
 
     it('returns null when both are null', () => {

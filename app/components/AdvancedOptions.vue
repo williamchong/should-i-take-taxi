@@ -30,7 +30,7 @@
                 />
 
                 <!-- Other Tunnels (Collapsible) -->
-                <UCollapsible>
+                <UCollapsible v-model:open="showOtherTunnels">
                   <template #default="{ open }">
                     <UButton
                       variant="ghost"
@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TUNNEL_FEES } from '~/types/constants'
 import type { TunnelId } from '~/types/constants'
@@ -140,8 +140,17 @@ const hasSelectedCrossHarbourTunnel = computed(() =>
   selectedTunnels.value.includes('crossHarbour')
 )
 
+// Open "Other tunnels" whenever one of them gets selected (e.g. auto-detected
+// Tai Lam), so a fee in the total is never hidden behind a collapsed section.
+const showOtherTunnels = ref(false)
+watch(selectedTunnels, (tunnels, previous = []) => {
+  if (tunnels.some(id => id !== 'crossHarbour' && !previous.includes(id))) {
+    showOtherTunnels.value = true
+  }
+}, { immediate: true })
+
 // UCollapsible flips `showAdvancedOptions` itself; this only reports the
-// user-initiated toggle (not the programmatic cross-harbour auto-expand), so we
+// user-initiated toggle (not the programmatic tunnel auto-expand), so we
 // report the state we are transitioning into.
 const onAdvancedTriggerClick = () => {
   const expanded = !showAdvancedOptions.value

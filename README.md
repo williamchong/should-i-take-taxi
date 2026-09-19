@@ -10,8 +10,8 @@ A Hong Kong-focused web application that provides accurate taxi fare calculation
 - **Interactive Map Display**: Visual route with draggable start/end markers and click-to-set-location using Leaflet
 - **Taxi vs Public Transit Comparison**: See how much time a taxi saves over public transit and whether the cost is worth it
 - **Manual Distance Adjustment**: Override auto-calculated distance with custom values when needed
-- **Cross-Harbour Detection**: Automatically detects and suggests Cross Harbour Tunnel for cross-harbour routes
-- **Taxi Type Suggestions**: Smart recommendations for Lantau taxi based on route locations
+- **Tunnel Detection**: Automatically selects every tolled tunnel on the driving route (harbour crossings, Tai Lam, Tate's Cairn, Lion Rock, Shing Mun, Aberdeen, Route 8)
+- **Taxi Type Suggestions**: Suggests the cheapest taxi colour (Urban, New Territories or Lantau) allowed to serve both ends of the trip
 - **Location Management**: Swap start/end locations, recent-locations dropdown, and shareable URLs that restore routes
 - **Comprehensive Fee Breakdown**: Detailed breakdown of flag fall, distance fare, tunnel fees, luggage charges, and return toll
 - **Sticky Fare Summary**: Fare summary stays visible while scrolling for easy reference
