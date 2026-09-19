@@ -18,16 +18,19 @@ export const TAXI_FARE_CONSTANTS = {
 
 /**
  * Tunnel Fee Constants
- * All tunnel fees in HK$
+ * Taxi tolls in HK$, per the Transport Department's toll rates page
+ * (td.gov.hk › Tunnels and Bridges › Toll Matters), checked 2026-09-20.
+ * The harbour crossings and Tai Lam charge private cars time-varying tolls,
+ * but taxis a fixed one.
  */
 export const TUNNEL_FEES = {
   crossHarbour: 25,
   tatesCairn: 20,
-  taiLam: 58,
+  taiLam: 28, // Fixed taxi toll since the Government took the tunnel over on 31 May 2025
   lions: 8,
-  shingMun: 5,
-  aberdeen: 5,
-  shaTinHeights: 8,
+  shingMun: 8,
+  aberdeen: 8,
+  shaTinHeights: 8, // Sha Tin Heights, Eagle's Nest and Tai Wai tunnels, one toll
 } as const
 
 /**

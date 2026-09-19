@@ -120,7 +120,9 @@ describe('calculateTunnelFees', () => {
   it('returns fee for single tunnel', () => {
     expect(calculateTunnelFees(['crossHarbour'])).toBe(25)
     expect(calculateTunnelFees(['tatesCairn'])).toBe(20)
-    expect(calculateTunnelFees(['taiLam'])).toBe(58)
+    expect(calculateTunnelFees(['taiLam'])).toBe(28)
+    expect(calculateTunnelFees(['aberdeen'])).toBe(8)
+    expect(calculateTunnelFees(['shingMun'])).toBe(8)
   })
 
   it('sums multiple tunnel fees', () => {
