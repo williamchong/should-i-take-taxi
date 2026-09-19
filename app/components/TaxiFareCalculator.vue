@@ -162,6 +162,8 @@ const props = defineProps<{
   initialStartLocation?: LocationResult | null
   initialEndLocation?: LocationResult | null
   skipGpsAutoRequest?: boolean
+  /** Opened from a shared link: start on the suggested taxi type for its trip */
+  applySuggestedTaxiType?: boolean
 }>()
 
 const emit = defineEmits(['update:locations', 'update:fare', 'update:focusedInput', 'update:transitInfo', 'update:initialGpsPending'])
@@ -384,10 +386,23 @@ const transitSavingsLinkClass = computed(() => `${tierClasses.value.savingsText}
 let shownSuggestionKey: string | null = null
 let dismissedSuggestionKey: string | null = null
 
+// Read once: the page keeps ?from&to in sync with every later location change,
+// so only the first trip after a shared-link load qualifies. Starting on the
+// suggested type makes the fare match the one the page's description quotes.
+let applySuggestionOnLoad = Boolean(props.applySuggestedTaxiType)
+
 // Suggest the cheapest taxi type that can serve the route
 const suggestTaxiType = () => {
   const suggested = detectTaxiType(selectedStartLocation.value, selectedEndLocation.value, distance.value)
   const key = suggested && `${tripKey()}:${suggested}`
+
+  if (applySuggestionOnLoad && tripKey()) {
+    applySuggestionOnLoad = false
+    if (suggested && taxiType.value !== suggested) {
+      track('taxi_type_suggestion_auto_applied', { suggested, previous_type: taxiType.value })
+      taxiType.value = suggested
+    }
+  }
 
   if (suggested && taxiType.value !== suggested && key !== dismissedSuggestionKey) {
     suggestedTaxiType.value = suggested
@@ -413,8 +428,10 @@ const dismissSuggestion = () => {
   dismissedSuggestionKey = suggestedTaxiType.value && `${tripKey()}:${suggestedTaxiType.value}`
 }
 
-// Picking the suggested type by hand also answers the suggestion
+// Picking the suggested type by hand also answers the suggestion, and a type
+// the user picks before the shared-link trip resolves is not overridden
 watch(taxiType, (type) => {
+  applySuggestionOnLoad = false
   if (type === suggestedTaxiType.value) showSuggestion.value = false
 })
 

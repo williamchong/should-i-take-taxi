@@ -91,6 +91,7 @@
         :initial-start-location="selectedLocations.start"
         :initial-end-location="selectedLocations.end"
         :skip-gps-auto-request="!!route.query.from"
+        :apply-suggested-taxi-type="!!(route.query.from && route.query.to)"
         @update:locations="updateLocations"
         @update:fare="updateFare"
         @update:focused-input="updateFocusedInput"
