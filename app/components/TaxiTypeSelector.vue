@@ -93,6 +93,7 @@ const handleAcceptSuggestion = () => {
     track('taxi_type_suggestion_accepted', {
       suggested: props.suggestedTaxiType,
       previous_type: previous,
+      via: 'banner',
     })
   }
 }

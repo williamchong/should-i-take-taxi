@@ -84,9 +84,9 @@ export function useLocationDetection() {
     if (!startLocation || !endLocation) return []
     switch (tunnelSource(route)) {
       case 'route':
-        return detectTunnels(route.coordinates!)
+        return detectTunnels(route.coordinates ?? [])
       case 'precomputed':
-        return [...route.tunnels!]
+        return [...(route.tunnels ?? [])]
       case 'endpoints':
         return shouldAutoSelectCrossHarbour(startLocation, endLocation) ? ['crossHarbour'] : []
     }

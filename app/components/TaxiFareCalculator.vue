@@ -387,9 +387,13 @@ let shownSuggestionKey: string | null = null
 let dismissedSuggestionKey: string | null = null
 
 // Read once: the page keeps ?from&to in sync with every later location change,
-// so only the first trip after a shared-link load qualifies. Starting on the
-// suggested type makes the fare match the one the page's description quotes.
+// so only the shared link's own trip qualifies. Starting on the suggested type
+// makes the fare match the one the page's description quotes. The trip is
+// captured when its locations first arrive through the props (the page parses
+// the URL after mount), and the first suggestion computed for any trip either
+// applies it or drops it, so it never carries over to a trip the user picks.
 let applySuggestionOnLoad = Boolean(props.applySuggestedTaxiType)
+let sharedLinkTripKey: string | null = null
 
 // Suggest the cheapest taxi type that can serve the route
 const suggestTaxiType = () => {
@@ -398,8 +402,8 @@ const suggestTaxiType = () => {
 
   if (applySuggestionOnLoad && tripKey()) {
     applySuggestionOnLoad = false
-    if (suggested && taxiType.value !== suggested) {
-      track('taxi_type_suggestion_auto_applied', { suggested, previous_type: taxiType.value })
+    if (tripKey() === sharedLinkTripKey && suggested && taxiType.value !== suggested) {
+      track('taxi_type_suggestion_accepted', { suggested, previous_type: taxiType.value, via: 'auto' }, { ga4Event: 'taxi_type_suggestion_auto_applied' })
       taxiType.value = suggested
     }
   }
@@ -563,9 +567,10 @@ const handleCalculateDistance = async () => {
   if (cached) {
     routeInfo.value = cached
     applyRouteDistance(cached)
+    const km = routeDistanceKm(cached.distance)
     track('taxi_distance_cache_hit', {
-      distance_km: routeDistanceKm(cached.distance),
-      distance_bucket: distanceBucket(routeDistanceKm(cached.distance)),
+      distance_km: km,
+      distance_bucket: distanceBucket(km),
     })
   } else {
     isCalculatingDistance.value = true
@@ -781,6 +786,7 @@ watchImmediate(() => [props.initialStartLocation, props.initialEndLocation] as c
   }
 
   if (coordsChanged && selectedStartLocation.value && selectedEndLocation.value) {
+    if (applySuggestionOnLoad && !sharedLinkTripKey) sharedLinkTripKey = tripKey()
     applyAutoTunnels()
     handleCalculateDistance()
   }
