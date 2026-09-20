@@ -3,6 +3,7 @@ import type { LocationResult } from '~/types/location'
 import type { TunnelId } from '~/types/constants'
 import type { TransitLeg } from '~/utils/transitValue'
 import { CACHE_PREFIXES, clearCache, getCache, setCache } from '~/utils/cache'
+import { dedupeLocations, getLocalizedAddress as buildLocalizedAddress } from '~/utils/location'
 
 export interface RouteInfo {
   distance: number
@@ -86,14 +87,8 @@ export function useLocationSearch() {
     return `${locale.value}_${query.toLowerCase().trim()}`
   }
 
-  const getLocalizedAddress = (location: LocationResult): string => {
-    const isZh = locale.value.startsWith('zh')
-    const name = isZh ? location.nameZH : location.nameEN
-    const address = isZh ? location.addressZH : location.addressEN
-    const district = isZh ? location.districtZH : location.districtEN
-
-    return `${name ? name + ', ' : ''}${address}${district ? ' - ' + district : ''}`
-  }
+  const getLocalizedAddress = (location: LocationResult): string =>
+    buildLocalizedAddress(location, locale.value)
 
   const searchLocation = async (query: string): Promise<LocationResult[]> => {
     if (!query) return []
@@ -109,10 +104,10 @@ export function useLocationSearch() {
         query: { q : query },
       }) as LocationResult[]
 
-      const processedResults = results.map(location => ({
+      const processedResults = dedupeLocations(results.map(location => ({
         ...location,
         displayAddress: getLocalizedAddress(location)
-      }))
+      })))
 
       setCache(CACHE_PREFIXES.LOCATION_SEARCH, searchCacheKey(query), processedResults)
 
