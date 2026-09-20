@@ -96,22 +96,25 @@ export function useLocationSearch() {
     const isAscii = /^[\x00-\x7F]+$/.test(query)
     if (isAscii && query.trim().length < 2) return []
 
+    // displayAddress is derived on read, never stored: caching it would pin the
+    // formatting of the day it was written, so a change to getLocalizedAddress
+    // would not reach anyone holding a warm cache until its TTL ran out.
+    const present = (results: LocationResult[]) => dedupeLocations(results.map(location => ({
+      ...location,
+      displayAddress: getLocalizedAddress(location)
+    })))
+
     const cached = getCache<LocationResult[]>(CACHE_PREFIXES.LOCATION_SEARCH, searchCacheKey(query))
-    if (cached) return cached
+    if (cached) return present(cached)
 
     try {
       const results = await $fetch('https://www.map.gov.hk/gs/api/v1.0.0/locationSearch', {
         query: { q : query },
       }) as LocationResult[]
 
-      const processedResults = dedupeLocations(results.map(location => ({
-        ...location,
-        displayAddress: getLocalizedAddress(location)
-      })))
+      setCache(CACHE_PREFIXES.LOCATION_SEARCH, searchCacheKey(query), results)
 
-      setCache(CACHE_PREFIXES.LOCATION_SEARCH, searchCacheKey(query), processedResults)
-
-      return processedResults
+      return present(results)
     } catch (error) {
       console.error('Error searching locations:', error)
       return []
