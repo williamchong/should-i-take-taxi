@@ -193,6 +193,11 @@
     "title": "出租车 vs 公共交通",
     "taxi": "出租车",
     "publicTransit": "公共交通",
+    "verdict": {
+      "great": "值得，坐出租车吧",
+      "good": "还算合理，看你选择",
+      "poor": "不划算，坐公共交通更好"
+    },
     "min": "分钟",
     "timeSaved": "坐出租车省约 {minutes} 分钟",
     "timeSavedShort": "比公共交通省 {minutes} 分钟",

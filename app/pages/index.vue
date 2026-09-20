@@ -193,7 +193,10 @@
           <!-- Summary -->
           <div class="text-sm text-muted">
             <template v-if="transitMinutesSaved > 0">
-              <p class="font-medium text-highlighted">
+              <p v-if="transitTier" class="text-base font-semibold" :class="tierClasses.savingsText">
+                {{ $t(`transitComparison.verdict.${transitTier}`) }}
+              </p>
+              <p class="font-medium text-highlighted mt-1">
                 {{ $t('transitComparison.timeSaved', { minutes: transitMinutesSaved }) }}
               </p>
               <p v-if="transitCostPerHour" class="mt-1">
@@ -307,6 +310,7 @@ const {
   walkMinutes: transitWalkMinutes,
   waitMinutes: transitWaitMinutes,
   costPerHourSaved: transitCostPerHour,
+  tier: transitTier,
   tierClasses,
 } = useTransitComparison(transitData, () => fareData.value?.totalFare ?? 0)
 

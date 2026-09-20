@@ -193,6 +193,11 @@
     "title": "計程車 vs 公共交通",
     "taxi": "計程車",
     "publicTransit": "公共交通",
+    "verdict": {
+      "great": "值得，搭計程車吧",
+      "good": "還算合理，看你選擇",
+      "poor": "不划算，搭公共交通較好"
+    },
     "min": "分鐘",
     "timeSaved": "搭計程車省約 {minutes} 分鐘",
     "timeSavedShort": "比大眾運輸省 {minutes} 分鐘",

@@ -193,6 +193,11 @@
     "title": "Taxi vs Public Transit",
     "taxi": "Taxi",
     "publicTransit": "Public Transit",
+    "verdict": {
+      "great": "Worth it — take the taxi",
+      "good": "Reasonable — your call",
+      "poor": "Not worth it — take public transit"
+    },
     "min": "min",
     "timeSaved": "Taking a taxi saves ~{minutes} min",
     "timeSavedShort": "saves ~{minutes} min vs transit",
