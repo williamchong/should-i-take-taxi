@@ -79,8 +79,11 @@ export const STORAGE_CONSTANTS = {
  * Constants for GPS location detection
  */
 export const GEOLOCATION_CONSTANTS = {
-  TIMEOUT: 10000, // milliseconds - timeout for GPS request
-  MAXIMUM_AGE: 0, // milliseconds - maximum age of cached position
+  TIMEOUT: 6000, // milliseconds - timeout for GPS request
+  // A fix from the last half-minute is good enough to seed a start location,
+  // and reusing one avoids a cold high-accuracy lock in Hong Kong's street
+  // canyons, where a fresh fix routinely takes longer than the timeout.
+  MAXIMUM_AGE: 30000, // milliseconds - maximum age of cached position
   ENABLE_HIGH_ACCURACY: true,
 } as const
 

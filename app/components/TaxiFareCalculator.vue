@@ -48,7 +48,7 @@
                 :disabled="isGettingLocation"
                 :title="$t('taxiCalculator.useCurrentLocation')"
                 :aria-label="$t('taxiCalculator.useCurrentLocation')"
-                @click="getCurrentLocation"
+                @click="getCurrentLocation()"
               />
             </div>
           </div>
@@ -172,6 +172,7 @@ const { t } = useI18n()
 const { calculateDrivingDistance, getCachedRoute, clearRouteCache, calculateTransitRoute, clearTransitCache, reverseGeocode } = useLocationSearch()
 const { detectRouteTunnels, suggestTaxiType: detectTaxiType } = useLocationDetection()
 const { track } = useAnalytics()
+const toast = useToast()
 
 const taxiType = ref<TaxiType>('urban')
 const suggestedTaxiType = ref<TaxiType | null>(null)
@@ -613,9 +614,17 @@ const handleCalculateDistance = async () => {
 }
 
 // 獲取當前位置
-const getCurrentLocation = async () => {
+// `userInitiated` separates the tap on the GPS button from the automatic
+// request on mount. Only a tap earns feedback — the automatic one asks for a
+// permission the user never requested, so failing it loudly is noise.
+const getCurrentLocation = async (userInitiated = true) => {
+  const notifyFailure = (description: string) => {
+    if (!userInitiated) return
+    toast.add({ title: description, color: 'error', icon: 'i-heroicons-exclamation-triangle' })
+  }
+
   if (!navigator.geolocation) {
-    alert(t('taxiCalculator.geolocationNotSupported'))
+    notifyFailure(t('taxiCalculator.geolocationNotSupported'))
     return
   }
 
@@ -671,8 +680,8 @@ const getCurrentLocation = async () => {
   } catch (error) {
     if (controller.signal.aborted) return
     console.error("Error getting current location:", error)
-    alert(t('taxiCalculator.geolocationError'))
-    track('taxi_get_current_location_error')
+    notifyFailure(t('taxiCalculator.geolocationError'))
+    track('taxi_get_current_location_error', { user_initiated: userInitiated })
   } finally {
     if (!controller.signal.aborted) {
       isGettingLocation.value = false
@@ -819,7 +828,7 @@ onMounted(() => {
 
   if (isGeolocationSupported.value && !selectedStartLocation.value && !props.skipGpsAutoRequest) {
     emit('update:initialGpsPending', true)
-    getCurrentLocation().finally(() => {
+    getCurrentLocation(false).finally(() => {
       emit('update:initialGpsPending', false)
       // Skip focus if a manual GPS retry is already in flight — when the user
       // re-clicks GPS mid-prompt, the initial controller aborts but this

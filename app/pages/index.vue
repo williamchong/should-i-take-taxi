@@ -45,17 +45,12 @@
                 <img
                   :src="LogoEn"
                   alt="Crazy Taxi"
-                  :class="[
-                    'h-40 w-auto rounded-lg shadow-md transition-opacity',
-                    isLoadingFromUrl ? 'opacity-50' : 'opacity-100'
-                  ]"
+                  class="h-40 w-auto rounded-lg shadow-md opacity-50"
                 >
               </picture>
-              <!-- Loading overlay -->
-              <div
-                v-if="isLoadingFromUrl"
-                class="absolute inset-0 flex flex-col items-center justify-center"
-              >
+              <!-- Loading overlay: the splash only shows while we are waiting on
+                   something, so it always carries the spinner -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
                 <div class="relative w-16 h-16 mb-2">
                   <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full" />
                   <div class="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full animate-spin border-t-transparent" />
