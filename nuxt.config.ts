@@ -3,6 +3,13 @@ import { generateSitemapUrls } from './config/sitemap-routes'
 
 const siteUrl = 'https://shoulditake.taxi'
 
+// The registry ids below are the live production ones and there is no separate
+// dev property, so loading them locally would register every `npm run dev`
+// visit — and every browser-driver run — as a real first-time user. 'manual'
+// leaves the registry entries intact, so useAnalytics() still resolves its
+// proxies; the scripts are simply never fetched.
+const analyticsTrigger = process.env.NODE_ENV === 'development' ? 'manual' : 'onNuxtReady'
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: process.env.NODE_ENV === 'development' },
@@ -74,13 +81,13 @@ export default defineNuxtConfig({
   scripts: {
     registry: {
       googleAnalytics: {
-        trigger: 'onNuxtReady',
+        trigger: analyticsTrigger,
         bundle: false,
         proxy: false,
         id: 'G-7JBFREKBB0',
       },
       posthog: {
-        trigger: 'onNuxtReady',
+        trigger: analyticsTrigger,
         bundle: false,
         proxy: false,
         apiKey: 'phc_rPtJYrgSEf3tpmddVVRKXjQ6NwQ8xDPrpFGqCg7iMWnn',
