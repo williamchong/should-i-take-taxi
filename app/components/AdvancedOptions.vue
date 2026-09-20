@@ -58,11 +58,13 @@
             </div>
 
             <!-- Tunnel Fee Type (One-way / Return) -->
-            <div v-if="hasSelectedCrossHarbourTunnel" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-              <label class="text-default font-medium">{{ $t('taxiCalculator.tunnelFeeType') }}</label>
+            <div v-if="hasSelectedCrossHarbourTunnel" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+              <div>
+                <label class="text-default font-medium">{{ $t('taxiCalculator.tunnelFeeType') }}</label>
+                <p class="text-xs text-muted mt-1">{{ $t('taxiCalculator.tunnelFeeTypeHint') }}</p>
+              </div>
               <URadioGroup
                 :model-value="tunnelFeeType"
-                orientation="horizontal"
                 :items="[
                   { value: 'oneWay', label: $t('taxiCalculator.tunnelFeeOneWay') },
                   { value: 'return', label: $t('taxiCalculator.tunnelFeeReturn') },
