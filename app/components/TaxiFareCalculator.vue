@@ -5,6 +5,18 @@
         <h2 class="text-2xl font-bold text-highlighted">{{ $t('taxiCalculator.title') }}</h2>
         <div class="flex items-center gap-2">
           <UBadge color="neutral" variant="soft" size="lg">🇭🇰</UBadge>
+          <!-- 分享按鈕 -->
+          <UButton
+            v-if="selectedStartLocation && selectedEndLocation"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            class="rounded-full"
+            icon="i-heroicons-share"
+            :title="$t('taxiCalculator.shareTrip')"
+            :aria-label="$t('taxiCalculator.shareTrip')"
+            @click="handleShare"
+          />
           <!-- 重新整理按鈕 -->
           <UButton
             color="neutral"
@@ -727,6 +739,28 @@ const swapLocations = async () => {
 
   // 追蹤交換事件
   track('taxi_locations_swapped', { distance_km: distance.value })
+}
+
+// 分享行程 - index.vue keeps ?from/&to in sync, so the current URL is the trip
+const handleShare = async () => {
+  const url = window.location.href
+  const title = document.title
+
+  try {
+    if (navigator.share) {
+      await navigator.share({ title, url })
+      track('taxi_trip_shared', { method: 'share_sheet', distance_km: distance.value })
+      return
+    }
+    await navigator.clipboard.writeText(url)
+    toast.add({ title: t('taxiCalculator.shareCopied'), color: 'success', icon: 'i-heroicons-check-circle' })
+    track('taxi_trip_shared', { method: 'clipboard', distance_km: distance.value })
+  } catch (error) {
+    // The user dismissing the share sheet lands here too, and is not a failure
+    if (error instanceof DOMException && error.name === 'AbortError') return
+    console.error('Error sharing trip:', error)
+    toast.add({ title: t('taxiCalculator.shareFailed'), color: 'error', icon: 'i-heroicons-exclamation-triangle' })
+  }
 }
 
 // 重新整理計算 - 作為全面重置的後備方案
