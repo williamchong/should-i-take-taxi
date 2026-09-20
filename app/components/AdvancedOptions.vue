@@ -7,7 +7,7 @@
           <UButton
             variant="ghost"
             color="neutral"
-            class="text-sm font-medium"
+            class="text-sm font-medium w-full justify-start text-left min-h-11"
             :icon="open ? 'i-heroicons-chevron-down' : 'i-heroicons-chevron-right'"
             @click="onAdvancedTriggerClick"
           >

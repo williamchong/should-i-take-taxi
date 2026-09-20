@@ -10,8 +10,7 @@
             v-if="selectedStartLocation && selectedEndLocation"
             color="neutral"
             variant="outline"
-            size="sm"
-            class="rounded-full"
+            class="rounded-full size-11 justify-center"
             icon="i-heroicons-share"
             :title="$t('taxiCalculator.shareTrip')"
             :aria-label="$t('taxiCalculator.shareTrip')"
@@ -21,8 +20,7 @@
           <UButton
             color="neutral"
             variant="outline"
-            size="sm"
-            class="rounded-full"
+            class="rounded-full size-11 justify-center"
             icon="i-heroicons-arrow-path"
             :title="$t('taxiCalculator.refreshCalculation')"
             :aria-label="$t('taxiCalculator.refreshCalculation')"
@@ -55,6 +53,7 @@
               <UButton
                 v-if="isGeolocationSupported"
                 color="success"
+                class="size-11 justify-center"
                 icon="i-heroicons-map-pin"
                 :loading="isGettingLocation"
                 :disabled="isGettingLocation"
@@ -84,6 +83,7 @@
               <UButton
                 color="neutral"
                 variant="outline"
+                class="size-11 justify-center"
                 icon="i-heroicons-arrows-up-down"
                 :disabled="!selectedStartLocation || !selectedEndLocation"
                 :title="$t('taxiCalculator.swapLocations')"

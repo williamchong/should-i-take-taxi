@@ -8,7 +8,7 @@
         :items="taxiItems"
         orientation="horizontal"
         color="primary"
-        :ui="{ fieldset: 'flex-wrap gap-x-4 gap-y-2' }"
+        :ui="{ fieldset: 'flex-wrap gap-x-4 gap-y-1', label: 'py-3' }"
         @update:model-value="(v) => handleChange(v as TaxiType)"
       >
         <!-- The dot is a redundant cue, not the label: colour alone cannot

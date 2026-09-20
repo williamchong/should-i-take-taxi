@@ -7,6 +7,8 @@
       :loading="isSearching"
       autocomplete="off"
       type="text"
+      size="xl"
+      :ui="{ base: 'min-h-11' }"
       class="w-full"
       :placeholder="$t('taxiCalculator.searchPlace')"
       role="combobox"
