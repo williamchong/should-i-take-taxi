@@ -8,16 +8,20 @@
         :items="taxiItems"
         orientation="horizontal"
         color="primary"
+        :ui="{ fieldset: 'flex-wrap gap-x-4 gap-y-2' }"
         @update:model-value="(v) => handleChange(v as TaxiType)"
       >
+        <!-- The dot is a redundant cue, not the label: colour alone cannot
+             carry the choice for a red/green colour-blind user, and its title
+             tooltip never fires on touch. -->
         <template #label="{ item }">
-          <span class="inline-flex items-center">
+          <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
             <span
-              class="h-4 w-4 rounded-full"
+              class="h-3 w-3 rounded-full shrink-0"
               :class="(item as TaxiItem).dotClass"
-              :title="(item as TaxiItem).label"
+              aria-hidden="true"
             />
-            <span class="sr-only">{{ (item as TaxiItem).label }}</span>
+            {{ (item as TaxiItem).label }}
           </span>
         </template>
       </URadioGroup>
