@@ -1,5 +1,5 @@
 <template>
-  <div class="border-t border-default pt-6 grid grid-cols-2 gap-4 items-start">
+  <div class="border-t border-default pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
     <label for="distance" class="text-default font-medium pt-2">{{ $t('taxiCalculator.distance') }}</label>
 
     <div class="pt-2 space-y-2">
@@ -52,7 +52,7 @@
             @keyup.esc="cancelDistanceEdit"
           >
             <template #trailing>
-              <span class="text-dimmed text-sm">km</span>
+              <span class="text-muted text-sm">km</span>
             </template>
           </UInput>
 

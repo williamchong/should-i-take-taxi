@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Taxi Type Selection -->
-    <div class="grid grid-cols-2 gap-4 items-center">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
       <label class="text-default font-medium">{{ $t('taxiCalculator.taxiType') }}</label>
       <URadioGroup
         :model-value="modelValue"
