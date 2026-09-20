@@ -34,7 +34,7 @@
       <ul>
         <!-- Recent locations (shown when no search text) -->
         <template v-if="!searchText && recentLocations.length > 0">
-          <li class="px-4 py-2 text-xs font-semibold text-dimmed uppercase tracking-wide flex items-center justify-between" @mousedown.prevent>
+          <li class="px-4 py-2 text-xs font-semibold text-muted uppercase tracking-wide flex items-center justify-between" @mousedown.prevent>
             <span>{{ $t('taxiCalculator.recentLocations') }}</span>
             <UButton
               color="neutral"

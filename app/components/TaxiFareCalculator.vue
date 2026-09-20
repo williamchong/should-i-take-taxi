@@ -95,7 +95,7 @@
               </span>
               <span v-else class="text-2xl font-bold text-primary group-hover:underline">HK$ {{ totalFare.toFixed(2) }}</span>
             </a>
-            <div v-if="!isCalculatingDistance && routeInfo.time > 0" class="text-xs text-dimmed leading-tight">
+            <div v-if="!isCalculatingDistance && routeInfo.time > 0" class="text-xs text-default leading-tight">
               ~{{ Math.round(routeInfo.time / 60) }} {{ $t('transitComparison.min') }}<template v-if="transitMinutesSaved > 0"> · <a
                 href="#transit-detail"
                 :class="transitSavingsLinkClass"

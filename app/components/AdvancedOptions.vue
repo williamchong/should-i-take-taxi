@@ -12,7 +12,7 @@
             @click="onAdvancedTriggerClick"
           >
             {{ $t('taxiCalculator.advancedOptions') }}
-            <span class="text-xs text-dimmed">({{ $t('taxiCalculator.tunnelsLuggage') }})</span>
+            <span class="text-xs text-muted">({{ $t('taxiCalculator.tunnelsLuggage') }})</span>
           </UButton>
         </template>
 
@@ -73,7 +73,9 @@
 
             <!-- 85折 Discount Fare -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-              <label class="text-default font-medium">{{ $t('taxiCalculator.discountFare') }}</label>
+              <!-- The checkbox carries its own label, which is the control's
+                   accessible name; a row heading here would only repeat it. -->
+              <span class="hidden sm:block" aria-hidden="true" />
               <UCheckbox
                 :model-value="isDiscountFare"
                 :label="$t('taxiCalculator.discountFare')"
@@ -94,7 +96,7 @@
                 @change="handleLuggageChange"
               >
                 <template #trailing>
-                  <span class="text-dimmed text-sm">{{ $t('taxiCalculator.pieces') }}</span>
+                  <span class="text-muted text-sm">{{ $t('taxiCalculator.pieces') }}</span>
                 </template>
               </UInput>
             </div>

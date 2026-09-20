@@ -97,7 +97,7 @@ export function getTierClasses(tier: TaxiValueTier | null): TierClasses {
         taxiText: NEUTRAL_TEXT,
         transitBg: POSITIVE_BG,
         transitText: POSITIVE_TEXT,
-        savingsText: 'text-red-700 dark:text-red-400',
+        savingsText: 'text-red-700 dark:text-red-300',
       }
     default:
       return {

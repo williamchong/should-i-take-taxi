@@ -74,7 +74,7 @@
           @map-clicked="handleMapClick"
         />
         <!-- Hint text for draggable markers -->
-        <div v-if="hasSelectedLocations" class="text-sm text-dimmed mt-2 flex items-center gap-1">
+        <div v-if="hasSelectedLocations" class="text-sm text-muted mt-2 flex items-center gap-1">
           <UIcon name="i-heroicons-information-circle" class="h-4 w-4" />
           <span>{{ $t('taxiCalculator.markerDragHint') }}</span>
         </div>
@@ -108,7 +108,7 @@
             <div class="grid grid-cols-2 gap-2">
               <template v-if="fareData.breakdown.discount > 0">
                 <span>{{ $t('taxiCalculator.meterFare') }}:</span>
-                <span class="text-right line-through text-dimmed">HK$ {{ fareData.breakdown.meterFare.toFixed(2) }}</span>
+                <span class="text-right line-through text-muted">HK$ {{ fareData.breakdown.meterFare.toFixed(2) }}</span>
 
                 <span>{{ $t('taxiCalculator.discountedFare') }}:</span>
                 <span class="text-right">HK$ {{ (fareData.breakdown.meterFare - fareData.breakdown.discount).toFixed(2) }}</span>
@@ -161,15 +161,15 @@
           <div class="grid grid-cols-2 gap-4 mb-4">
             <!-- Taxi column -->
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.taxiBg">
-              <div class="text-sm font-medium text-dimmed mb-1">{{ $t('transitComparison.taxi') }}</div>
+              <div class="text-sm font-medium text-default mb-1">{{ $t('transitComparison.taxi') }}</div>
               <div class="text-2xl font-bold" :class="tierClasses.taxiText">{{ taxiMinutes }} {{ $t('transitComparison.min') }}</div>
-              <div v-if="fareData" class="text-sm text-muted mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
+              <div v-if="fareData" class="text-sm text-default mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
             </div>
             <!-- Public Transit column -->
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.transitBg">
-              <div class="text-sm font-medium text-dimmed mb-1">{{ $t('transitComparison.publicTransit') }}</div>
+              <div class="text-sm font-medium text-default mb-1">{{ $t('transitComparison.publicTransit') }}</div>
               <div class="text-2xl font-bold" :class="tierClasses.transitText">{{ transitMinutes }} {{ $t('transitComparison.min') }}</div>
-              <div class="text-sm text-muted mt-1">
+              <div class="text-sm text-default mt-1">
                 <template v-if="transitData.transitFareMin === transitData.transitFareMax">
                   HK$ {{ transitData.transitFareMin.toFixed(2) }}
                 </template>
@@ -177,7 +177,7 @@
                   HK$ {{ transitData.transitFareMin.toFixed(2) }} – {{ transitData.transitFareMax.toFixed(2) }}
                 </template>
               </div>
-              <div v-if="transitWalkMinutes > 0 || transitWaitMinutes > 0" class="text-xs text-dimmed mt-1 leading-tight">
+              <div v-if="transitWalkMinutes > 0 || transitWaitMinutes > 0" class="text-xs text-default mt-1 leading-tight">
                 <span v-if="transitWalkMinutes > 0">{{ $t('transitComparison.walkingTime', { min: transitWalkMinutes }) }}</span>
                 <span v-if="transitWalkMinutes > 0 && transitWaitMinutes > 0"> · </span>
                 <span v-if="transitWaitMinutes > 0">{{ $t('transitComparison.waitingTime', { min: transitWaitMinutes }) }}</span>
@@ -204,7 +204,7 @@
           </div>
 
           <!-- Attribution -->
-          <p class="text-xs text-dimmed mt-3">
+          <p class="text-xs text-muted mt-3">
             <i18n-t keypath="transitComparison.poweredBy" tag="span">
               <template #link>
                 <a href="https://justusewheels.com?utm_source=shoulditake.taxi&utm_medium=referral&utm_campaign=transit_comparison" target="_blank" rel="noopener noreferrer" class="underline hover:text-muted">Wheels</a>
