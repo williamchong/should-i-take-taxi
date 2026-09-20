@@ -28,7 +28,9 @@ export function getLocalizedAddress(location: LocationResult, locale: string): s
 export function dedupeLocations(locations: LocationResult[]): LocationResult[] {
   const seen = new Set<string>()
   return locations.filter((location) => {
-    const key = `${location.x.toFixed(6)},${location.y.toFixed(6)}|${location.displayAddress}`
+    // Exact coordinates, not coordKey() precision: these rows come from a single
+    // API payload, so the same place parses to the same numbers.
+    const key = `${location.x},${location.y}|${location.displayAddress}`
     if (seen.has(key)) return false
     seen.add(key)
     return true

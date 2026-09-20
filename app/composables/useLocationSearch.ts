@@ -291,7 +291,6 @@ export function useLocationSearch() {
     clearRouteCache,
     calculateTransitRoute,
     clearTransitCache,
-    getLocalizedAddress,
     reverseGeocode
   }
 }

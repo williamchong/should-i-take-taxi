@@ -277,7 +277,6 @@ const showBoundingBoxes = computed(() => route.query.debug === '1')
 const fareDisplayRef = ref<HTMLElement | null>(null)
 const taxiFareCalculatorRef = ref<InstanceType<typeof TaxiFareCalculator> | null>(null)
 const locationsRestoredFromUrl = ref(false)
-const isLoadingFromUrl = ref(false)
 const focusedInput = ref<'start' | 'end' | null>(null)
 
 const selectedLocations = ref<{
@@ -368,8 +367,6 @@ async function parseQueryParams() {
 
   if (!fromParam && !toParam) return
 
-  isLoadingFromUrl.value = true
-
   try {
     // Parse coordinates synchronously
     const fromCoords = parseCoordinates(fromParam)
@@ -419,8 +416,6 @@ async function parseQueryParams() {
     }
   } catch (error) {
     console.error('Error parsing query parameters:', error)
-  } finally {
-    isLoadingFromUrl.value = false
   }
 }
 

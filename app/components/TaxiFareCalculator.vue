@@ -626,12 +626,12 @@ const handleCalculateDistance = async () => {
 }
 
 // 獲取當前位置
-// `userInitiated` separates the tap on the GPS button from the automatic
-// request on mount. Only a tap earns feedback — the automatic one asks for a
-// permission the user never requested, so failing it loudly is noise.
-const getCurrentLocation = async (userInitiated = true) => {
+// `silent` is for the automatic request on mount: it asks for a permission the
+// user never requested, so failing it loudly is noise. A tap on the GPS button
+// earns feedback.
+const getCurrentLocation = async ({ silent = false } = {}) => {
   const notifyFailure = (description: string) => {
-    if (!userInitiated) return
+    if (silent) return
     toast.add({ title: description, color: 'error', icon: 'i-heroicons-exclamation-triangle' })
   }
 
@@ -693,7 +693,7 @@ const getCurrentLocation = async (userInitiated = true) => {
     if (controller.signal.aborted) return
     console.error("Error getting current location:", error)
     notifyFailure(t('taxiCalculator.geolocationError'))
-    track('taxi_get_current_location_error', { user_initiated: userInitiated })
+    track('taxi_get_current_location_error', { user_initiated: !silent })
   } finally {
     if (!controller.signal.aborted) {
       isGettingLocation.value = false
@@ -862,7 +862,7 @@ onMounted(() => {
 
   if (isGeolocationSupported.value && !selectedStartLocation.value && !props.skipGpsAutoRequest) {
     emit('update:initialGpsPending', true)
-    getCurrentLocation(false).finally(() => {
+    getCurrentLocation({ silent: true }).finally(() => {
       emit('update:initialGpsPending', false)
       // Skip focus if a manual GPS retry is already in flight — when the user
       // re-clicks GPS mid-prompt, the initial controller aborts but this

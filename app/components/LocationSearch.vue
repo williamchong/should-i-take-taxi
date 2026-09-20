@@ -41,48 +41,37 @@
       class="absolute z-10 mt-1 w-full bg-default shadow-lg rounded-md border border-default max-h-60 overflow-auto"
     >
       <ul :id="`${id}-listbox`" role="listbox">
-        <!-- Recent locations (shown when no search text) -->
-        <template v-if="!searchText && recentLocations.length > 0">
-          <li class="px-4 py-2 text-xs font-semibold text-muted uppercase tracking-wide flex items-center justify-between" @mousedown.prevent>
-            <span>{{ $t('taxiCalculator.recentLocations') }}</span>
-            <UButton
-              color="neutral"
-              variant="link"
-              size="xs"
-              icon="i-heroicons-trash"
-              :title="$t('taxiCalculator.clearRecentLocations')"
-              :aria-label="$t('taxiCalculator.clearRecentLocations')"
-              @click="handleClearRecent"
-            />
-          </li>
-          <li
-            v-for="(result, index) in recentLocations"
-            :id="`${id}-option-${index}`"
-            :key="`${id}-recent-${index}`"
-            role="option"
-            :aria-selected="activeIndex === index"
-            class="px-4 py-2 hover:bg-elevated cursor-pointer text-sm text-highlighted"
-            :class="{ 'bg-elevated': activeIndex === index }"
-            @mousedown.prevent
-            @click="handleSelect(result, 'recent')"
-          >
-            {{ result.displayAddress }}
-          </li>
-        </template>
-
-        <!-- Search results -->
         <li
-          v-for="(result, index) in searchResults"
-          :id="`${id}-option-${recentOffset + index}`"
-          :key="`${id}-${index}`"
-          role="option"
-          :aria-selected="activeIndex === recentOffset + index"
-          class="px-4 py-2 hover:bg-elevated cursor-pointer text-sm text-highlighted"
-          :class="{ 'bg-elevated': activeIndex === recentOffset + index }"
+          v-if="showRecent"
+          role="presentation"
+          class="px-4 py-2 text-xs font-semibold text-muted uppercase tracking-wide flex items-center justify-between"
           @mousedown.prevent
-          @click="handleSelect(result, 'search')"
         >
-          {{ result.displayAddress }}
+          <span>{{ $t('taxiCalculator.recentLocations') }}</span>
+          <UButton
+            color="neutral"
+            variant="link"
+            size="xs"
+            icon="i-heroicons-trash"
+            :title="$t('taxiCalculator.clearRecentLocations')"
+            :aria-label="$t('taxiCalculator.clearRecentLocations')"
+            @click="handleClearRecent"
+          />
+        </li>
+
+        <!-- Recent locations when the field is empty, search results otherwise -->
+        <li
+          v-for="(option, index) in activeOptions"
+          :id="`${id}-option-${index}`"
+          :key="`${id}-${option.source}-${index}`"
+          role="option"
+          :aria-selected="activeIndex === index"
+          class="px-4 py-2 hover:bg-elevated cursor-pointer text-sm text-highlighted"
+          :class="{ 'bg-elevated': activeIndex === index }"
+          @mousedown.prevent
+          @click="handleSelect(option.location, option.source)"
+        >
+          {{ option.location.displayAddress }}
         </li>
       </ul>
     </div>
@@ -123,11 +112,10 @@ const listboxRef = ref<HTMLElement | null>(null)
 // Index of the keyboard-highlighted option across the whole list; -1 is none.
 const activeIndex = ref(-1)
 
-// Recent locations only show when the field is empty, so they never share the
-// list with search results — but the offset keeps the option ids contiguous.
 const showRecent = computed(() => !searchText.value && recentLocations.value.length > 0)
-const recentOffset = computed(() => (showRecent.value ? recentLocations.value.length : 0))
 const isOpen = computed(() => isFocused.value && (searchResults.value.length > 0 || showRecent.value))
+// The rendered option list, in order — the template iterates this, so an option's
+// index is its id, and the keyboard highlight cannot drift from what is on screen.
 const activeOptions = computed(() => [
   ...(showRecent.value ? recentLocations.value.map(location => ({ location, source: 'recent' as const })) : []),
   ...searchResults.value.map(location => ({ location, source: 'search' as const })),
