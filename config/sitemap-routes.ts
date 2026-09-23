@@ -2,6 +2,8 @@
  * Popular Hong Kong locations and taxi routes for SEO sitemap generation
  */
 
+import type { SitemapUrl } from '@nuxtjs/sitemap'
+
 export interface Location {
   lat: number
   lng: number
@@ -157,13 +159,6 @@ export function findLocationByCoordinates(lat: number, lng: number, tolerance = 
   }
 
   return null
-}
-
-export interface SitemapUrl {
-  loc: string
-  changefreq: string
-  priority: number
-  _i18nTransform: boolean
 }
 
 function routeUrl(from: Location, to: Location): SitemapUrl {

@@ -4,13 +4,6 @@ import { generateSitemapUrls } from './config/sitemap-routes'
 const siteUrl = 'https://shoulditake.taxi'
 const isDev = process.env.NODE_ENV === 'development'
 
-// The registry ids below are the live production ones and there is no separate
-// dev property, so loading them locally would register every `npm run dev`
-// visit — and every browser-driver run — as a real first-time user. 'manual'
-// leaves the registry entries intact, so useAnalytics() still resolves its
-// proxies; the scripts are simply never fetched.
-const analyticsTrigger = isDev ? 'manual' : 'onNuxtReady'
-
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: isDev },
@@ -80,15 +73,23 @@ export default defineNuxtConfig({
   },
 
   scripts: {
+    // The registry ids below are the live production ones and there is no
+    // separate dev property, so loading them locally would register every
+    // `npm run dev` visit — and every browser-driver run — as a real first-time
+    // user. 'mock' keeps the registry entries (as a trigger: 'manual' script),
+    // so useAnalytics() still resolves its proxies; the scripts are simply never
+    // fetched. Don't use `trigger: false` instead: that skips the global init,
+    // and the first composable call would then load the script with its default
+    // trigger.
     registry: {
-      googleAnalytics: {
-        trigger: analyticsTrigger,
+      googleAnalytics: isDev ? 'mock' : {
+        trigger: 'onNuxtReady',
         bundle: false,
         proxy: false,
         id: 'G-7JBFREKBB0',
       },
-      posthog: {
-        trigger: analyticsTrigger,
+      posthog: isDev ? 'mock' : {
+        trigger: 'onNuxtReady',
         bundle: false,
         proxy: false,
         apiKey: 'phc_rPtJYrgSEf3tpmddVVRKXjQ6NwQ8xDPrpFGqCg7iMWnn',
