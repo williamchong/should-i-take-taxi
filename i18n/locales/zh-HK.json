@@ -146,6 +146,7 @@
     "tunnelTotal": "隧道費總額",
     "luggageTotal": "行李費總額",
     "returnToll": "回程隧道費",
+    "fareFrom": "{fare} 起",
     "estimateNote": "呢個係估算，只按行車距離計，未計塞車或者等紅燈時咪錶跳嘅等候時間收費，所以實際車費通常會高少少，塞車時更多。",
     "tunnels": {
       "crossHarbour": "過海隧道 (紅隧/東隧/西隧)",

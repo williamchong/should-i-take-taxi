@@ -16,10 +16,12 @@
             <button
               v-else
               type="button"
-              class="text-2xl font-bold text-primary"
+              class="text-sm text-primary"
               @click="scrollToFare"
             >
-              HK$ {{ fareData?.totalFare.toFixed(2) }}
+              <i18n-t keypath="taxiCalculator.fareFrom" tag="span">
+                <template #fare><span class="text-2xl font-bold whitespace-nowrap">HK$ {{ fareData?.totalFare.toFixed(2) }}</span></template>
+              </i18n-t>
             </button>
           </div>
         </div>
@@ -101,7 +103,9 @@
           <span class="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"/>
           {{ $t('taxiCalculator.calculatingFare') }}
         </p>
-        <p v-else class="text-5xl font-bold text-primary mt-2 mb-4">HK$ {{ fareData.totalFare.toFixed(2) }}</p>
+        <i18n-t v-else keypath="taxiCalculator.fareFrom" tag="p" class="text-xl text-primary mt-2 mb-4">
+          <template #fare><span class="text-5xl font-bold whitespace-nowrap">HK$ {{ fareData.totalFare.toFixed(2) }}</span></template>
+        </i18n-t>
 
         <div class="border-t border-blue-200 dark:border-blue-700 pt-4 mt-4">
           <div class="text-sm text-muted">
@@ -167,7 +171,9 @@
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.taxiBg">
               <div class="text-sm font-medium text-default mb-1">{{ $t('transitComparison.taxi') }}</div>
               <div class="text-2xl font-bold" :class="tierClasses.taxiText">{{ taxiMinutes }} {{ $t('transitComparison.min') }}</div>
-              <div v-if="fareData" class="text-sm text-default mt-1">HK$ {{ fareData.totalFare.toFixed(2) }}</div>
+              <i18n-t v-if="fareData" keypath="taxiCalculator.fareFrom" tag="div" class="text-sm text-default mt-1">
+                <template #fare>HK$ {{ fareData.totalFare.toFixed(2) }}</template>
+              </i18n-t>
             </div>
             <!-- Public Transit column -->
             <div class="rounded-lg p-4 text-center transition-colors" :class="tierClasses.transitBg">

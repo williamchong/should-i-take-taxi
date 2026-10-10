@@ -146,6 +146,7 @@
     "tunnelTotal": "隧道费总额",
     "luggageTotal": "行李费总额",
     "returnToll": "回程隧道费",
+    "fareFrom": "{fare} 起",
     "estimateNote": "此为估算，仅按行车距离计算，未计入堵车或等红灯时跳表的等候时间收费，因此实际车费通常略高，堵车时更多。",
     "tunnels": {
       "crossHarbour": "过海隧道 (红隧/东隧/西隧)",

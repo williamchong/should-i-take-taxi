@@ -146,6 +146,7 @@
     "tunnelTotal": "Tunnel Fees Total",
     "luggageTotal": "Luggage Fees Total",
     "returnToll": "Return Tunnel Fee",
+    "fareFrom": "from {fare}",
     "estimateNote": "This is an estimate. It prices the driving distance only and does not include the waiting-time charge the meter adds while the taxi is stopped or crawling in traffic, so the actual fare is usually a bit higher, more so in congestion.",
     "tunnels": {
       "crossHarbour": "Cross-Harbour Tunnels (CHT/EHT/WHT)",
