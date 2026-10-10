@@ -238,15 +238,15 @@ describe('useLocationDetection', () => {
 
   describe('estimateTripFare', () => {
     it('prices a seeded route in km, with its tunnels and the return toll', () => {
-      // Airport → Central: 40,633.5m → 40.6km urban meter fare, plus $25 toll and $25 return
+      // Airport → Central: 40,633.5m → 40.7km urban meter fare, plus $25 toll and $25 return
       const fare = estimateTripFare(airport, central, { distance: 40633.5, tunnels: ['crossHarbour'] })
-      expect(fare).toBeCloseTo(calculateMeterFare(40.6, 'urban') + 50, 1)
+      expect(fare).toBeCloseTo(calculateMeterFare(40.7, 'urban') + 50, 1)
       expect(fare).toBeLessThan(500)
     })
 
     it('falls back to the endpoint guess when the route carries no tunnels', () => {
       expect(estimateTripFare(central, tst, { distance: 7047.9 }))
-        .toBeCloseTo(calculateMeterFare(7, 'urban') + 50, 1)
+        .toBeCloseTo(calculateMeterFare(7.1, 'urban') + 50, 1)
     })
 
     it('prices with the suggested taxi type', () => {

@@ -12,10 +12,16 @@ import type { TaxiType, TunnelId } from '~/types/constants'
 import { TAXI_RATES, TUNNEL_FEES } from '~/types/constants'
 
 describe('routeDistanceKm', () => {
-  it('converts metres to km rounded to 0.1km', () => {
-    expect(routeDistanceKm(40633.5)).toBe(40.6)
-    expect(routeDistanceKm(7047.9)).toBe(7)
+  it('converts metres to km rounded up to 0.1km', () => {
+    expect(routeDistanceKm(40633.5)).toBe(40.7)
+    expect(routeDistanceKm(7047.9)).toBe(7.1)
+    expect(routeDistanceKm(7000)).toBe(7)
     expect(routeDistanceKm(0)).toBe(0)
+  })
+
+  it('keeps the 200m step a partial 0.1km would have rounded away', () => {
+    // 3,040m is six steps past flag fall; nearest rounding gave 3.0km, five
+    expect(calculateDistanceFare(routeDistanceKm(3040), 'urban')).toBeCloseTo(6 * TAXI_RATES.urban.incrementalRate)
   })
 })
 
@@ -31,6 +37,11 @@ describe('calculateDistanceFare', () => {
   it('returns 0 for distance within first tier (≤2km)', () => {
     expect(calculateDistanceFare(1.5, 'urban')).toBe(0)
     expect(calculateDistanceFare(2, 'urban')).toBe(0)
+  })
+
+  // (2.2 - 2) / 0.2 is 1.0000000000000009 in floating point
+  it.each([[2.2, 1], [2.6, 3], [3.2, 6], [4.4, 12]])('charges %skm as %i steps, not one more from float drift', (km, steps) => {
+    expect(calculateDistanceFare(km, 'urban')).toBeCloseTo(steps * TAXI_RATES.urban.incrementalRate)
   })
 
   it('calculates fare for a short trip (urban, 3km)', () => {

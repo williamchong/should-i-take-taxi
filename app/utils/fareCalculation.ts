@@ -40,10 +40,12 @@ export interface FareSummary extends FareResult {
 
 /**
  * Convert an OSRM route distance (metres) to the km figure the fare is priced
- * on, rounded to 0.1km as the calculator displays it.
+ * on, at the calculator's 0.1km display precision. Rounds up, as the meter
+ * charges each 200m "or part thereof": rounding to nearest could drop up to
+ * 50m and with it a whole step.
  */
 export function routeDistanceKm(metres: number): number {
-  return parseFloat((metres / 1000).toFixed(1))
+  return Math.ceil(metres / 100) / 10
 }
 
 /**
@@ -57,7 +59,11 @@ export function calculateDistanceFare(distance: number, taxiType: TaxiType): num
 
   const rates = TAXI_RATES[taxiType]
   const additionalDistance = distance - TAXI_FARE_CONSTANTS.FIRST_TIER_DISTANCE
-  const additionalSegments = Math.ceil(additionalDistance / TAXI_FARE_CONSTANTS.INCREMENTAL_SEGMENT)
+  // Count in whole metres: in km, (2.2 - 2) / 0.2 drifts to 1.0000000000000009
+  // and ceil charges a step that was never travelled.
+  const additionalSegments = Math.ceil(
+    Math.round(additionalDistance * 1000) / Math.round(TAXI_FARE_CONSTANTS.INCREMENTAL_SEGMENT * 1000),
+  )
   const { incrementalRate, incrementalRateAfterThreshold, thresholdAmount } = rates
   const baseFare = rates.flagFall
 
