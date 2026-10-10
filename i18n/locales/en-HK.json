@@ -103,7 +103,7 @@
         },
         {
           "question": "How accurate is the Hong Kong taxi fare calculator?",
-          "answer": "The calculator uses official Transport Department rates and real-time route calculation to provide highly accurate fare estimates. It includes all surcharges, tunnel fees, and luggage charges based on current Hong Kong taxi regulations."
+          "answer": "The calculator uses official Transport Department rates and the driving distance of the suggested route, and adds tunnel fees and luggage charges. The result is an estimate: the meter also charges for waiting time while the taxi is stopped or crawling at traffic lights and in congestion, which the calculator does not include, and the driver may take a different route. Expect the actual fare to be somewhat higher, especially at peak hours."
         },
         {
           "question": "What types of Hong Kong taxis are supported?",
@@ -146,6 +146,7 @@
     "tunnelTotal": "Tunnel Fees Total",
     "luggageTotal": "Luggage Fees Total",
     "returnToll": "Return Tunnel Fee",
+    "estimateNote": "This is an estimate. It prices the driving distance only and does not include the waiting-time charge the meter adds while the taxi is stopped or crawling in traffic, so the actual fare is usually a bit higher, more so in congestion.",
     "tunnels": {
       "crossHarbour": "Cross-Harbour Tunnels (CHT/EHT/WHT)",
       "tatesCairn": "Tates Cairn Tunnel",

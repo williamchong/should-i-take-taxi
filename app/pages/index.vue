@@ -140,6 +140,10 @@
               </template>
             </div>
           </div>
+          <p class="text-xs text-muted mt-4 flex gap-1">
+            <UIcon name="i-heroicons-information-circle" class="h-4 w-4 shrink-0" />
+            <span>{{ $t('taxiCalculator.estimateNote') }}</span>
+          </p>
         </div>
       </div>
 
