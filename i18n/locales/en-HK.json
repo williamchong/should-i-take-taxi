@@ -103,7 +103,7 @@
         },
         {
           "question": "How accurate is the Hong Kong taxi fare calculator?",
-          "answer": "The calculator uses official Transport Department rates and the driving distance of the suggested route, and adds tunnel fees and luggage charges. The result is an estimate: the meter also charges for waiting time while the taxi is stopped or crawling at traffic lights and in congestion, which the calculator does not include, and the driver may take a different route. Expect the actual fare to be somewhat higher, especially at peak hours."
+          "answer": "The calculator uses official Transport Department rates and the driving distance of a typical route, and adds tunnel fees and luggage charges. The result is an estimate: the meter also charges for waiting time while the taxi is stopped or crawling at traffic lights and in congestion, which the calculator does not include. Expect the actual fare to be somewhat higher, especially at peak hours."
         },
         {
           "question": "What types of Hong Kong taxis are supported?",
