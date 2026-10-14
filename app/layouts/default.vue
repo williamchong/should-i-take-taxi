@@ -115,36 +115,6 @@ useHead({
       type: 'application/ld+json',
       innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        inLanguage: locale.value,
-        mainEntity: getFAQData()
-      })
-    },
-    {
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: t('schema.breadcrumbHome'),
-            item: getLocaleUrl(locale.value)
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: t('title'),
-            item: getLocaleUrl(locale.value)
-          }
-        ]
-      })
-    },
-    {
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
         '@type': 'Service',
         name: t('title'),
         description: t('description'),
@@ -213,6 +183,48 @@ useHead({
     }
   ]
 })
+
+// The FAQ and breadcrumb describe the calculator page; other pages (the fare
+// table) mark up their own breadcrumb and show no FAQ. Computeds, so the
+// query-only route change on every location pick doesn't re-stringify the FAQ.
+const getRouteBaseName = useRouteBaseName()
+const route = useRoute()
+const isIndexRoute = computed(() => getRouteBaseName(route) === 'index')
+const indexJsonLd = computed(() => [
+  {
+    type: 'application/ld+json' as const,
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      inLanguage: locale.value,
+      mainEntity: getFAQData()
+    })
+  },
+  {
+    type: 'application/ld+json' as const,
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: t('schema.breadcrumbHome'),
+          item: getLocaleUrl(locale.value)
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: t('title'),
+          item: getLocaleUrl(locale.value)
+        }
+      ]
+    })
+  }
+])
+
+useHead(() => ({ script: isIndexRoute.value ? indexJsonLd.value : [] }))
+
 useSeoMeta({
   title: () => t('title'),
   description: () => t('description'),

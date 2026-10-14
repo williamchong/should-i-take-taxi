@@ -48,6 +48,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { TAXI_DOT_CLASSES } from '~/types/constants'
 import type { TaxiType } from '~/types/constants'
 
 interface TaxiItem {
@@ -71,13 +72,11 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { track } = useAnalytics()
 
-// Domain colours (red/green/blue = Urban/New Territories/Lantau) stay as literal
-// Tailwind classes — they are not theme tokens.
-const taxiItems = computed<TaxiItem[]>(() => [
-  { value: 'urban', label: t('taxiCalculator.urban'), dotClass: 'bg-red-600' },
-  { value: 'newTerritories', label: t('taxiCalculator.newTerritories'), dotClass: 'bg-green-600' },
-  { value: 'lantau', label: t('taxiCalculator.lantau'), dotClass: 'bg-blue-600' },
-])
+const taxiItems = computed<TaxiItem[]>(() => (['urban', 'newTerritories', 'lantau'] as const).map(value => ({
+  value,
+  label: t(`taxiCalculator.${value}`),
+  dotClass: TAXI_DOT_CLASSES[value],
+})))
 
 const handleChange = (value: TaxiType) => {
   const previous = modelValue.value

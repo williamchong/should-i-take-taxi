@@ -245,6 +245,15 @@
           </template>
         </UCollapsible>
       </UCard>
+
+      <!-- 6. Fare table page (server-rendered, so crawlers find it) -->
+      <NuxtLink
+        :to="$localePath('/fares')"
+        class="mt-6 flex items-center justify-between gap-3 text-primary hover:text-primary/80"
+      >
+        <span>{{ $t('fares.homeLink') }}</span>
+        <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 shrink-0" />
+      </NuxtLink>
     </div>
   </div>
 </template>

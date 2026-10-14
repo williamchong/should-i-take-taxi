@@ -136,3 +136,11 @@ export const TAXI_RATES: Record<'urban' | 'newTerritories' | 'lantau', TaxiRate>
  */
 export type TaxiType = 'urban' | 'newTerritories' | 'lantau'
 export type TunnelId = keyof typeof TUNNEL_FEES
+
+// Domain colours (red/green/blue = Urban/New Territories/Lantau) stay as literal
+// Tailwind classes — they are not theme tokens.
+export const TAXI_DOT_CLASSES: Record<TaxiType, string> = {
+  urban: 'bg-red-600',
+  newTerritories: 'bg-green-600',
+  lantau: 'bg-blue-600',
+}
