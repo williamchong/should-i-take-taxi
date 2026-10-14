@@ -38,7 +38,7 @@
       >
         <!-- 1. Title/Logo (only when no locations selected) -->
         <template v-if="!hasSelectedLocations">
-          <h1 class="text-3xl sm:text-4xl font-bold text-center text-highlighted mb-2">{{ $t('title') }}</h1>
+          <h1 class="text-3xl sm:text-4xl font-bold text-center text-highlighted mb-2">{{ $t('heading') }}</h1>
           <p class="text-center text-muted text-lg mb-8">{{ $t('description') }}</p>
           <div v-if="isInitialGpsPending" class="flex justify-center mb-8">
             <div class="relative">
