@@ -459,15 +459,16 @@ function applyLocationParams(
 
 // Update URL with current locations
 function updateUrlParams(locations: { start: LocationResult | null; end: LocationResult | null }) {
-  const params = new URLSearchParams(route.query as Record<string, string>)
+  const current = new URLSearchParams(route.query as Record<string, string>)
+  const params = new URLSearchParams(current)
   applyLocationParams(params, locations)
 
+  // Compare encoded params, not route.fullPath: fullPath keeps a literal ","
+  // where toString() writes "%2C", and a spurious replace on load races Nuxt
+  // restoring a prerendered page's query string, dropping ?from=&to=.
   const queryString = params.toString()
-  const newPath = queryString ? `?${queryString}` : route.path
-
-  // Only update if different to avoid unnecessary navigation
-  if (route.fullPath !== newPath) {
-    router.replace(newPath)
+  if (queryString !== current.toString()) {
+    router.replace(queryString ? `?${queryString}` : route.path)
 
     // Analytics tracking — booleans only; raw coordinates never leave the browser.
     track('seo_url_updated', {
