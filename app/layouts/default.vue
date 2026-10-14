@@ -13,7 +13,7 @@ const { url: siteUrl } = useSiteConfig()
 
 // Helper function to get current page URL for the given locale
 const getLocaleUrl = (localeCode: string) => {
-  return `${siteUrl}${localeCode === 'en-hk' ? '' : '/' + localeCode}`
+  return `${siteUrl}${localeCode === 'en-hk' ? '' : '/' + localeCode}/`
 }
 
 // Get all available locale URLs for sameAs

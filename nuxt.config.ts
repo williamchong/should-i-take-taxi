@@ -42,6 +42,9 @@ export default defineNuxtConfig({
 
   i18n: {
     baseUrl: siteUrl,
+    // The static host 301s /zh-hk to /zh-hk/, so hreflang and in-app links
+    // must use the slash form or every alternate points at a redirect.
+    trailingSlash: true,
     strategy: 'prefix_and_default',
     detectBrowserLanguage: {
       useCookie: false,
@@ -105,6 +108,7 @@ export default defineNuxtConfig({
   site: {
     url: siteUrl,
     name: 'Hong Kong Taxi Fare Calculator',
+    trailingSlash: true,
   },
 
   sitemap: {
